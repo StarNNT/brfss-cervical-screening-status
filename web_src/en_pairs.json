@@ -1,0 +1,1042 @@
+[
+[
+"Geliştirme: BRFSS 2020 (98.847 kadın) · Zamansal değerlendirme, ölçüm değişikliği altında: BRFSS 2024 (104.650 kadın) · 21–65 yaş",
+"Development: BRFSS 2020 (98,847 women) · Temporal evaluation under outcome-measurement change: BRFSS 2024 (104,650 women) · ages 21–65"
+],
+[
+"Yüzdeler, aynı özelliklere sahip 100 kadından kaçının her sınıfta olmasının beklendiğini gösterir. Parantez içi, tüm nüfustaki orana göre farktır (<span id=\"base-note\"></span>).",
+"Percentages show how many of 100 women with the same characteristics are expected to fall in each class. Figures in brackets are the difference from the population rate (<span id=\"base-note\"></span>)."
+],
+[
+"`güncel ${pct(BASE[0])} · geri kalmış ${pct(BASE[1])} · hiç taranmamış ${pct(BASE[2])}`",
+"`up to date ${pct(BASE[0])} · overdue ${pct(BASE[1])} · never screened ${pct(BASE[2])}`"
+],
+[
+"Karar ağacıyla veriden çıkarılan, birbirini dışlayan gruplar. Genel oran %<span id=\"base-never\"></span>; dikey çizgi bu oranı gösterir. Her oranın yanında tabaka ve küme yapısını hesaba katan %95 güven aralığı verilmiştir. Profiller eğitim kümesinde kuruldu; test kümesindeki oran ayrıca gösterilir.",
+"Mutually exclusive groups derived from the data with a decision tree. Overall rate <span id=\"base-never\"></span>%; the vertical tick marks it. Each rate comes with a design-based 95% confidence interval that accounts for strata and clusters. Profiles were built on the training set; the rate in the held-out test set is shown alongside."
+],
+[
+"BRFSS 2020, her yaş için ağırlıklı yüzde. 21–25 yaş arasındaki yüksek \"hiç taranmamış\" oranı büyük ölçüde taramaya yeni başlama yaşını yansıtır.",
+"BRFSS 2020, weighted percentage at each single year of age. The high never-screened share at ages 21–25 largely reflects the age at which screening begins."
+],
+[
+"<h2>Soru değişikliğinin etkisi: 2020 ve 2024'te \"hiç taranmamış\" oranı</h2>",
+"<h2>Effect of the question change: never-screened rate in 2020 and 2024</h2>"
+],
+[
+"2021'den itibaren BRFSS, \"Hiç Pap testi yaptırdınız mı?\" yerine \"Hiç serviks kanseri tarama testi yaptırdınız mı?\" diye soruyor. Yeni soruyla \"hiç taranmamış\" oranı her yaşta 8–9 puan daha yüksek çıkıyor. 2020'de 45–55 yaşında olup %3,9'u hiç taranmamış görünen kuşak, 2022'de (önsözsüz soru) %25,4 ve 2024'te (tanımlayıcı önsözlü soru) %10,8 ile görünmektedir; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. Model bu nedenle 2020 verisiyle geliştirildi; 2024 sonuçları ölçüm değişikliği altındaki performansı tanımlar.",
+"Since 2021 BRFSS asks \"Have you ever had a cervical cancer screening test?\" instead of \"Have you ever had a Pap test?\". Under the new wording the never-screened share is 8–9 points higher at every age. A cohort aged 45–55 in 2020, of whom 3.9% appeared never screened, appears at 25.4% in 2022 (item without preamble) and 10.8% in 2024 (item with a definitional preamble); the difference is thought to be associated largely with the wording of the item. The model was therefore developed on 2020 data, and the 2024 results describe performance under the changed measurement."
+],
+[
+"BRFSS 2020, ağırlıklı yüzdeler (_LLCPWT). n ağırlıksız kişi sayısıdır.",
+"BRFSS 2020, weighted percentages (_LLCPWT); n is the unweighted count."
+],
+[
+"BRFSS 2020, ağırlıklı yüzdeler. Küçük örneklemli bölgelerde (Guam gibi) oranlar oynaktır.",
+"BRFSS 2020, weighted percentages. Rates are unstable where samples are small (e.g. Guam)."
+],
+[
+"<h2>Model seçimi: 5 katlı çapraz doğrulama</h2>",
+"<h2>Model selection: 5-fold cross-validation</h2>"
+],
+[
+"BRFSS 2020 geliştirme verisinde, hesaplayıcının 19 girdisiyle varsayılan ayarlarla kurulan altı modelin ortalama sonuçları (ayarlı LightGBM, XGBoost, CatBoost ve topluluklar makalede Ek Tablo A8'dedir) (± katlar arası standart sapma). Tüm ölçütler örneklem ağırlıklıdır. Son satır, 37 değişken ve eyaletle kurulan üst sınır modelidir.",
+"Mean results (± standard deviation across folds) of six models with default settings built on the calculator's 19 inputs in the BRFSS 2020 development data; the tuned LightGBM, XGBoost and CatBoost models and the ensembles are in Appendix Table A8 of the paper. All metrics are survey-weighted. The last row is an upper-bound model using 37 variables plus state."
+],
+[
+"Lojistik regresyon ile en iyi boosting modeli arasındaki fark 0,002 AUC'dir ve katlar arası oynaklığın içinde kalır. Aynı başarıyı veren modeller arasından katsayıları açıkça okunabilen ve tarayıcıda birebir çalışan lojistik regresyon nihai model olarak seçildi (yaş için parçalı doğrusal terimler).",
+"Logistic regression is within 0.002 AUC of the best boosting model, well inside fold-to-fold variation. Among equally performing models, logistic regression was chosen as the final model because its coefficients are fully transparent and it runs exactly in the browser (piecewise-linear terms for age)."
+],
+[
+"<h2>İç doğrulama ve 2024 zamansal değerlendirmesi</h2>",
+"<h2>Internal validation and temporal evaluation in 2024</h2>"
+],
+[
+"İç doğrulama: 2020 verisinin ayrılmış %20'si (<span id=\"ntest\"></span> kadın). Zamansal değerlendirme: aynı hiperparametrelerle tam 2020 örneklemine yeniden uydurulan modelin, farklı bir tarama sorusu kullanan BRFSS 2024 verisine (<span id=\"n24\"></span> kadın) uygulanması. 2024 satırları ölçüm değişikliği altındaki performansı tanımlar ve dış doğrulama olarak okunmamalıdır. Parantez içi %95 güven aralığıdır (örnekleme tabakaları içinde 1.000 tasarım temelli yeniden örneklem).",
+"Internal validation: a held-out 20% of the 2020 data (<span id=\"ntest\"></span> women). Temporal evaluation: the model refitted to the full 2020 sample with the same hyperparameters, applied to BRFSS 2024 (<span id=\"n24\"></span> women), which used a different screening item. The 2024 columns describe performance under a change in outcome measurement and should not be read as an external validation. Brackets give 95% confidence intervals (1,000 design-based resamples within sampling strata)."
+],
+[
+"2024'te \"hiç taranmamış\" etiketi farklı bir soruyla ölçülmüştür; bu sınıftaki düşüşün ne kadarının ölçümden, ne kadarının modelden kaynaklandığı bu veriyle ayrıştırılamaz ve 2024 AUC'si iki yönde de bir sınır olarak yorumlanmamalıdır. Zamanlama maddeleriyle ölçülen \"geri kalmış\" sınıfı iki yılda da kalibrasyonunu korumuştur.",
+"In 2024 the never-screened label was measured with a different item; how much of the drop for that class reflects measurement and how much the model cannot be separated with these data, and the 2024 AUC should not be read as a bound in either direction. The overdue class, measured with the timing items, remained calibrated in the large in both years."
+],
+[
+"İlk üç panel iç doğrulama kümesinin onda birlik dilimleridir. Dördüncü panel 2024 zamansal değerlendirmesinde, taranmış kadınlar içinde geri kalma olasılığını gösterir. Noktalar köşegene ne kadar yakınsa tahmin gözlenen orana o kadar uygundur.",
+"The first three panels show deciles of the internal validation set. The fourth shows the probability of being overdue among ever-screened women in the 2024 temporal evaluation. The closer the points lie to the diagonal, the better predictions match observed rates."
+],
+[
+"<h2>Alt gruplarda performans</h2>",
+"<h2>Performance in subgroups</h2>"
+],
+[
+"İç doğrulama kümesinde alt gruplara göre ayırt edicilik. 50–65 yaşta hiç taranmamış kadın oranı çok düşük olduğundan bu grupta ayrım zayıftır.",
+"Discrimination by subgroup in the internal validation set. Very few women aged 50–65 have never been screened, so discrimination is weak in that group."
+],
+[
+"37 değişken ve eyaletle kurulan LightGBM modelinde ortalama mutlak SHAP değeri; her çubuk değişkenin üç sınıfın tahminine katkısını ayrı ayrı gösterir. İlk 18 değişken.",
+"Mean absolute SHAP value in the LightGBM model with 37 variables plus state; each bar splits a variable's contribution across the three classes. Top 18 variables."
+],
+[
+"<b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). Model 2020 dosyasıyla (401.958 görüşme) geliştirildi ve 2024 dosyasında (457.670 görüşme), değişen tarama sorusu altında değerlendirildi. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla \"hiç taranmamış\" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.",
+"<b>Data.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). The model was developed on the 2020 file (401,958 interviews) and evaluated on the 2024 file (457,670 interviews) under a changed screening item. The 2021–2023 files were not used for modelling: in odd years the screening items were fielded in only a few states, and in 2022, under the new item without a definitional preamble, the never-screened share rose to 37%; CDC released no calculated cervical screening variable for that year."
+],
+[
+"<b>Neden 2020?</b> 2021'de soru kalıbı değişti ve \"Pap testi\" yerine \"serviks kanseri tarama testi\" ifadesi kullanılmaya başlandı. Yeni soruyla hiç taranmadığını söyleyen kadın oranı 2024'te bile her yaş grubunda 2020'dekinden 8–9 puan yüksektir. Aynı doğum kuşağı izlendiğinde de fark görülür (2020'de %3,9, 2022'de %25,4, 2024'te %10,8) ve 2022 fazlası tüm eyaletlerde vardır; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. \"Geri kalmış\" oranları ise iki yılda da birbirine yakındır. Bu yüzden Pap testi maddelerini kullanan 2020 verisi geliştirme kümesi seçildi.",
+"<b>Why 2020?</b> In 2021 the question format changed and \"Pap test\" was replaced by \"cervical cancer screening test\". Even in 2024 the share of women reporting never having been screened is 8–9 points higher than in 2020 in every age group. The difference is also seen when the same birth cohort is followed (3.9% in 2020, 25.4% in 2022, 10.8% in 2024), and the 2022 excess is present in every state; it is thought to be associated largely with the wording of the item. Overdue rates, by contrast, are similar in both years. The 2020 data, which used the Pap-test items, was therefore chosen for development."
+],
+[
+"<b>Sınıflar (USPSTF aralıkları).</b> <b>Hiç taranmamış:</b> hiç Pap testi yaptırmamış ve HPV testi bildirmemiş. <b>Güncel:</b> son 3 yıl içinde Pap testi; 30 yaş ve üzerinde ayrıca son 5 yıl içinde HPV testi. <b>Geri kalmış:</b> taranmış fakat bu aralıkların dışında kalmış kadınlar. 2020 tanımı CDC'nin _RFPAP35, 2024 tanımı _PAPHPV1 değişkeniyle çapraz kontrol edildi.",
+"<b>Classes (USPSTF intervals).</b> <b>Never screened:</b> never had a Pap test and no HPV test reported. <b>Up to date:</b> Pap test within 3 years; for ages 30+, also an HPV test within 5 years. <b>Overdue:</b> ever screened but outside these intervals. The 2020 definition was cross-checked against the CDC variable _RFPAP35 and the 2024 definition against _PAPHPV1."
+],
+[
+"<b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).",
+"<b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM and a neural network were compared with 5-fold cross-validation. Survey weights were used in training and evaluation (the neural network was trained unweighted)."
+],
+[
+"<b>Profiller.</b> Derinliği 4 olan ağırlıklı karar ağaçları; biri \"hiç taranmamış\", diğeri taranmışlar içinde \"geri kalmış\" için. Oranların güven aralıkları tabaka (_STSTR) ve küme (_PSU) yapısıyla, Taylor doğrusallaştırmasıyla hesaplandı.",
+"<b>Profiles.</b> Weighted decision trees of depth 4; one for never screened, one for overdue among ever-screened women. Confidence intervals for the rates use strata (_STSTR) and clusters (_PSU) with Taylor linearisation."
+],
+[
+"<b>Sınırlılıklar.</b> Veriler kesitsel ve öz bildirime dayalıdır; tarama geçmişi olduğundan iyi bildirilme eğilimindedir. Geliştirme verisi 2020 yılına aittir; pandemi sonrası değişimler modele yansımamış olabilir. Bulgular nedensellik göstermez. Sonuçlar ABD nüfusu için geçerlidir; başka ülkelere doğrudan taşınamaz.",
+"<b>Limitations.</b> Data are cross-sectional and self-reported; screening history tends to be over-reported. The development data date from 2020, so post-pandemic changes may not be reflected. Findings do not imply causation. Results apply to the US population and do not transfer directly to other countries."
+],
+[
+"`nüfusun ${pct(l.share)}'i · n=${fmtn(l.n)} · %95 GA ${fmt(l.lo)}–${fmt(l.hi)}`",
+"`${pct(l.share)} of the population · n=${fmtn(l.n)} · 95% CI ${fmt(l.lo)}–${fmt(l.hi)}`"
+],
+[
+"{name:'Güncel',color:C.cur,",
+"{name:'Up to date',color:C.cur,"
+],
+[
+"{name:'Geri kalmış',color:C.over,",
+"{name:'Overdue',color:C.over,"
+],
+[
+"{name:'Hiç taranmamış',color:C.never,",
+"{name:'Never screened',color:C.never,"
+],
+[
+"'Yaşa göre hiç taranmamış oranı, 2020 ve 2024'",
+"'Never-screened rate by age, 2020 and 2024'"
+],
+[
+"['Model','AUC ortalama','AUC hiç taranmamış','AUC geri kalmış','AUC güncel','Log-loss']",
+"['Model','AUC mean','AUC never screened','AUC overdue','AUC up to date','Log-loss']"
+],
+[
+"['Ölçüt','İç doğrulama (2020)','Zamansal değerlendirme (2024)']",
+"['Metric','Internal validation (2020)','Temporal evaluation (2024)']"
+],
+[
+"'AUC, hiç taranmamış'",
+"'AUC, never screened'"
+],
+[
+"'AUC, geri kalmış'",
+"'AUC, overdue'"
+],
+[
+"'AUC, güncel'",
+"'AUC, up to date'"
+],
+[
+"'AUC, geri kalmış (yalnızca taranmış kadınlar içinde)'",
+"'AUC, overdue (among ever-screened women only)'"
+],
+[
+"['Hedef sınıf','En riskli dilim','Sınıfın yakalanan payı','Dilimde sınıfın oranı','Genel oran']",
+"['Target class','Highest-risk slice','Share of class captured','Class rate within slice','Overall rate']"
+],
+[
+"({hic:'Hiç taranmamış',geri:'Geri kalmış'})",
+"({hic:'Never screened',geri:'Overdue'})"
+],
+[
+"['Alt grup','n (test)','Hiç taranmamış %','AUC hiç taranmamış','AUC geri kalmış']",
+"['Subgroup','n (test)','Never screened %','AUC never screened','AUC overdue']"
+],
+[
+"[['Güncel',C.cur,CAL[0]],['Geri kalmış',C.over,CAL[1]],['Hiç taranmamış',C.never,CAL[2]],['Geri kalmış, taranmışlar içinde (2024)',C.over,W.ext.cal_geri_taranmislar]]",
+"[['Up to date',C.cur,CAL[0]],['Overdue',C.over,CAL[1]],['Never screened',C.never,CAL[2]],['Overdue among ever-screened (2024)',C.over,W.ext.cal_geri_taranmislar]]"
+],
+[
+"{gelir8:'Hane geliri',sigortasiz:'Sigortasızlık',koah:'KOAH',diyabet:'Diyabet',artrit:'Artrit',astim:'Astım',kalp_hast:'Kalp hastalığı',maliyet_engeli:'Maliyet engeli',kirsal:'Kırsal yerleşim',asiri_icme:'Aşırı alkol',fiziksel_kotu_gun:'Fiziksel kötü gün sayısı',ruhsal_kotu_gun:'Ruhsal kötü gün sayısı',yas:'Yaş',irk:'Irk / etnisite',checkup:'Son check-up zamanı',hiv_testi:'HIV testi yaptırmış olma',eyalet:'Eyalet',gelir:'Hane geliri',egitim:'Eğitim',sigorta_turu:'Sigorta türü',grip_asisi:'Grip aşısı',dis_hekimi:'Son diş hekimi ziyareti',doktor:'Düzenli doktor',ev_sahibi:'Ev sahipliği',medeni:'Medeni durum',sigara:'Sigara',istihdam:'İstihdam',bmi:'Beden kitle indeksi',egzersiz:'Egzersiz',genel_saglik:'Genel sağlık algısı',depresyon:'Depresyon öyküsü',cocuk:'Çocuk sayısı'}",
+"{gelir8:'Household income',sigortasiz:'Uninsured',koah:'COPD',diyabet:'Diabetes',artrit:'Arthritis',astim:'Asthma',kalp_hast:'Heart disease',maliyet_engeli:'Cost barrier',kirsal:'Rural residence',asiri_icme:'Binge drinking',fiziksel_kotu_gun:'Physically unhealthy days',ruhsal_kotu_gun:'Mentally unhealthy days',yas:'Age',irk:'Race / ethnicity',checkup:'Time since last check-up',hiv_testi:'Ever tested for HIV',eyalet:'State',egitim:'Education',grip_asisi:'Flu shot',dis_hekimi:'Last dental visit',doktor:'Personal doctor',ev_sahibi:'Home ownership',medeni:'Marital status',sigara:'Smoking',istihdam:'Employment',bmi:'Body mass index',egzersiz:'Exercise',genel_saglik:'Self-rated health',depresyon:'History of depression',cocuk:'Number of children'}"
+],
+[
+"aria-label=\"Sınıflar\"",
+"aria-label=\"Classes\""
+],
+[
+"<h2>Kadının özellikleri</h2>",
+"<h2>Characteristics of the woman</h2>"
+],
+[
+"Örnek vakayı yükle",
+"Load example case"
+],
+[
+">Temizle<",
+">Clear<"
+],
+[
+"Şu an dolu olan değerler örnek bir vakadır; değiştirdikçe sonuç güncellenir.",
+"The values shown are an example case; the result updates as you change them."
+],
+[
+"aria-label=\"Üç sınıfın olasılık dağılımı\"",
+"aria-label=\"Probability distribution across the three classes\""
+],
+[
+"Bu tahmini en çok hangi yanıtlar etkiliyor?",
+"Which answers drive this prediction most?"
+],
+[
+"Çubuk sağa uzanıyorsa o yanıt, seçili sınıfta olma olasılığını (güncel olmaya kıyasla) ortalama bir kadına göre artırıyor; sola uzanıyorsa azaltıyor. Değerler log-odds farkıdır.",
+"A bar pointing right means the answer raises the odds of being in the selected class (relative to being up to date) compared with an average woman; a bar pointing left lowers them. Values are differences in log-odds."
+],
+[
+"<h2>Hiç taranmamış kadın profilleri</h2>",
+"<h2>Profiles of never-screened women</h2>"
+],
+[
+"<h2>Geri kalmış kadın profilleri</h2>",
+"<h2>Profiles of overdue women</h2>"
+],
+[
+"Yalnızca en az bir kez taranmış kadınlar içinde hesaplanmıştır. Genel oran %<span id=\"base-over\"></span>.",
+"Computed among women who have been screened at least once. Overall rate <span id=\"base-over\"></span>%."
+],
+[
+"<h2>Yaşa göre tarama durumu</h2>",
+"<h2>Screening status by age</h2>"
+],
+[
+"<h2>Hangi kadınlar ne yapıyor?</h2>",
+"<h2>Which women do what?</h2>"
+],
+[
+"<h2>Örneklem akışı</h2>",
+"<h2>Sample flow</h2>"
+],
+[
+"<h2>Eyaletlere göre dağılım</h2>",
+"<h2>Distribution by state</h2>"
+],
+[
+"<h2>Kalibrasyon</h2>",
+"<h2>Calibration</h2>"
+],
+[
+"<h2>Değişken önemi (SHAP)</h2>",
+"<h2>Variable importance (SHAP)</h2>"
+],
+[
+"<h2>Yöntem ve sınırlılıklar</h2>",
+"<h2>Methods and limitations</h2>"
+],
+[
+"<b>Hedef grup.</b> 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve tarama soruları eksiksiz olan kadınlar.",
+"<b>Population.</b> Women aged 21–65 who reported no hysterectomy (HADHYST2 = 2) and had complete screening items."
+],
+[
+">Güncel</span>",
+">Up to date</span>"
+],
+[
+">Geri kalmış</span>",
+">Overdue</span>"
+],
+[
+">Hiç taranmamış</span>",
+">Never screened</span>"
+],
+[
+"'tr-TR'",
+"'en-US'"
+],
+[
+"const pct=(x,d=1)=>'%'+fmt(x,d);",
+"const pct=(x,d=1)=>fmt(x,d)+'%';"
+],
+[
+"[['Güncel',C.cur],['Geri kalmış',C.over],['Hiç taranmamış',C.never]]",
+"[['Up to date',C.cur],['Overdue',C.over],['Never screened',C.never]]"
+],
+[
+"`${title}: güncel ${pct(vals[0])}, geri kalmış ${pct(vals[1])}, hiç taranmamış ${pct(vals[2])}`",
+"`${title}: up to date ${pct(vals[0])}, overdue ${pct(vals[1])}, never screened ${pct(vals[2])}`"
+],
+[
+"['Güncel','Geri','Hiç']",
+"['Current','Overdue','Never']"
+],
+[
+"[['Demografi',",
+"[['Demographics',"
+],
+[
+"['Sağlık hizmetine erişim',",
+"['Access to care',"
+],
+[
+"['Sağlık ve önleyici davranışlar',",
+"['Health and preventive behaviours',"
+],
+[
+"v==='yas'?'Yaş (21–65)':'Hanedeki çocuk sayısı'",
+"v==='yas'?'Age (21–65)':'Children in household'"
+],
+[
+"el('option',null,'Bilinmiyor')",
+"el('option',null,'Unknown')"
+],
+[
+"[['Hiç taranmamış',1],['Geri kalmış',0]]",
+"[['Never screened',1],['Overdue',0]]"
+],
+[
+"{yas:'Yaş',cocuk:'Çocuk sayısı'}",
+"{yas:'Age',cocuk:'Number of children'}"
+],
+[
+"return o.yas+' yaş'",
+"return 'age '+o.yas"
+],
+[
+"return 'bilinmiyor'",
+"return 'unknown'"
+],
+[
+"`(${diff>=0?'+':'−'}${fmt(Math.abs(diff))} puan)`",
+"`(${diff>=0?'+':'−'}${fmt(Math.abs(diff))} pts)`"
+],
+[
+"const EDU=['','okula gitmemiş','ilkokul–ortaokul','lise terk','lise mezunu','üniversite terk / ön lisans','üniversite mezunu'];",
+"const EDU=['','no schooling','grades 1–8','some high school','high school graduate','some college','college graduate'];"
+],
+[
+"sigortasiz:['sigortasız','sigortalı']",
+"sigortasiz:['uninsured','insured']"
+],
+[
+"medicaid:['Medicaid\\'li','Medicaid dışı']",
+"medicaid:['on Medicaid','not on Medicaid']"
+],
+[
+"doktor_yok:['düzenli doktoru yok','düzenli doktoru var']",
+"doktor_yok:['no personal doctor','has a personal doctor']"
+],
+[
+"maliyet:['maliyet engeli yaşamış','maliyet engeli yok']",
+"maliyet:['cost barrier','no cost barrier']"
+],
+[
+"evli:['evli','evli değil']",
+"evli:['married','not married']"
+],
+[
+"hic_evlenmemis:['hiç evlenmemiş','evlenmiş']",
+"hic_evlenmemis:['never married','ever married']"
+],
+[
+"kirsal:['kırsalda','kentte']",
+"kirsal:['rural','urban']"
+],
+[
+"ispanyolca:['İspanyolca görüşme','İngilizce görüşme']",
+"ispanyolca:['Spanish interview','English interview']"
+],
+[
+"hispanik:['Hispanik','Hispanik değil']",
+"hispanik:['Hispanic','non-Hispanic']"
+],
+[
+"siyah:['siyah','siyah değil']",
+"siyah:['Black','not Black']"
+],
+[
+"asyali:['Asyalı','Asyalı değil']",
+"asyali:['Asian','not Asian']"
+],
+[
+"beyaz:['beyaz','beyaz değil']",
+"beyaz:['White','not White']"
+],
+[
+"sigara_halen:['halen sigara içiyor','sigara içmiyor']",
+"sigara_halen:['current smoker','not a current smoker']"
+],
+[
+"ev_sahibi:['ev sahibi','ev sahibi değil']",
+"ev_sahibi:['homeowner','not a homeowner']"
+],
+[
+"calisiyor:['çalışıyor','çalışmıyor']",
+"calisiyor:['employed','not employed']"
+],
+[
+"lo===a?`${hi} yaş ve altı`:hi===b?`${lo} yaş ve üzeri`:`${lo}–${hi} yaş`",
+"lo===a?`age ${hi} or younger`:hi===b?`age ${lo} or older`:`age ${lo}–${hi}`"
+],
+[
+"lo===a?`gelir ${INC[hi]} bin $ altı`:hi===b?`gelir ${INC[lo-1]} bin $ ve üzeri`:`gelir ${INC[lo-1]}–${INC[hi]} bin $`",
+"lo===a?`income under $${INC[hi]}k`:hi===b?`income $${INC[lo-1]}k or more`:`income $${INC[lo-1]}k–$${INC[hi]}k`"
+],
+[
+"lo===a?`eğitim: ${EDU[hi]} veya altı`:hi===b?`eğitim: ${EDU[lo]} veya üstü`:`eğitim: ${EDU[lo]}–${EDU[hi]}`",
+"lo===a?`education: ${EDU[hi]} or less`:hi===b?`education: ${EDU[lo]} or more`:`education: ${EDU[lo]}–${EDU[hi]}`"
+],
+[
+"{'1-1':'son check-up 1 yıl içinde','1-2':'son check-up 2 yıl içinde','2-2':'son check-up 1–2 yıl önce','3-5':'son check-up 2 yıldan eski ya da hiç','2-5':'son check-up 1 yıldan eski ya da hiç'}",
+"{'1-1':'last check-up within 1 year','1-2':'last check-up within 2 years','2-2':'last check-up 1–2 years ago','3-5':'last check-up more than 2 years ago or never','2-5':'last check-up more than 1 year ago or never'}"
+],
+[
+"`check-up düzeyi ${lo}–${hi}`",
+"`check-up level ${lo}–${hi}`"
+],
+[
+"`çocuk sayısı ${lo}–${hi}`",
+"`children ${lo}–${hi}`"
+],
+[
+"el('div',null,'Profil')",
+"el('div',null,'Profile')"
+],
+[
+"el('div','m','Oran')",
+"el('div','m','Rate')"
+],
+[
+"'Hiç taranmamış profili'",
+"'Never-screened profile'"
+],
+[
+"'Geri kalmış profili (taranmışlar içinde)'",
+"'Overdue profile (among ever-screened women)'"
+],
+[
+"`Bu grupta oran ${pct(l.rate)} — genel oranın (${pct(T.base)}) ${fmt(l.rate/T.base,2)} katı; nüfusun ${pct(l.share)}'i.`",
+"`Rate in this group ${pct(l.rate)} — ${fmt(l.rate/T.base,2)} times the overall rate (${pct(T.base)}); ${pct(l.share)} of the population.`"
+],
+[
+"'Yaşa göre üç sınıfın ağırlıklı yüzdesi'",
+"'Weighted percentage of the three classes by age'"
+],
+[
+"a+' yaş'",
+"'Age '+a"
+],
+[
+"[['Hiç taranmamışa göre',4],['Geri kalmışa göre',3],['Güncele göre',2],['Ada göre',0]]",
+"[['By never screened',4],['By overdue',3],['By up to date',2],['By name',0]]"
+],
+[
+"'Eyalet / bölge'",
+"'State / territory'"
+],
+[
+"name+' sınıfı kalibrasyon grafiği'",
+"'Calibration plot: '+name"
+],
+[
+"`Gözlenen ${pct(o)}`",
+"`Observed ${pct(o)}`"
+],
+[
+"`Tahmin ${pct(p)}`",
+"`Predicted ${pct(p)}`"
+],
+[
+"'Yatay: tahmin edilen %, dikey: gözlenen %'",
+"'Horizontal: predicted %, vertical: observed %'"
+],
+[
+"el('div','lab','Değişken')",
+"el('div','lab','Variable')"
+],
+[
+"{never:['Hiç taranmamış',2],overdue:['Geri kalmış',1]}",
+"{never:['Never screened',2],overdue:['Overdue',1]}"
+],
+[
+"'duyarlılık: bu sınıftaki kadınların yakalanan payı'",
+"'sensitivity: share of this class captured'"
+],
+[
+"'isabet: işaretlenenler içinde gerçekten bu sınıfta olanlar'",
+"'precision: flagged women who truly are in this class'"
+],
+[
+"'özgüllük: sınıfta olmayanların doğru elenen payı'",
+"'specificity: women outside the class correctly left out'"
+],
+[
+"<h2>Sınıftan kadına: bu sınıftaki kadınlar kim?</h2>",
+"<h2>From class to woman: who are the women in this class?</h2>"
+],
+[
+"Hesaplayıcı özelliklerden tarama durumuna gider. Bu sekme tersini yapar: bir tarama sınıfı seçilir, o sınıftaki kadınların nasıl bir topluluk olduğu gösterilir. Tek bir kadının özellikleri sınıfından tahmin edilemez; burada gösterilen, sınıfın bileşimidir.",
+"The calculator goes from characteristics to screening status. This tab goes the other way: pick a screening class and see what kind of population it is. An individual woman's characteristics cannot be predicted from her class; what is shown here is the composition of the class."
+],
+[
+"<h2>Fazla ve az temsil edilen özellikler</h2>",
+"<h2>Over- and under-represented characteristics</h2>"
+],
+[
+"Her satırda özelliğin seçili sınıftaki payı ile tüm kadınlardaki payı karşılaştırılır. Oran 1'in üstündeyse özellik bu sınıfta beklenenden sık, altındaysa seyrek görülür. Satırlar orana göre sıralıdır.",
+"Each row compares the share of a characteristic in the selected class with its share among all women. A ratio above 1 means the characteristic is more common in this class than expected, below 1 less common. Rows are sorted by ratio."
+],
+[
+"</i>Seçili sınıf</span>",
+"</i>Selected class</span>"
+],
+[
+"</i>Tüm kadınlar</span>",
+"</i>All women</span>"
+],
+[
+"<h2>Sınıfın içindeki kadın tipleri</h2>",
+"<h2>Types of women within the class</h2>"
+],
+[
+"Seçili sınıftaki kadınlar 33 özelliğe göre ağırlıklı k-ortalamalar yöntemiyle kümelendi. Her tipin yanında sınıf içindeki payı, ortanca yaşı ve o tipi sınıfın geri kalanından en çok ayıran özellikler verilmiştir (parantez içi: sınıfın tamamındaki pay). Tipler keskin sınırlı gruplar değil, eğilimlerdir; siluet katsayıları düşüktür.",
+"Women in the selected class were clustered on 33 characteristics with weighted k-means. Each type shows its share of the class, median age and the characteristics that set it apart most from the rest of the class (in brackets: share in the whole class). Types are tendencies rather than sharply bounded groups; silhouette coefficients are low."
+],
+[
+"{never:['Hiç taranmamış',C.never],overdue:['Geri kalmış',C.over],current:['Güncel',C.cur]}",
+"{never:['Never screened',C.never],overdue:['Overdue',C.over],current:['Up to date',C.cur]}"
+],
+[
+"`2020'de 21–65 yaş arası kadınların ${pct(R.share)} kadarı \"${REVN[revClass][0]}\" sınıfındadır (n=${fmtn(R.n)}). Bu sınıftaki kadınların ortanca yaşı ${fmt(R.yas,0)}.`",
+"`In 2020, ${pct(R.share)} of women aged 21–65 were in the \"${REVN[revClass][0]}\" class (n=${fmtn(R.n)}). Median age in this class is ${fmt(R.yas,0)}.`"
+],
+[
+"el('div','lab','Özellik')",
+"el('div','lab','Characteristic')"
+],
+[
+"el('div','t','%0 – %100')",
+"el('div','t','0% – 100%')"
+],
+[
+"['Sınıf','Tümü','Oran']",
+"['Class','All','Ratio']"
+],
+[
+"`${f}: sınıfta ${pct(cl)}, tüm kadınlarda ${pct(all)}`",
+"`${f}: ${pct(cl)} in class, ${pct(all)} among all women`"
+],
+[
+"`Tüm kadınlar: ${pct(all)}`",
+"`All women: ${pct(all)}`"
+],
+[
+"`Oran: ${fmt(ratio,2)}×`",
+"`Ratio: ${fmt(ratio,2)}×`"
+],
+[
+"`sınıfın ${pct(c.share)} kadarı · n=${fmtn(c.n)} · ortanca yaş ${fmt(c.yas,0)}`",
+"`${pct(c.share)} of the class · n=${fmtn(c.n)} · median age ${fmt(c.yas,0)}`"
+],
+[
+"<b>Girdiler.</b> İki yılda da aynı biçimde sorulan değişkenler kullanıldı; sigorta \"var/yok\", gelir sekiz basamak olarak uyumlaştırıldı. Tarama sorularından türeyen hiçbir değişken girdi değildir. \"Bilmiyorum\" ve \"yanıt yok\" ayrı bir kategori olarak modele girer. Hesaplayıcıda \"Bilinmiyor\" seçilen alanlar ise nüfus ortalamasıyla doldurulur.",
+"<b>Predictors.</b> Only variables asked the same way in both years were used; insurance was harmonised to yes/no and income to eight brackets. No variable derived from the screening items is a predictor. \"Don't know\" and \"refused\" enter the model as a separate category. Fields set to \"Unknown\" in the calculator are instead filled with the population average."
+],
+[
+"<h2>Başka sorular eklense model iyileşir miydi?</h2>",
+"<h2>Would more questions improve the model?</h2>"
+],
+[
+"BRFSS 2020'de yer alan fakat hesaplayıcıda kullanılmayan gerçek sorular bloklar hâlinde modele eklendi. Her blok, sorulduğu kadınlardan oluşan kendi alt örnekleminde sınandı: aynı katlarda temel model (19 girdi) ile temel + blok karşılaştırıldı (LightGBM, 5 katlı çapraz doğrulama). Fark, üç sınıfın ortalama AUC'sindeki değişimdir; ± katlar arası standart sapmadır.",
+"Real BRFSS 2020 items that the calculator does not use were added to the model in blocks. Each block was tested in its own subsample of women who were asked it: the base model (19 inputs) was compared with base + block on the same folds (LightGBM, 5-fold cross-validation). The difference is the change in mean AUC across the three classes; ± is the standard deviation across folds."
+],
+[
+"Tek anlamlı katkı mamografi öyküsünden gelir: 40–65 yaşta ortalama AUC 0,76'dan 0,82'ye çıkar. Başka bir taramayı yaptırmış olmak, serviks taramasının en güçlü habercisidir. Kronik hastalıklar, yaşam tarzı, eyalet, çocukluk çağı deneyimleri ve diğer modüller katlar arası oynaklığın ötesinde bir şey eklemez; 19 soruluk form, bu anketten alınabilecek bilginin neredeyse tamamını taşır.",
+"The only meaningful gain comes from mammography history: among women aged 40–65 mean AUC rises from 0.76 to 0.82. Having had another screening test is the strongest signal of cervical screening. Chronic conditions, lifestyle, state, adverse childhood experiences and the other modules add nothing beyond fold-to-fold variation; the 19-item form carries nearly all the information this survey can offer."
+],
+[
+"<h2>Kısa form: kaç soru yeter?</h2>",
+"<h2>Short form: how many questions are enough?</h2>"
+],
+[
+"İlk dokuz soru, her adımda modeli en çok iyileştiren eklenerek seçildi; kazanımlar bu noktadan sonra çok küçüldüğü için kalan sorular o adımdaki katkılarına göre sıralandı. Seçim eğitim verisinin içinde yapıldı; değerler iç doğrulama kümesindendir. Çubuk, üç sınıfın ortalama AUC'sidir.",
+"The first nine questions were chosen by adding, at each step, the one that improved the model most; gains become very small after that, so the remaining questions were ordered by their contribution at that step. Selection was done inside the training data; values are from the internal validation set. The bar is the mean AUC across the three classes."
+],
+[
+"<h2>Yanıtlar hatalıysa</h2>",
+"<h2>If answers are wrong</h2>"
+],
+[
+"İç doğrulama kümesindeki gerçek yanıtlar kontrollü biçimde bozuldu; model yeniden eğitilmedi.",
+"Real answers in the internal validation set were perturbed in a controlled way; the model was not retrained."
+],
+[
+"<h2>Nüfus değişirse</h2>",
+"<h2>If the population changes</h2>"
+],
+[
+"İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların birbirine yakın kalması, modelin farklı bileşimdeki topluluklarda da kalibre kaldığını gösterir.",
+"The internal validation set was re-weighted by tripling the weight of a given group. Predicted and observed rates staying close shows that the model remains calibrated in populations with a different make-up."
+],
+[
+"<h2>Yanıtlar eksikse</h2>",
+"<h2>If answers are missing</h2>"
+],
+[
+"Ankette \"bilmiyorum\" ya da \"yanıt yok\" diyen kadınlar diğerlerinden farklıdır ve daha sık hiç taranmamıştır; model bu kategoriye yüksek risk yükler. Oysa araçta bir alanın boş bırakılması çoğu zaman bilginin elde olmaması demektir. Aşağıda yanıtların rastgele bir bölümü silindiğinde iki yaklaşım karşılaştırılır: silinen yanıtı anketteki \"bilinmiyor\" kategorisine atmak ya da o sorunun nüfus ortalamasıyla doldurmak. Gözlenen oranlar: hiç taranmamış %<span id=\"obs-n\"></span>, geri kalmış %<span id=\"obs-o\"></span>.",
+"In the survey, women who answer \"don't know\" or refuse differ from the rest and are more often never screened, so the model attaches high risk to that category. In the tool, however, a blank field usually just means the information is not at hand. Below, a random share of answers is deleted and two approaches are compared: assigning the deleted answer to the survey's \"unknown\" category, or filling it with the population average for that question. Observed rates: never screened <span id=\"obs-n\"></span>%, overdue <span id=\"obs-o\"></span>%."
+],
+[
+"Ortalama ile doldurma kalibrasyonu korur. Bu yüzden hesaplayıcıda \"Bilinmiyor\" seçilen alanlar nüfus ortalamasıyla doldurulur ve tahmine katkıları sıfıra yakın olur.",
+"Filling with the average preserves calibration. The calculator therefore fills fields set to \"Unknown\" with the population average, and their contribution to the prediction is close to zero."
+],
+[
+"<h3>Bir soru hiç sorulmazsa</h3>",
+"<h3>If a question is not asked at all</h3>"
+],
+[
+"el('div','lab','Eklenen blok')",
+"el('div','lab','Added block')"
+],
+[
+"['Temel','+ Blok','Fark']",
+"['Base','+ Block','Change']"
+],
+[
+"`${q.eyalet} eyalet/bölge · hiç taranmamış ${pct(q.hic_oran)}`",
+"`${q.eyalet} states/territories · never screened ${pct(q.hic_oran)}`"
+],
+[
+"el('div',null,'Eklenen soru')",
+"el('div',null,'Question added')"
+],
+[
+"el('div','m','AUC ortalama')",
+"el('div','m','Mean AUC')"
+],
+[
+"['Ort.','Hiç','Geri']",
+"['Mean','Never','Overdue']"
+],
+[
+"`İlk 8 soru ortalama AUC'yi ${fmt(k8.auc_ort,3)} düzeyine getirir; 19 sorunun tamamı ${fmt(full.auc_ort,3)} verir. Çubuk ölçeği ${fmt(lo,2)} ile ${fmt(full.auc_ort,3)} arasındadır.`",
+"`The first 8 questions bring mean AUC to ${fmt(k8.auc_ort,3)}; all 19 give ${fmt(full.auc_ort,3)}. The bar scale runs from ${fmt(lo,2)} to ${fmt(full.auc_ort,3)}.`"
+],
+[
+"['Senaryo','AUC hiç taranmamış','AUC geri kalmış','Log-loss','Tahmin / gözlenen: hiç taranmamış','Tahmin / gözlenen: geri kalmış']",
+"['Scenario','AUC never screened','AUC overdue','Log-loss','Predicted / observed: never screened','Predicted / observed: overdue']"
+],
+[
+"{senaryo:'Bozulmamış veri'}",
+"{senaryo:'Unperturbed data'}"
+],
+[
+"['Silinen yanıt oranı','Yaklaşım','AUC hiç taranmamış','AUC geri kalmış','Log-loss','Tahmin: hiç taranmamış','Tahmin: geri kalmış']",
+"['Share of answers deleted','Approach','AUC never screened','AUC overdue','Log-loss','Predicted: never screened','Predicted: overdue']"
+],
+[
+"[['kategori','\"Bilinmiyor\" kategorisi'],['ortalama','Nüfus ortalaması']]",
+"[['kategori','\"Unknown\" category'],['ortalama','Population average']]"
+],
+[
+"['Sorulmayan soru','AUC hiç taranmamış','AUC geri kalmış','Log-loss']",
+"['Question not asked','AUC never screened','AUC overdue','Log-loss']"
+],
+[
+"Serviks Tarama Erişim Önceliklendirme Aracı",
+"Cervical Screening Outreach Prioritization Tool"
+],
+[
+"BRFSS verisine dayalı, klinik kullanım dışı serviks tarama erişim önceliklendirme ve araştırma aracı.",
+"A non-clinical cervical-screening outreach prioritization and research tool based on BRFSS data."
+],
+[
+"Araştırma prototipi · Geliştirme: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş",
+"Research prototype · Development: BRFSS 2020 · Temporal evaluation under measurement change: BRFSS 2024 · US, ages 21–65"
+],
+[
+"Serviks tarama erişim önceliklendirme aracı",
+"Cervical screening outreach prioritization tool"
+],
+[
+"Toplum düzeyindeki erişim çalışmalarında, tarama açığı olasılığı yüksek grupları önceliklendirmeye yardımcı olan araştırma prototipi. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.",
+"A research prototype to help prioritize groups with a higher estimated screening gap in population outreach. It does not determine cancer risk, a person's true screening history, or which test is needed today."
+],
+[
+"Güncel aralıkta — anketten türetilmiş yaklaşık sınıf",
+"Within the current interval — approximate survey-derived class"
+],
+[
+"Geri kalmış — bilinen önceki tarama var, aralık dışında",
+"Overdue — known prior screening, outside the interval"
+],
+[
+"Hiç taranmamış — ankette açıkça bildirilmiş",
+"Never screened — explicitly reported in the survey"
+],
+[
+"Kapsam ve güvenli kullanım",
+"Scope and safe use"
+],
+[
+"Yalnızca ABD'de toplum sağlığı araştırması ve gönüllü erişim planlaması için; geliştirme evreni 21–65 yaşında ve histerektomi geçirmediğini bildiren BRFSS katılımcılarıdır.",
+"For US public-health research and voluntary outreach planning only; the development population was BRFSS participants aged 21–65 who reported no hysterectomy."
+],
+[
+"Klinik karar, tanı, tarama testi seçimi veya bakım hakkını kısıtlama amacıyla kullanmayın. Eşiğin altında kalan kişilere bakımı geciktirmeyin ya da reddetmeyin.",
+"Do not use for clinical decisions, diagnosis, test selection, or restricting access to care. Do not delay or deny care to people below a threshold."
+],
+[
+"Önceki CIN2/3 veya kanser, bağışıklık baskılanması, rahim içinde DES maruziyeti, belirti ya da anormal sonuç gibi özel durumlarda bu aracın kapsamı dışındadır; klinik rehber ve sağlık uzmanı değerlendirmesi gerekir.",
+"Prior CIN2/3 or cancer, immunosuppression, in-utero DES exposure, symptoms, abnormal results, and other special situations are outside this tool's scope and require clinical guidance and professional evaluation."
+],
+[
+"Yeniden eğitim gerekli:",
+"Retraining required:"
+],
+[
+"Bu HTML, önceki gömülü katsayılardan arayüz amacıyla yeniden üretildi. Belirsiz HPV yanıtlarını “hayır” saymayan düzeltilmiş etiket koduyla tam analiz hattı çalıştırılmadan araştırma sonucu olarak yayımlanmamalıdır.",
+"This HTML was rebuilt from previously embedded coefficients for interface work. It must not be published as a research result until the full pipeline is run with the corrected label code that does not treat ambiguous HPV responses as No."
+],
+[
+"Yaş zorunludur. Diğer alanlar boş bırakılabilir; boş yanıtlar geliştirme nüfusunun ortalamasıyla temsil edilir ve tahmin belirsizliği artar. İlk sekiz alan kısa formu oluşturur.",
+"Age is required. Other fields may be left blank; blanks are represented by the development-population mean and increase uncertainty. The first eight fields form the short form."
+],
+[
+"Tahmin edilen tarama açığı",
+"Estimated screening gap"
+],
+[
+"Bir tahmin görmek için 21–65 arasında bir yaş girin. Örnek düğmesi yalnızca arayüzü göstermek içindir.",
+"Enter an age from 21 to 65 to see an estimate. The example button is only a demonstration of the interface."
+],
+[
+"Yüzdeler, modeldeki benzer özellik örüntülerinin tahmini dağılımıdır; kişinin gerçek tarama durumunun ölçümü değildir. Parantez içi, geliştirme nüfusundaki orana göre farktır",
+"Percentages are the model's estimated distribution for similar feature patterns, not a measurement of the person's true screening status. Parentheses show the difference from the development-population rate"
+],
+[
+"Bireysel tahminler için güven aralığı hesaplanmamıştır.",
+"No confidence interval has been calculated for individual estimates."
+],
+[
+"Erişim kapasitesi senaryosu",
+"Outreach-capacity scenario"
+],
+[
+"Önceliklendirme eşiği",
+"Prioritization threshold"
+],
+[
+"Varsayılan eşikler, ayrılmış 2020 doğrulama kümesinde nüfusun yaklaşık %20'sini gönüllü erişim için işaretleyecek operasyonel bir örnektir; klinik sınır değildir. Eşiği düşürmek daha çok kişiye ulaşır fakat pozitif öngörü değerini azaltır. Gösterilen ölçütler nokta tahminidir.",
+"The default thresholds are an operational example that flags about 20% of the held-out 2020 validation population for voluntary outreach; they are not clinical cutoffs. Lowering a threshold reaches more people but reduces positive predictive value. Metrics shown are point estimates."
+],
+[
+"Form yanıtları bu tarayıcıda işlenir; bir sunucuya gönderilmez veya kaydedilmez. Yalnızca seçili sekme ve eşik tercihi tarayıcının yerel deposunda tutulur. Sayfa çevrimdışı çalışır ve harici yazı tipi ya da betik yüklemez.",
+"Form responses are processed in this browser and are not sent to or stored on a server. Only the selected tab and threshold preference are kept in local browser storage. The page works offline and loads no external fonts or scripts."
+],
+[
+"Varsayılan “hiç taranmamış” eşiğinde karar ölçütleri",
+"Decision metrics at the default never-screened threshold"
+],
+[
+"AUC tek başına eşit kullanım göstermez. Aşağıdaki tasarım-temelli %95 güven aralıklı ölçütler; erişim teklifinin hangi gruplara ne sıklıkta gideceğini, kimi yakalayıp kimi kaçıracağını görünür kılar. Farklı eşikler eşitsizlikleri değiştirebilir; eşikler yalnız AUC'ye bakılarak seçilmemelidir.",
+"AUC alone does not establish equitable use. The design-based metrics below, with 95% confidence intervals, show how often outreach would be offered to each group and whom it would capture or miss. Different thresholds can change disparities; thresholds should not be selected from AUC alone."
+],
+[
+"Bu bilgiler bir gruba bakımı kısıtlamak için kullanılamaz. Uygulama öncesinde yerel nüfusta kalibrasyon, duyarlılık, yanlış-pozitif oranı, iş yükü ve erişimin gerçek etkisi ileriye dönük değerlendirilmelidir.",
+"These data must not be used to restrict care for a group. Before deployment, calibration, sensitivity, false-positive rate, workload, and the real effect of outreach must be evaluated prospectively in the local population."
+],
+[
+"Irk/etnisite ve dil değişkenleri biyolojik ya da nedensel özellikler olarak değil, sağlık hizmetine erişimdeki yapısal eşitsizliklerin göstergeleri olarak yorumlanmalıdır.",
+"Race/ethnicity and language variables should be interpreted as markers of structural inequities in access to care, not as biological or causal characteristics."
+],
+[
+"Dağıtılan hesaplayıcının açıklaması değildir.",
+"This is not an explanation of the deployed calculator."
+],
+[
+"Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Hesaplayıcı 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.",
+"This panel belongs to a separate 37-variable-plus-state LightGBM research model. The calculator is a 19-input multinomial logistic regression; its local explanation is limited to coefficient contributions on the Outreach tool tab."
+],
+[
+"Araştırma modelinde ortalama mutlak SHAP değeri; her çubuk değişkenin üç sınıfın tahminine katkısını ayrı ayrı gösterir. İlk 18 değişken. SHAP ilişkileri nedensellik göstermez.",
+"Mean absolute SHAP value in the research model; each bar separately shows contributions to the three classes. First 18 variables. SHAP associations do not establish causality."
+],
+[
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra modelin önceki üretilmiş sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır.",
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the previously generated model version retained 98,847 people in 2020 and 104,650 in 2024."
+],
+[
+"BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.",
+"US participants classified as women by BRFSS, aged 21–65, reporting no hysterectomy (HADHYST2 = 2), and with an outcome label that could be derived reliably. This definition does not replace a current clinical eligibility assessment."
+],
+[
+"Sınıflar (USPSTF 2018 aralık vekili).",
+"Classes (USPSTF 2018 interval proxy)."
+],
+[
+"<b>Güncel:</b> son 3 yıl içinde Pap testi <em>veya</em> 30 yaş ve üzerinde son 5 yıl içinde HPV testi. <b>Hiç taranmamış:</b> hem Pap hem HPV için açıkça “hayır”. <b>Geri kalmış:</b> bilinen önceki Pap/HPV testi var, fakat güncel tanımını karşılamıyor. “Bilmiyorum” ve ret yanıtları “hayır” sayılmaz; güvenli sınıflandırılamayan kayıtlar analitik örneklem dışında tutulur. Bunlar anketten türetilmiş araştırma etiketleridir, kişinin klinik kaydından doğrulanmış durum değildir.",
+"<b>Up to date:</b> a Pap test within 3 years <em>or</em>, at age 30 or older, an HPV test within 5 years. <b>Never screened:</b> an explicit No to both Pap and HPV. <b>Overdue:</b> a known prior Pap/HPV test that does not meet the current definition. Don't know and refusal responses are not treated as No; records that cannot be classified reliably are excluded from the analytic sample. These are survey-derived research labels, not a status verified from the person's clinical record."
+],
+[
+"Girdiler ve eksik yanıt.",
+"Inputs and missing responses."
+],
+[
+"Eğitim sırasında anketteki gerçek \"bilmiyorum/ret\" yanıtı ayrı bir kategoridir. Kullanıcı formunda boş bırakılan alan ise nüfus ortalamasıyla temsil edilir; bu iki eksiklik mekanizması aynı kabul edilmez. Yaş girilmeden tahmin üretilmez.",
+"During training, an actual survey don't-know/refusal response is a separate category. A field left blank in the user form is represented by the population mean; these two missingness mechanisms are not treated as equivalent. No estimate is produced without age."
+],
+[
+"Bireysel olasılıklar için güven aralığı yoktur; alt grup örneklemleri ve tahmin hataları eşit değildir.",
+"There are no confidence intervals for individual probabilities; subgroup sample sizes and prediction errors are not equal."
+],
+[
+"Sürüm 1.1.0 · 29 Eylül 2026",
+"Version 1.1.0 · September 29, 2026"
+],
+[
+"Model verisi: BRFSS 2020 · Ölçüm değişikliği altında değerlendirme: BRFSS 2024 · Statik, yerel çalışan sayfa.",
+"Model data: BRFSS 2020 · Evaluation under measurement change: BRFSS 2024 · Static, locally running page."
+],
+[
+"CDC BRFSS yıllık verileri",
+"CDC BRFSS annual data"
+],
+[
+"USPSTF serviks tarama önerisi",
+"USPSTF cervical screening recommendation"
+],
+[
+"İletişim: Veysel Gider, Batman Üniversitesi. Yazar listesi ve kurumsal iletişim adresi yayımdan önce tamamlanmalıdır.",
+"Contact: Veysel Gider, Batman University. The author list and institutional contact address must be completed before publication."
+],
+[
+"Bu araç hesaplamayı tarayıcıda yapmak için JavaScript gerektirir. JavaScript kapalıyken hiçbir tahmin üretilmez.",
+"This tool requires JavaScript to calculate in the browser. No estimate is produced when JavaScript is disabled."
+],
+[
+"Erişim aracı",
+"Outreach tool"
+],
+[
+"Araştırma · Profiller",
+"Research · Profiles"
+],
+[
+"Keşifsel sınıf betimleri",
+"Exploratory class descriptions"
+],
+[
+"Betimsel sonuçlar",
+"Descriptive results"
+],
+[
+"Model ve adalet",
+"Model and fairness"
+],
+[
+"Sağlamlık sınamaları",
+"Robustness tests"
+],
+[
+"Yaş (21–65) — zorunlu",
+"Age (21–65) — required"
+],
+[
+"Hanedeki çocuk sayısı — isteğe bağlı",
+"Children in household — optional"
+],
+[
+"Hızlı form · en güçlü 8 alan",
+"Short form · 8 strongest fields"
+],
+[
+"Ek 11 soru — tahmini bir miktar hassaslaştırır",
+"11 additional questions — modestly refine the estimate"
+],
+[
+"Yaş girilmeden tahmin üretilmez.",
+"No estimate is produced without age."
+],
+[
+"Erişim için öncelikli",
+"Priority for outreach"
+],
+[
+"Standart erişim önceliği",
+"Standard outreach priority"
+],
+[
+"model olasılığı",
+"model probability"
+],
+[
+"senaryo eşiği",
+"scenario threshold"
+],
+[
+"toplumun erişim için işaretlenen payı",
+"share of the population flagged for outreach"
+],
+[
+"her 1.000 kişide yaklaşık erişim daveti",
+"approximate outreach invitations per 1,000 people"
+],
+[
+"duyarlılık: hedef sınıfın yakalanan payı",
+"sensitivity: share of the target class captured"
+],
+[
+"pozitif öngörü değeri",
+"positive predictive value"
+],
+[
+"her 1.000 kişide hedef sınıftan ulaşılan",
+"target-class people reached per 1,000"
+],
+[
+"yanlış-pozitif oranı",
+"false-positive rate"
+],
+[
+"19/19 alan yanıtlandı. Bu yine de klinik bir değerlendirme değildir.",
+"19/19 fields answered. This is still not a clinical assessment."
+],
+[
+"alan yanıtlandı;",
+"fields answered;"
+],
+[
+"boş alan nüfus ortalamasıyla temsil edildi. Sonucu geçici bir erişim tahmini olarak yorumlayın.",
+"blank fields were represented by the population mean. Interpret the result as a provisional outreach estimate."
+],
+[
+"Eğitim %",
+"Development %"
+],
+[
+"Oran oranı",
+"Rate ratio"
+],
+[
+"Keşifsel profil eşleşmesi",
+"Exploratory profile match"
+],
+[
+"Eksik yanıt nedeniyle profil atanmadı.",
+"No profile assigned because of a missing response."
+],
+[
+"Karar ağacının kullandığı bir alan boş olduğunda araç, öğrenilmiş eksik dalını izleyip var olmayan bir özellik atamaz.",
+"When a field used by the decision tree is blank, the tool does not follow a learned missing branch and invent a characteristic."
+],
+[
+"Bu keşifsel grupta eğitim oranı",
+"In this exploratory group, the development rate is"
+],
+[
+"eğitim nüfusunun",
+"of the development population"
+],
+[
+"Erişim teklifi %",
+"Outreach offer %"
+],
+[
+"Duyarlılık %",
+"Sensitivity %"
+],
+[
+"Yanlış-pozitif %",
+"False-positive %"
+],
+[
+"Gözlenen %",
+"Observed %"
+],
+[
+"Tahmin %",
+"Predicted %"
+],
+[
+"Tasarım-bootstrap çıktısı bulunamadı",
+"Design-bootstrap output not found"
+],
+[
+"2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla \"hiç taranmamış\" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.",
+"The 2021–2023 files were not used for modeling: in odd-numbered years screening items were asked in only a few states, while in 2022 the new item without an explanatory preamble raised the never-screened share to 37%; CDC also did not publish its derived cervical-screening variable that year."
+],
+[
+"İki yılda da aynı biçimde sorulan değişkenler kullanıldı; sigorta \"var/yok\", gelir sekiz basamak olarak uyumlaştırıldı. Tarama sorularından türeyen hiçbir değişken girdi değildir.",
+"Variables asked in the same form in both years were used; insurance was harmonized as yes/no and income as eight levels. No variable derived from screening items is an input."
+],
+[
+"<b>Sınırlılıklar.</b> Veriler kesitsel ve öz bildirime dayalıdır; tarama geçmişi olduğundan iyi bildirilme eğilimindedir. Geliştirme verisi 2020 yılına aittir; pandemi sonrası değişimler modele yansımamış olabilir. 2024 değerlendirmesinde sonuç sorusu değişmiştir ve gerçek dış doğrulama değildir. Bireysel olasılıklar için güven aralığı yoktur; alt grup örneklemleri ve tahmin hataları eşit değildir. Bulgular nedensellik göstermez. Sonuçlar yalnız ABD araştırma evreni içindir; başka ülkelere, klinik ortamlara veya özel risk gruplarına doğrudan taşınamaz.",
+"<b>Limitations.</b> Data are cross-sectional and self-reported, and screening history tends to be over-reported. Development data are from 2020, so post-pandemic changes may not be reflected. The outcome item changed in the 2024 evaluation, which is not a true external validation. There are no confidence intervals for individual probabilities; subgroup sample sizes and prediction errors are not equal. Findings do not establish causality. Results apply only to the US research population and cannot be transferred directly to other countries, clinical settings, or special-risk groups."
+],
+[
+"Yöntem",
+"Methods"
+],
+[
+"`Güncel ${pct(P[0])}, geri kalmış ${pct(P[1])}, hiç taranmamış ${pct(P[2])}`",
+"`Up to date ${pct(P[0])}, overdue ${pct(P[1])}, never screened ${pct(P[2])}`"
+],
+[
+"`Bu keşifsel grupta eğitim oranı ${pct(l.rate)} — genel oranın (${pct(T.base)}) ${fmt(l.rate/T.base,2)} katı; eğitim nüfusunun ${pct(l.share)}'i.`",
+"`In this exploratory group, the development rate is ${pct(l.rate)} — ${fmt(l.rate/T.base,2)} times the overall rate (${pct(T.base)}); ${pct(l.share)} of the development population.`"
+],
+[
+"Bilinmiyor",
+"Unknown"
+],
+[
+"Alt grup",
+"Subgroup"
+],
+[
+"Bu analizde en büyük artış mamografi öyküsü eklenince görülür: yalnız 40–65 yaş alt örnekleminde ortalama AUC 0,76'dan 0,82'ye çıkar. Bu değişken mevcut forma eklenmedi; daha dar yaş evreninde ölçülmüştür, başka bir taramaya erişimi temsil edebilir ve ayrı taşıma/adalet değerlendirmesi gerektirir. Diğer blokların ortalama katkısı katlar arası oynaklığa yakındır.",
+"The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires separate transportability and fairness evaluation. Mean contributions from the other blocks are close to fold-to-fold variation."
+],
+[
+"İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların bu yapay senaryolarda yakın kalması yalnız bu yeniden ağırlıklandırmalara karşı duyarlılığı gösterir; yeni bir yerde taşınabilirlik veya kalibrasyon kanıtı değildir.",
+"The internal validation set was reweighted by tripling the weight of a selected group. Predicted and observed rates remaining close in these artificial scenarios shows only sensitivity to these reweightings; it is not evidence of transportability or calibration in a new setting."
+],
+[
+"Simülasyonda rastgele silinen yanıtları ortalamayla doldurmak, “bilinmiyor” kategorisine atamaktan daha az kalibrasyon bozulması yaratmıştır. Bu yüzden kullanıcı formundaki boş alanlar nüfus ortalamasıyla temsil edilir; gerçek dünyada eksiklik rastgele olmayabileceğinden bu sonuç garanti değildir.",
+"In the simulation, mean-filling randomly deleted answers produced less calibration drift than assigning them to the survey unknown category. Blank fields in the user form are therefore represented by the population mean; this result is not guaranteed in practice because real-world missingness may not be random."
+],
+[
+"el('th',null,'Yaş')",
+"el('th',null,'Age')"
+],
+[
+"`${name}: tahmin ${pct(p)}, gözlenen ${pct(o)}`",
+"`${name}: predicted ${pct(p)}, observed ${pct(o)}`"
+],
+[
+"En yüksek tahminli dilim kimi kapsıyor?",
+"Whom does the highest-predicted slice cover?"
+],
+[
+"Katılımcılar ilgili sınıfın tahmin edilen olasılığına göre sıralandığında, en yüksek tahminli dilimin hedef sınıfın ne kadarını kapsadığı (iç doğrulama kümesi).",
+"When participants are ranked by the predicted probability of the relevant class, this shows how much of the target class is covered by the highest-predicted slice (internal validation set)."
+],
+[
+"Ankette \"bilmiyorum\" ya da \"yanıt yok\" diyen kadınlar diğerlerinden farklıdır ve daha sık hiç taranmamıştır; model bu kategoriye daha yüksek “hiç taranmamış” olasılığı verir. Oysa araçta bir alanın boş bırakılması çoğu zaman bilginin elde olmaması demektir. Aşağıda yanıtların rastgele bir bölümü silindiğinde iki yaklaşım karşılaştırılır: silinen yanıtı anketteki \"bilinmiyor\" kategorisine atmak ya da o sorunun nüfus ortalamasıyla doldurmak. Gözlenen oranlar: hiç taranmamış %<span id=\"obs-n\"></span>, geri kalmış %<span id=\"obs-o\"></span>.",
+"Survey respondents who answer \"don't know\" or refuse differ from others and are more often never screened; the model assigns that survey category a higher never-screened probability. A blank field in this tool, by contrast, usually means that the information is unavailable. The comparison below randomly deletes answers and either assigns the survey unknown category or fills with the item's population mean. Observed rates: never screened <span id=\"obs-n\"></span>%, overdue <span id=\"obs-o\"></span>%."
+],
+[
+"`Bu profilde oran ${pct(l.rate)}, genel oran ${pct(base)}, oran oranı ${fmt(l.rate/base,2)}`",
+"`Rate in this profile ${pct(l.rate)}, overall rate ${pct(base)}, rate ratio ${fmt(l.rate/base,2)}`"
+],
+[
+"`genel oran ${pct(base)} · oran oranı ${fmt(l.rate/base,2)}`",
+"`overall rate ${pct(base)} · rate ratio ${fmt(l.rate/base,2)}`"
+],
+[
+"['Hedef sınıf','En yüksek tahminli dilim','Sınıfın yakalanan payı','Dilimde sınıfın oranı','Genel oran']",
+"['Target class','Highest-predicted slice','Share of class captured','Class rate within slice','Overall rate']"
+]
+]

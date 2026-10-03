@@ -1,0 +1,570 @@
+<title>Serviks Tarama Erişim Önceliklendirme Aracı</title>
+<meta name="description" content="BRFSS verisine dayalı, klinik kullanım dışı serviks tarama erişim önceliklendirme ve araştırma aracı.">
+<style>
+:root{
+  --ground:#f3f4f6; --surface:#fcfcfb; --ink:#161a22; --ink2:#4c5260; --ink3:#7a8090; --line:#dfe1e6; --wash:#eceef2;
+  --accent:#6b2d5c; --accent-ink:#ffffff; --accent-wash:#f1e6ee;
+  --c-cur:#1baf7a; --c-over:#2a78d6; --c-never:#eb6834; --c-dim:#b9bdc7;
+  --display:ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#111214; --surface:#1a1a19; --ink:#f2f2ef; --ink2:#c3c4c8; --ink3:#8e9098; --line:#303136; --wash:#232428;
+    --accent:#d9a3c9; --accent-ink:#22101d; --accent-wash:#2e1f2a;
+    --c-cur:#199e70; --c-over:#3987e5; --c-never:#d95926; --c-dim:#55575e;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#111214; --surface:#1a1a19; --ink:#f2f2ef; --ink2:#c3c4c8; --ink3:#8e9098; --line:#303136; --wash:#232428;
+  --accent:#d9a3c9; --accent-ink:#22101d; --accent-wash:#2e1f2a;
+  --c-cur:#199e70; --c-over:#3987e5; --c-never:#d95926; --c-dim:#55575e;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:flex;flex-direction:column;gap:24px}
+header.top{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{max-width:68ch;color:var(--ink2);margin:0}
+h2{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.2;margin:0;text-wrap:balance}
+h3{font-family:var(--body);font-weight:600;font-size:15px;margin:0}
+p{margin:0}
+.note{color:var(--ink3);font-size:13px;max-width:75ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);padding-block:8px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav.tabs button{font:500 14px var(--body);color:var(--ink2);background:none;border:1px solid transparent;border-radius:999px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{background:var(--wash)}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+button:focus-visible,select:focus-visible,input:focus-visible,.bar:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.panel{display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:12.5px;color:var(--ink2);line-height:1.3}
+select,input[type=number]{font:400 14px var(--body);color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:4px;padding:7px 8px;width:100%;min-width:0}
+#form{display:flex;flex-direction:column;gap:18px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+legend{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:0;margin-bottom:6px}
+.sample{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2);background:var(--accent-wash);border-radius:4px;padding:5px 10px;align-self:flex-start}
+.btn{font:500 13px var(--body);color:var(--accent);background:none;border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+.btn:hover{background:var(--wash)}
+.probs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.prob{display:flex;flex-direction:column;gap:2px;min-width:0}
+.prob .k{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2)}
+.sw{width:10px;height:10px;border-radius:2px;flex:none;display:inline-block}
+.prob .v{font-family:var(--body);font-weight:600;font-size:clamp(26px,5vw,38px);line-height:1.1}
+.prob .d{font-size:12px;color:var(--ink3)}
+.stack{display:flex;gap:2px;height:16px;width:100%}
+.stack span{display:block;height:100%;min-width:0}
+.stack span:first-child{border-radius:4px 0 0 4px}.stack span:last-child{border-radius:0 4px 4px 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.contrib{display:flex;flex-direction:column;gap:7px}
+.crow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 46px;gap:10px;align-items:center;font-size:13px}
+.crow .nm{color:var(--ink2);overflow-wrap:anywhere;line-height:1.25}
+.crow .nm b{color:var(--ink);font-weight:500}
+.dv{position:relative;height:12px;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
+.dv i{position:absolute;top:1px;bottom:1px;display:block}
+.crow .num{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink2);font-variant-numeric:tabular-nums}
+.thr{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.thr-row{display:grid;grid-template-columns:auto minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:13px;color:var(--ink2)}
+.thr-row input{width:100%;accent-color:var(--accent)}
+.thr-row output{font-family:var(--mono);font-size:13px;text-align:right;color:var(--ink)}
+.verdict{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.verdict .tag{font-weight:600;padding:4px 12px;border-radius:999px;border:1px solid var(--line)}
+.verdict .tag.hi{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.thr-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.thr-stats div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.thr-stats b{font-size:20px;font-weight:600}
+.thr-stats span{font-size:12px;color:var(--ink3);line-height:1.3}
+.cmp{display:grid;grid-template-columns:minmax(130px,1.5fr) minmax(90px,2fr) 52px 52px 48px;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.cmp.hd{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--ink3)}
+.cmp .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.cmp .lab{overflow-wrap:anywhere;line-height:1.3}
+.cmp:hover{background:var(--wash)}
+.trk{position:relative;height:16px;background:linear-gradient(var(--line),var(--line)) left center/100% 1px no-repeat}
+.trk u{position:absolute;top:7px;height:2px;background:var(--c-dim)}
+.trk i{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}
+.trk i.all{background:var(--surface);border:2px solid var(--ink3)}
+@media (max-width:600px){.cmp{grid-template-columns:minmax(0,1fr) 46px 46px 42px}.cmp .trk{grid-column:1/-1;order:9}.cmp.hd .t{display:none}}
+.type{border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.type-h{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.type-h b{font-size:15px;font-weight:600}
+.type-h span{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.type .bar{height:8px;background:var(--wash);border-radius:0 4px 4px 0}
+.type .bar i{display:block;height:100%;border-radius:0 4px 4px 0}
+.traits{display:flex;flex-wrap:wrap;gap:6px}
+.traits span{font-size:12.5px;background:var(--wash);border-radius:4px;padding:3px 8px;color:var(--ink)}
+.traits span small{color:var(--ink3);font-size:11.5px}
+.blk{display:grid;grid-template-columns:minmax(150px,2.2fr) 70px minmax(80px,1.4fr) 62px 62px 96px;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.blk.hd{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--ink3)}
+.blk .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.blk .lab{overflow-wrap:anywhere;line-height:1.3}
+.blk .lab small{display:block;color:var(--ink3);font-size:11.5px;font-family:var(--mono)}
+.dbar{position:relative;height:12px;background:linear-gradient(var(--ink3),var(--ink3)) 20% center/1px 100% no-repeat}
+.dbar i{position:absolute;top:1px;bottom:1px;display:block;background:var(--accent)}
+.dbar i.neg{background:var(--c-dim)}
+@media (max-width:700px){.blk{grid-template-columns:minmax(0,1fr) 56px 56px 84px}.blk .dbar{grid-column:1/-1;order:9}.blk .hide-s{display:none}}
+.sf{display:grid;grid-template-columns:28px minmax(130px,1.6fr) minmax(80px,1.6fr) 56px 56px 56px;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.sf.hd{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--ink3)}
+.sf .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.sf .mbar{height:10px;background:var(--wash);border-radius:0 4px 4px 0}
+.sf .mbar i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0}
+@media (max-width:600px){.sf{grid-template-columns:24px minmax(0,1fr) 50px 50px 50px}.sf .mbar{grid-column:1/-1;order:9}.sf.hd .m{display:none}}
+.match{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.match .rule{font-weight:500}
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 7px;border-radius:999px;background:var(--wash);color:var(--ink2)}
+.rows{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:minmax(120px,1.4fr) minmax(90px,2fr) repeat(3,52px);gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.row.hd{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--ink3)}
+.row .num,.row.hd .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.row .lab{overflow-wrap:anywhere;line-height:1.3}
+.row .lab small{display:block;color:var(--ink3);font-size:11.5px;font-family:var(--mono)}
+.row .bar{cursor:default}
+.row:hover{background:var(--wash)}
+@media (max-width:560px){.row{grid-template-columns:minmax(0,1fr) repeat(3,44px)}.row .bar{grid-column:1/-1;order:9}.row.hd .bar{display:none}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:400 13px var(--body);color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.prof{display:grid;grid-template-columns:minmax(0,1fr) 150px 64px 64px 56px;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.prof.hd{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--ink3)}
+.prof .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.prof .meter{height:10px;background:var(--wash);border-radius:0 4px 4px 0;position:relative}
+.prof .meter i{display:block;height:100%;border-radius:0 4px 4px 0}
+.prof .meter u{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--ink)}
+@media (max-width:640px){.prof{grid-template-columns:minmax(0,1fr) 56px 56px 48px}.prof .meter{grid-column:1/-1;order:9}.prof.hd .m{display:none}}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);font-weight:400;border-bottom:1px solid var(--ink3)}
+td.n{font-family:var(--mono);font-size:12.5px}
+.scroll{overflow-x:auto}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--ink3)}
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.cal figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.cal figcaption{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:6px}
+#tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--ground);font-size:12.5px;padding:7px 10px;border-radius:4px;max-width:260px;line-height:1.4}
+#tip b{font-weight:600}
+#tip .tl{display:flex;align-items:center;gap:6px}
+#tip .tl i{width:12px;height:2px;display:inline-block}
+.flow{display:flex;flex-direction:column;gap:6px}
+.flow>div{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;font-size:13.5px;align-items:center}
+.flow .fb{height:8px;background:var(--c-dim);border-radius:0 4px 4px 0}
+.prose{max-width:70ch;display:flex;flex-direction:column;gap:12px;color:var(--ink2)}
+.prose b{color:var(--ink);font-weight:600}
+.warn{border-left:3px solid var(--accent);padding:10px 14px;background:var(--accent-wash);border-radius:0 4px 4px 0;font-size:13.5px;color:var(--ink);max-width:75ch}
+.scope{border-left:4px solid var(--c-never);background:var(--surface);padding:16px 18px;border-radius:0 6px 6px 0;display:flex;flex-direction:column;gap:7px}
+.scope strong{font-size:15px}.scope ul{margin:0;padding-left:20px;color:var(--ink2)}
+.empty{min-height:180px;display:grid;place-content:center;text-align:center;color:var(--ink2);border:1px dashed var(--line);border-radius:6px;padding:24px}
+.status-note{font-size:12.5px;color:var(--ink2);background:var(--wash);padding:7px 10px;border-radius:4px}
+details.more{border-top:1px solid var(--line);padding-top:12px}details.more summary{cursor:pointer;font-weight:600;color:var(--accent);margin-bottom:12px}
+footer.card{font-size:12.5px;color:var(--ink2)}footer a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+input:invalid{border-color:var(--c-never)}
+@media (prefers-reduced-motion:no-preference){.stack span,.dv i,.prof .meter i{transition:width .25s ease,left .25s ease}}
+</style>
+<!--HEAD-END-->
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Araştırma prototipi · Geliştirme: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş</div>
+  <h1>Serviks tarama erişim önceliklendirme aracı</h1>
+  <p class="lede">Toplum düzeyindeki erişim çalışmalarında, tarama açığı olasılığı yüksek grupları önceliklendirmeye yardımcı olan araştırma prototipi. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.</p>
+  <div class="legend" aria-label="Sınıflar">
+    <span><i class="sw" style="background:var(--c-cur)"></i>Güncel aralıkta — anketten türetilmiş yaklaşık sınıf</span>
+    <span><i class="sw" style="background:var(--c-over)"></i>Geri kalmış — bilinen önceki tarama var, aralık dışında</span>
+    <span><i class="sw" style="background:var(--c-never)"></i>Hiç taranmamış — ankette açıkça bildirilmiş</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" id="tabs"></nav>
+
+<section class="panel" id="p-calc" role="tabpanel">
+  <div class="scope" aria-labelledby="scope-title">
+    <strong id="scope-title">Kapsam ve güvenli kullanım</strong>
+    <ul>
+      <li>Yalnızca ABD'de toplum sağlığı araştırması ve gönüllü erişim planlaması için; geliştirme evreni 21–65 yaşında ve histerektomi geçirmediğini bildiren BRFSS katılımcılarıdır.</li>
+      <li>Klinik karar, tanı, tarama testi seçimi veya bakım hakkını kısıtlama amacıyla kullanmayın. Eşiğin altında kalan kişilere bakımı geciktirmeyin ya da reddetmeyin.</li>
+      <li>Önceki CIN2/3 veya kanser, bağışıklık baskılanması, rahim içinde DES maruziyeti, belirti ya da anormal sonuç gibi özel durumlarda bu aracın kapsamı dışındadır; klinik rehber ve sağlık uzmanı değerlendirmesi gerekir.</li>
+    </ul>
+  </div>
+  <div class="warn" id="artifact-warning" hidden><b>Yeniden eğitim gerekli:</b> Bu HTML, önceki gömülü katsayılardan arayüz amacıyla yeniden üretildi. Belirsiz HPV yanıtlarını “hayır” saymayan düzeltilmiş etiket koduyla tam analiz hattı çalıştırılmadan araştırma sonucu olarak yayımlanmamalıdır.</div>
+  <div class="grid2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <h2>Kadının özellikleri</h2>
+        <div style="display:flex;gap:6px"><button type="button" class="btn" id="btn-sample">Örnek vakayı yükle</button><button type="button" class="btn" id="btn-clear">Temizle</button></div>
+      </div>
+      <p class="note">Yaş zorunludur. Diğer alanlar boş bırakılabilir; boş yanıtlar geliştirme nüfusunun ortalamasıyla temsil edilir ve tahmin belirsizliği artar. İlk sekiz alan kısa formu oluşturur.</p>
+      <div class="sample" id="sample-flag" hidden>Şu an dolu olan değerler örnek bir vakadır; değiştirdikçe sonuç güncellenir.</div>
+      <form id="form" onsubmit="return false"></form>
+    </div>
+    <div class="card" id="result" aria-live="polite">
+      <h2>Tahmin edilen tarama açığı</h2>
+      <div class="empty" id="result-empty">Bir tahmin görmek için 21–65 arasında bir yaş girin. Örnek düğmesi yalnızca arayüzü göstermek içindir.</div>
+      <div id="result-content" hidden>
+      <div class="status-note" id="completion-note"></div>
+      <div class="probs" id="probs"></div>
+      <div class="stack" id="pstack" role="img" aria-label="Üç sınıfın olasılık dağılımı"></div>
+      <p class="note">Yüzdeler, modeldeki benzer özellik örüntülerinin tahmini dağılımıdır; kişinin gerçek tarama durumunun ölçümü değildir. Parantez içi, geliştirme nüfusundaki orana göre farktır (<span id="base-note"></span>). Bireysel tahminler için güven aralığı hesaplanmamıştır.</p>
+      <div>
+        <h3 style="margin-bottom:8px">Bu tahmini en çok hangi yanıtlar etkiliyor?</h3>
+        <div class="chips" id="contrib-chips" style="margin-bottom:10px"></div>
+        <div class="contrib" id="contrib"></div>
+        <p class="note" style="margin-top:8px">Çubuk sağa uzanıyorsa o yanıt, seçili sınıfta olma olasılığını (güncel olmaya kıyasla) ortalama bir kadına göre artırıyor; sola uzanıyorsa azaltıyor. Değerler log-odds farkıdır.</p>
+      </div>
+      <div class="thr" id="thrbox">
+        <h3>Erişim kapasitesi senaryosu</h3>
+        <div class="chips" id="thr-chips"></div>
+        <div class="thr-row"><label for="thr">Önceliklendirme eşiği</label><input type="range" id="thr" min="1" max="70" step="1"><output id="thr-out" for="thr"></output></div>
+        <div class="verdict" id="verdict" role="status"></div>
+        <div class="thr-stats" id="thr-stats"></div>
+        <p class="note">Varsayılan eşikler, ayrılmış 2020 doğrulama kümesinde nüfusun yaklaşık %20'sini gönüllü erişim için işaretleyecek operasyonel bir örnektir; klinik sınır değildir. Eşiği düşürmek daha çok kişiye ulaşır fakat pozitif öngörü değerini azaltır. Gösterilen ölçütler nokta tahminidir.</p>
+      </div>
+      <div class="match" id="match"></div>
+      </div>
+    </div>
+  </div>
+  <div class="warn"><b>Gizlilik:</b> Form yanıtları bu tarayıcıda işlenir; bir sunucuya gönderilmez veya kaydedilmez. Yalnızca seçili sekme ve eşik tercihi tarayıcının yerel deposunda tutulur. Sayfa çevrimdışı çalışır ve harici yazı tipi ya da betik yüklemez.</div>
+</section>
+
+<section class="panel" id="p-prof" role="tabpanel" hidden>
+  <div class="card">
+    <h2>Hiç taranmamış kadın profilleri</h2>
+    <p class="note">Karar ağacıyla veriden çıkarılan, birbirini dışlayan gruplar. Genel oran %<span id="base-never"></span>; dikey çizgi bu oranı gösterir. Her oranın yanında tabaka ve küme yapısını hesaba katan %95 güven aralığı verilmiştir. Profiller eğitim kümesinde kuruldu; test kümesindeki oran ayrıca gösterilir.</p>
+    <div id="prof-never"></div>
+  </div>
+  <div class="card">
+    <h2>Geri kalmış kadın profilleri</h2>
+    <p class="note">Yalnızca en az bir kez taranmış kadınlar içinde hesaplanmıştır. Genel oran %<span id="base-over"></span>.</p>
+    <div id="prof-over"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-rev" role="tabpanel" hidden>
+  <div class="card">
+    <h2>Sınıftan kadına: bu sınıftaki kadınlar kim?</h2>
+    <p class="note">Hesaplayıcı özelliklerden tarama durumuna gider. Bu sekme tersini yapar: bir tarama sınıfı seçilir, o sınıftaki kadınların nasıl bir topluluk olduğu gösterilir. Tek bir kadının özellikleri sınıfından tahmin edilemez; burada gösterilen, sınıfın bileşimidir.</p>
+    <div class="chips" id="rev-chips"></div>
+    <p id="rev-sum" style="max-width:70ch"></p>
+  </div>
+  <div class="card">
+    <h2>Fazla ve az temsil edilen özellikler</h2>
+    <p class="note">Her satırda özelliğin seçili sınıftaki payı ile tüm kadınlardaki payı karşılaştırılır. Oran 1'in üstündeyse özellik bu sınıfta beklenenden sık, altındaysa seyrek görülür. Satırlar orana göre sıralıdır.</p>
+    <div class="legend"><span><i class="sw" id="rev-sw" style="border-radius:50%"></i>Seçili sınıf</span><span><i class="sw" style="border-radius:50%;background:var(--surface);border:2px solid var(--ink3)"></i>Tüm kadınlar</span></div>
+    <div class="rows" id="rev-rows"></div>
+  </div>
+  <div class="card">
+    <h2>Sınıfın içindeki kadın tipleri</h2>
+    <p class="note">Seçili sınıftaki kadınlar 33 özelliğe göre ağırlıklı k-ortalamalar yöntemiyle kümelendi. Her tipin yanında sınıf içindeki payı, ortanca yaşı ve o tipi sınıfın geri kalanından en çok ayıran özellikler verilmiştir (parantez içi: sınıfın tamamındaki pay). Tipler keskin sınırlı gruplar değil, eğilimlerdir; siluet katsayıları düşüktür.</p>
+    <div id="rev-types" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-desc" role="tabpanel" hidden>
+  <div class="card">
+    <h2>Yaşa göre tarama durumu</h2>
+    <p class="note">BRFSS 2020, her yaş için ağırlıklı yüzde. 21–25 yaş arasındaki yüksek "hiç taranmamış" oranı büyük ölçüde taramaya yeni başlama yaşını yansıtır.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--c-cur)"></i>Güncel</span><span><i class="sw" style="background:var(--c-over)"></i>Geri kalmış</span><span><i class="sw" style="background:var(--c-never)"></i>Hiç taranmamış</span></div>
+    <div id="agechart"></div>
+  </div>
+  <div class="card">
+    <h2>Soru değişikliğinin etkisi: 2020 ve 2024'te "hiç taranmamış" oranı</h2>
+    <p class="note">2021'den itibaren BRFSS, "Hiç Pap testi yaptırdınız mı?" yerine "Hiç serviks kanseri tarama testi yaptırdınız mı?" diye soruyor. Yeni soruyla "hiç taranmamış" oranı her yaşta 8–9 puan daha yüksek çıkıyor. 2020'de 45–55 yaşında olup %3,9'u hiç taranmamış görünen kuşak, 2022'de (önsözsüz soru) %25,4 ve 2024'te (tanımlayıcı önsözlü soru) %10,8 ile görünmektedir; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. Model bu nedenle 2020 verisiyle geliştirildi; 2024 sonuçları ölçüm değişikliği altındaki performansı tanımlar.</p>
+    <div id="cmpchart"></div>
+  </div>
+  <div class="card">
+    <h2>Hangi kadınlar ne yapıyor?</h2>
+    <div class="chips" id="desc-chips"></div>
+    <div class="rows" id="desc-rows"></div>
+    <p class="note">BRFSS 2020, ağırlıklı yüzdeler (_LLCPWT). n ağırlıksız kişi sayısıdır.</p>
+  </div>
+  <div class="card">
+    <h2>Örneklem akışı</h2>
+    <div class="flow" id="flow"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-state" role="tabpanel" hidden>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+      <h2>Eyaletlere göre dağılım</h2>
+      <div class="chips" id="state-sort"></div>
+    </div>
+    <div class="rows" id="state-rows"></div>
+    <p class="note">BRFSS 2020, ağırlıklı yüzdeler. Küçük örneklemli bölgelerde (Guam gibi) oranlar oynaktır.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-model" role="tabpanel" hidden>
+  <div class="card">
+    <h2>Model seçimi: 5 katlı çapraz doğrulama</h2>
+    <p class="note">BRFSS 2020 geliştirme verisinde, hesaplayıcının 19 girdisiyle varsayılan ayarlarla kurulan altı modelin ortalama sonuçları (ayarlı LightGBM, XGBoost, CatBoost ve topluluklar makalede Ek Tablo A8'dedir) (± katlar arası standart sapma). Tüm ölçütler örneklem ağırlıklıdır. Son satır, 37 değişken ve eyaletle kurulan üst sınır modelidir.</p>
+    <div class="scroll"><table id="cvtab"></table></div>
+    <p class="note">Lojistik regresyon ile en iyi boosting modeli arasındaki fark 0,002 AUC'dir ve katlar arası oynaklığın içinde kalır. Aynı başarıyı veren modeller arasından katsayıları açıkça okunabilen ve tarayıcıda birebir çalışan lojistik regresyon nihai model olarak seçildi (yaş için parçalı doğrusal terimler).</p>
+  </div>
+  <div class="card">
+    <h2>İç doğrulama ve 2024 zamansal değerlendirmesi</h2>
+    <p class="note">İç doğrulama: 2020 verisinin ayrılmış %20'si (<span id="ntest"></span> kadın). Zamansal değerlendirme: aynı hiperparametrelerle tam 2020 örneklemine yeniden uydurulan modelin, farklı bir tarama sorusu kullanan BRFSS 2024 verisine (<span id="n24"></span> kadın) uygulanması. 2024 satırları ölçüm değişikliği altındaki performansı tanımlar ve dış doğrulama olarak okunmamalıdır. Parantez içi %95 güven aralığıdır (örnekleme tabakaları içinde 1.000 tasarım temelli yeniden örneklem).</p>
+    <div class="scroll"><table id="valtab"></table></div>
+    <p class="note">2024'te "hiç taranmamış" etiketi farklı bir soruyla ölçülmüştür; bu sınıftaki düşüşün ne kadarının ölçümden, ne kadarının modelden kaynaklandığı bu veriyle ayrıştırılamaz ve 2024 AUC'si iki yönde de bir sınır olarak yorumlanmamalıdır. Zamanlama maddeleriyle ölçülen "geri kalmış" sınıfı iki yılda da kalibrasyonunu korumuştur.</p>
+  </div>
+  <div class="card">
+    <h2>Kalibrasyon</h2>
+    <p class="note">İlk üç panel iç doğrulama kümesinin onda birlik dilimleridir. Dördüncü panel 2024 zamansal değerlendirmesinde, taranmış kadınlar içinde geri kalma olasılığını gösterir. Noktalar köşegene ne kadar yakınsa tahmin gözlenen orana o kadar uygundur.</p>
+    <div class="cal" id="cal"></div>
+  </div>
+  <div class="card">
+    <h2>En yüksek tahminli dilim kimi kapsıyor?</h2>
+    <p class="note">Katılımcılar ilgili sınıfın tahmin edilen olasılığına göre sıralandığında, en yüksek tahminli dilimin hedef sınıfın ne kadarını kapsadığı (iç doğrulama kümesi).</p>
+    <div class="scroll"><table id="lifttab"></table></div>
+  </div>
+  <div class="card">
+    <h2>Alt gruplarda performans</h2>
+    <p class="note">İç doğrulama kümesinde alt gruplara göre ayırt edicilik. 50–65 yaşta hiç taranmamış kadın oranı çok düşük olduğundan bu grupta ayrım zayıftır. Irk/etnisite ve dil değişkenleri biyolojik ya da nedensel özellikler olarak değil, sağlık hizmetine erişimdeki yapısal eşitsizliklerin göstergeleri olarak yorumlanmalıdır.</p>
+    <div class="scroll"><table id="subtab"></table></div>
+    <h3>Varsayılan “hiç taranmamış” eşiğinde karar ölçütleri</h3>
+    <p class="note">AUC tek başına eşit kullanım göstermez. Aşağıdaki tasarım-temelli %95 güven aralıklı ölçütler; erişim teklifinin hangi gruplara ne sıklıkta gideceğini, kimi yakalayıp kimi kaçıracağını görünür kılar. Farklı eşikler eşitsizlikleri değiştirebilir; eşikler yalnız AUC'ye bakılarak seçilmemelidir.</p>
+    <div class="scroll"><table id="fairtab"></table></div>
+    <p class="note">Bu bilgiler bir gruba bakımı kısıtlamak için kullanılamaz. Uygulama öncesinde yerel nüfusta kalibrasyon, duyarlılık, yanlış-pozitif oranı, iş yükü ve erişimin gerçek etkisi ileriye dönük değerlendirilmelidir.</p>
+  </div>
+  <div class="card">
+    <h2>Değişken önemi (SHAP)</h2>
+    <div class="warn"><b>Dağıtılan hesaplayıcının açıklaması değildir.</b> Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Hesaplayıcı 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.</div>
+    <p class="note">Araştırma modelinde ortalama mutlak SHAP değeri; her çubuk değişkenin üç sınıfın tahminine katkısını ayrı ayrı gösterir. İlk 18 değişken. SHAP ilişkileri nedensellik göstermez.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--c-cur)"></i>Güncel</span><span><i class="sw" style="background:var(--c-over)"></i>Geri kalmış</span><span><i class="sw" style="background:var(--c-never)"></i>Hiç taranmamış</span></div>
+    <div class="rows" id="shap"></div>
+  </div>
+</section>
+
+<section class="panel" id="p-test" role="tabpanel" hidden>
+  <div class="card">
+    <h2>Başka sorular eklense model iyileşir miydi?</h2>
+    <p class="note">BRFSS 2020'de yer alan fakat hesaplayıcıda kullanılmayan gerçek sorular bloklar hâlinde modele eklendi. Her blok, sorulduğu kadınlardan oluşan kendi alt örnekleminde sınandı: aynı katlarda temel model (19 girdi) ile temel + blok karşılaştırıldı (LightGBM, 5 katlı çapraz doğrulama). Fark, üç sınıfın ortalama AUC'sindeki değişimdir; ± katlar arası standart sapmadır.</p>
+    <div class="rows" id="blk-rows"></div>
+    <p class="note">Bu analizde en büyük artış mamografi öyküsü eklenince görülür: yalnız 40–65 yaş alt örnekleminde ortalama AUC 0,76'dan 0,82'ye çıkar. Bu değişken mevcut forma eklenmedi; daha dar yaş evreninde ölçülmüştür, başka bir taramaya erişimi temsil edebilir ve ayrı taşıma/adalet değerlendirmesi gerektirir. Diğer blokların ortalama katkısı katlar arası oynaklığa yakındır.</p>
+  </div>
+  <div class="card">
+    <h2>Kısa form: kaç soru yeter?</h2>
+    <p class="note">İlk dokuz soru, her adımda modeli en çok iyileştiren eklenerek seçildi; kazanımlar bu noktadan sonra çok küçüldüğü için kalan sorular o adımdaki katkılarına göre sıralandı. Seçim eğitim verisinin içinde yapıldı; değerler iç doğrulama kümesindendir. Çubuk, üç sınıfın ortalama AUC'sidir.</p>
+    <div class="rows" id="sf-rows"></div>
+    <p class="note" id="sf-note"></p>
+  </div>
+  <div class="card">
+    <h2>Yanıtlar hatalıysa</h2>
+    <p class="note">İç doğrulama kümesindeki gerçek yanıtlar kontrollü biçimde bozuldu; model yeniden eğitilmedi.</p>
+    <div class="scroll"><table id="st-err"></table></div>
+  </div>
+  <div class="card">
+    <h2>Nüfus değişirse</h2>
+    <p class="note">İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların bu yapay senaryolarda yakın kalması yalnız bu yeniden ağırlıklandırmalara karşı duyarlılığı gösterir; yeni bir yerde taşınabilirlik veya kalibrasyon kanıtı değildir.</p>
+    <div class="scroll"><table id="st-shift"></table></div>
+  </div>
+  <div class="card">
+    <h2>Yanıtlar eksikse</h2>
+    <p class="note">Ankette "bilmiyorum" ya da "yanıt yok" diyen kadınlar diğerlerinden farklıdır ve daha sık hiç taranmamıştır; model bu kategoriye daha yüksek “hiç taranmamış” olasılığı verir. Oysa araçta bir alanın boş bırakılması çoğu zaman bilginin elde olmaması demektir. Aşağıda yanıtların rastgele bir bölümü silindiğinde iki yaklaşım karşılaştırılır: silinen yanıtı anketteki "bilinmiyor" kategorisine atmak ya da o sorunun nüfus ortalamasıyla doldurmak. Gözlenen oranlar: hiç taranmamış %<span id="obs-n"></span>, geri kalmış %<span id="obs-o"></span>.</p>
+    <div class="scroll"><table id="st-miss"></table></div>
+    <p class="note">Simülasyonda rastgele silinen yanıtları ortalamayla doldurmak, “bilinmiyor” kategorisine atamaktan daha az kalibrasyon bozulması yaratmıştır. Bu yüzden kullanıcı formundaki boş alanlar nüfus ortalamasıyla temsil edilir; gerçek dünyada eksiklik rastgele olmayabileceğinden bu sonuç garanti değildir.</p>
+    <h3>Bir soru hiç sorulmazsa</h3>
+    <div class="scroll"><table id="st-drop"></table></div>
+  </div>
+</section>
+
+<section class="panel" id="p-method" role="tabpanel" hidden>
+  <div class="card"><h2>Yöntem ve sınırlılıklar</h2>
+  <div class="prose">
+    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra modelin önceki üretilmiş sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla "hiç taranmamış" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.</p>
+    <p><b>Neden 2020?</b> 2021'de soru kalıbı değişti ve "Pap testi" yerine "serviks kanseri tarama testi" ifadesi kullanılmaya başlandı. Yeni soruyla hiç taranmadığını söyleyen kadın oranı 2024'te bile her yaş grubunda 2020'dekinden 8–9 puan yüksektir. Aynı doğum kuşağı izlendiğinde de fark görülür (2020'de %3,9, 2022'de %25,4, 2024'te %10,8) ve 2022 fazlası tüm eyaletlerde vardır; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. "Geri kalmış" oranları ise iki yılda da birbirine yakındır. Bu yüzden Pap testi maddelerini kullanan 2020 verisi geliştirme kümesi seçildi.</p>
+    <p><b>Hedef grup.</b> BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.</p>
+    <p><b>Sınıflar (USPSTF 2018 aralık vekili).</b> <b>Güncel:</b> son 3 yıl içinde Pap testi <em>veya</em> 30 yaş ve üzerinde son 5 yıl içinde HPV testi. <b>Hiç taranmamış:</b> hem Pap hem HPV için açıkça “hayır”. <b>Geri kalmış:</b> bilinen önceki Pap/HPV testi var, fakat güncel tanımını karşılamıyor. “Bilmiyorum” ve ret yanıtları “hayır” sayılmaz; güvenli sınıflandırılamayan kayıtlar analitik örneklem dışında tutulur. Bunlar anketten türetilmiş araştırma etiketleridir, kişinin klinik kaydından doğrulanmış durum değildir.</p>
+    <p><b>Girdiler ve eksik yanıt.</b> İki yılda da aynı biçimde sorulan değişkenler kullanıldı; sigorta "var/yok", gelir sekiz basamak olarak uyumlaştırıldı. Tarama sorularından türeyen hiçbir değişken girdi değildir. Eğitim sırasında anketteki gerçek "bilmiyorum/ret" yanıtı ayrı bir kategoridir. Kullanıcı formunda boş bırakılan alan ise nüfus ortalamasıyla temsil edilir; bu iki eksiklik mekanizması aynı kabul edilmez. Yaş girilmeden tahmin üretilmez.</p>
+    <p><b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).</p>
+    <p><b>Profiller.</b> Derinliği 4 olan ağırlıklı karar ağaçları; biri "hiç taranmamış", diğeri taranmışlar içinde "geri kalmış" için. Oranların güven aralıkları tabaka (_STSTR) ve küme (_PSU) yapısıyla, Taylor doğrusallaştırmasıyla hesaplandı.</p>
+    <p><b>Sınırlılıklar.</b> Veriler kesitsel ve öz bildirime dayalıdır; tarama geçmişi olduğundan iyi bildirilme eğilimindedir. Geliştirme verisi 2020 yılına aittir; pandemi sonrası değişimler modele yansımamış olabilir. 2024 değerlendirmesinde sonuç sorusu değişmiştir ve gerçek dış doğrulama değildir. Bireysel olasılıklar için güven aralığı yoktur; alt grup örneklemleri ve tahmin hataları eşit değildir. Bulgular nedensellik göstermez. Sonuçlar yalnız ABD araştırma evreni içindir; başka ülkelere, klinik ortamlara veya özel risk gruplarına doğrudan taşınamaz.</p>
+  </div></div>
+</section>
+
+<footer class="card">
+  <b>Sürüm 1.1.0 · 29 Eylül 2026</b>
+  <span>Model verisi: BRFSS 2020 · Ölçüm değişikliği altında değerlendirme: BRFSS 2024 · Statik, yerel çalışan sayfa.</span>
+  <span>Kaynaklar: <a href="https://www.cdc.gov/brfss/annual_data/annual_data.htm">CDC BRFSS yıllık verileri</a> · <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/cervical-cancer-screening">USPSTF serviks tarama önerisi</a> · <a href="https://www.bmj.com/content/385/bmj-2023-078378">TRIPOD+AI raporlama rehberi</a>.</span>
+  <span>İletişim: Veysel Gider, Batman Üniversitesi. Yazar listesi ve kurumsal iletişim adresi yayımdan önce tamamlanmalıdır.</span>
+</footer>
+</div>
+<div id="tip" hidden></div>
+<noscript><div class="wrap"><div class="warn">Bu araç hesaplamayı tarayıcıda yapmak için JavaScript gerektirir. JavaScript kapalıyken hiçbir tahmin üretilmez.</div></div></noscript>
+
+<script>
+const M=/*MODEL*/, W=/*DATA*/, CAL=/*CAL*/;
+const C={cur:'var(--c-cur)',over:'var(--c-over)',never:'var(--c-never)'};
+const $=s=>document.querySelector(s);
+const el=(t,c,txt)=>{const e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e};
+const fmt=(x,d=1)=>x.toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtn=n=>n.toLocaleString('tr-TR');
+const pct=(x,d=1)=>'%'+fmt(x,d);
+
+/* ---------- ipucu ---------- */
+const tip=$('#tip');
+function showTip(ev,build){tip.textContent='';build(tip);tip.hidden=false;const r=tip.getBoundingClientRect();let x=ev.clientX+14,y=ev.clientY+14;if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14;if(y+r.height>innerHeight-8)y=ev.clientY-r.height-14;tip.style.left=Math.max(8,x)+'px';tip.style.top=Math.max(8,y)+'px'}
+function hideTip(){tip.hidden=true}
+function tipList(t,title,items){t.appendChild(el('b',null,title));items.forEach(k=>{const d=el('div','tl');const s=el('i');s.style.background=k[1];d.appendChild(s);d.appendChild(el('b',null,pct(k[2])));d.appendChild(el('span',null,' '+k[0]));t.appendChild(d)})}
+function tipRows(t,title,vals){t.appendChild(el('b',null,title));[['Güncel',C.cur],['Geri kalmış',C.over],['Hiç taranmamış',C.never]].forEach((k,i)=>{const d=el('div','tl');const s=el('i');s.style.background=k[1];d.appendChild(s);d.appendChild(el('b',null,pct(vals[i])));d.appendChild(el('span',null,' '+k[0]));t.appendChild(d)})}
+function stackBar(vals,title){const b=el('div','stack bar');b.tabIndex=0;b.setAttribute('role','img');b.setAttribute('aria-label',`${title}: güncel ${pct(vals[0])}, geri kalmış ${pct(vals[1])}, hiç taranmamış ${pct(vals[2])}`);[C.cur,C.over,C.never].forEach((c,i)=>{const s=el('span');s.style.background=c;s.style.width=vals[i]+'%';b.appendChild(s)});
+  const f=ev=>showTip(ev.clientX!=null?ev:{clientX:b.getBoundingClientRect().left,clientY:b.getBoundingClientRect().bottom},t=>tipRows(t,title,vals));
+  b.addEventListener('pointermove',f);b.addEventListener('pointerleave',hideTip);b.addEventListener('focus',f);b.addEventListener('blur',hideTip);return b}
+function rowsTable(host,rows,firstHead){host.textContent='';const h=el('div','row hd');h.appendChild(el('div','lab',firstHead));h.appendChild(el('div','bar',''));['Güncel','Geri','Hiç'].forEach(x=>h.appendChild(el('div','num',x)));host.appendChild(h);
+  rows.forEach(r=>{const d=el('div','row');const l=el('div','lab',r.label);if(r.sub)l.appendChild(el('small',null,r.sub));d.appendChild(l);d.appendChild(stackBar(r.vals,r.label));r.vals.forEach(v=>d.appendChild(el('div','num',fmt(v))));host.appendChild(d)})}
+
+/* ---------- sekmeler ---------- */
+const TABS=[['calc','Erişim aracı'],['prof','Araştırma · Profiller'],['rev','Keşifsel sınıf betimleri'],['desc','Betimsel sonuçlar'],['state','Eyaletler'],['model','Model ve adalet'],['test','Sağlamlık sınamaları'],['method','Yöntem']];
+function selectTab(k,focus=false){TABS.forEach(([id])=>{const on=id===k,p=$('#p-'+id),b=$('#t-'+id);p.hidden=!on;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});try{localStorage.setItem('tab',k)}catch(e){}}
+TABS.forEach(([id,name],i)=>{const b=el('button',null,name);b.type='button';b.id='t-'+id;b.setAttribute('role','tab');b.setAttribute('aria-controls','p-'+id);b.setAttribute('aria-selected','false');const p=$('#p-'+id);p.setAttribute('aria-labelledby',b.id);b.onclick=()=>selectTab(id);b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%TABS.length;else if(e.key==='ArrowLeft')j=(i-1+TABS.length)%TABS.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=TABS.length-1;else return;e.preventDefault();selectTab(TABS[j][0],true)};$('#tabs').appendChild(b)});
+
+/* ---------- hesaplayıcı ---------- */
+const GROUPS=[['Demografi',['yas','irk','egitim','gelir8','medeni','istihdam','cocuk','ev_sahibi','kirsal','dil_ispanyolca']],['Sağlık hizmetine erişim',['sigortasiz','doktor','maliyet_engeli','checkup']],['Sağlık ve önleyici davranışlar',['genel_saglik','sigara','grip_asisi','hiv_testi','dis_hekimi']]];
+const CORE=['yas','checkup','hiv_testi','egitim','sigara','irk','dis_hekimi','cocuk'];
+const ALL_FIELDS=GROUPS.flatMap(g=>g[1]);
+const SAMPLE={yas:34,cocuk:2,irk:8,egitim:4,gelir8:5,medeni:6,istihdam:1,ev_sahibi:2,kirsal:0,dil_ispanyolca:1,sigortasiz:1,doktor:3,maliyet_engeli:1,checkup:3,genel_saglik:3,sigara:4,grip_asisi:2,hiv_testi:2,dis_hekimi:3};
+const form=$('#form');
+function addFields(parent,title,vs){if(!vs.length)return;const fs=el('fieldset');fs.appendChild(el('legend',null,title));const grid=el('div','form');vs.forEach(v=>{const f=el('div','field');const lab=el('label');lab.htmlFor='f-'+v;let inp;
+  if(v==='yas'||v==='cocuk'){lab.textContent=v==='yas'?'Yaş (21–65) — zorunlu':'Hanedeki çocuk sayısı — isteğe bağlı';inp=el('input');inp.type='number';inp.min=v==='yas'?21:0;inp.max=v==='yas'?65:5;inp.step=1;inp.placeholder=v==='yas'?'21–65':'Bilinmiyor';if(v==='yas'){inp.required=true;inp.setAttribute('aria-describedby','age-help')}}
+  else{lab.textContent=M.vars[v].label;inp=el('select');const o=el('option',null,'Bilinmiyor');o.value='NA';inp.appendChild(o);M.vars[v].levels.forEach(([c,t])=>{const op=el('option',null,t);op.value=c;inp.appendChild(op)})}
+  inp.id='f-'+v;inp.addEventListener('input',()=>{$('#sample-flag').hidden=true;update()});f.appendChild(lab);f.appendChild(inp);grid.appendChild(f)});fs.appendChild(grid);parent.appendChild(fs)}
+addFields(form,'Hızlı form · en güçlü 8 alan',CORE);
+const more=el('details','more');const sm=el('summary',null,'Ek 11 soru — tahmini bir miktar hassaslaştırır');more.appendChild(sm);GROUPS.forEach(([g,vs])=>addFields(more,g,vs.filter(v=>!CORE.includes(v))));form.appendChild(more);
+const ageHelp=el('span','sr-only','Yaş girilmeden tahmin üretilmez.');ageHelp.id='age-help';form.appendChild(ageHelp);
+function setForm(vals){ALL_FIELDS.forEach(v=>{const i=$('#f-'+v);i.value=(vals&&vals[v]!=null)?vals[v]:(v==='yas'||v==='cocuk'?'':'NA')})}
+$('#btn-sample').onclick=()=>{setForm(SAMPLE);$('#sample-flag').hidden=false;update()};
+$('#btn-clear').onclick=()=>{setForm(null);$('#sample-flag').hidden=true;update()};
+function readForm(){const o={};ALL_FIELDS.forEach(v=>{const x=$('#f-'+v).value;if(v==='yas'){const n=Number(x);o.yas=x!==''&&Number.isFinite(n)&&n>=21&&n<=65?n:null}else if(v==='cocuk'){const n=Number(x);o.cocuk=x!==''&&Number.isFinite(n)&&n>=0&&n<=5?n:null}else o[v]=x==='NA'?null:+x});return o}
+const colIdx={};M.cols.forEach((c,i)=>colIdx[c]=i);
+function featVec(o){const x={};x['yas']=o.yas-21;M.knots.forEach(k=>x['yas_k'+k]=Math.max(0,o.yas-k));x['cocuk']=o.cocuk==null?(M.colmeans&&M.colmeans.cocuk!=null?M.colmeans.cocuk:0):o.cocuk;Object.keys(M.vars).forEach(v=>{if(o[v]==null){M.cols.forEach(c=>{if(c.startsWith(v+'='))x[c]=M.colmeans&&M.colmeans[c]!=null?M.colmeans[c]:0})}else x[v+'='+o[v]]=1});return x}
+function groupOf(c){return c.startsWith('yas')?'yas':c.split('=')[0]}
+function predict(o){const x=featVec(o);const z=M.intercept.slice();const g={};for(const c in x){const j=colIdx[c];if(j==null)continue;for(let k=0;k<3;k++)z[k]+=M.coef[k][j]*x[c];const G=groupOf(c);g[G]=g[G]||[0,0];g[G][0]+=(M.coef[1][j]-M.coef[0][j])*x[c];g[G][1]+=(M.coef[2][j]-M.coef[0][j])*x[c]}
+  const m=Math.max(...z);const e=z.map(v=>Math.exp(v-m));const s=e.reduce((a,b)=>a+b);const contrib={};for(const G in g)contrib[G]=[g[G][0]-M.means[G][0],g[G][1]-M.means[G][1]];return{p:e.map(v=>v/s),contrib}}
+let lastP=[0,0,0],thrClass='never';const THRN={never:['Hiç taranmamış',2],overdue:['Geri kalmış',1]};
+function thrGet(k){try{const v=+localStorage.getItem('thr-'+k);if(v>=1&&v<=70)return v}catch(e){}return W.thr[k].default}
+function renderThr(){const t=+$('#thr').value||W.thr[thrClass].default;const r=W.thr[thrClass].rows[t-1];const p=lastP[THRN[thrClass][1]];$('#thr-out').textContent=pct(t,0);
+  const v=$('#verdict');v.textContent='';const hi=p>=t;v.appendChild(el('span','tag'+(hi?' hi':''),hi?'Erişim için öncelikli':'Standart erişim önceliği'));v.appendChild(el('span',null,`${THRN[thrClass][0]} model olasılığı ${pct(p)}, senaryo eşiği ${pct(t,0)}`));
+  const per1000=Math.round(r[1]*10),true1000=r[4]==null?null:Math.round(r[1]*r[4]/10);const s=$('#thr-stats');s.textContent='';[[pct(r[1]),'toplumun erişim için işaretlenen payı'],[per1000.toLocaleString('tr-TR'),'her 1.000 kişide yaklaşık erişim daveti'],[pct(r[2]),'duyarlılık: hedef sınıfın yakalanan payı'],[r[4]==null?'—':pct(r[4]),'pozitif öngörü değeri'],[true1000==null?'—':true1000.toLocaleString('tr-TR'),'her 1.000 kişide hedef sınıftan ulaşılan'],[pct(100-r[3]),'yanlış-pozitif oranı']].forEach(([a,b])=>{const d=el('div');d.appendChild(el('b',null,a));d.appendChild(el('span',null,b));s.appendChild(d)})}
+function setThrClass(k){thrClass=k;[...$('#thr-chips').children].forEach(c=>c.setAttribute('aria-pressed',c.dataset.k===k));$('#thr').value=thrGet(k);renderThr()}
+Object.keys(THRN).forEach(k=>{const b=el('button',null,THRN[k][0]);b.dataset.k=k;b.onclick=()=>setThrClass(k);$('#thr-chips').appendChild(b)});
+$('#thr').addEventListener('input',()=>{try{localStorage.setItem('thr-'+thrClass,$('#thr').value)}catch(e){}renderThr()});
+let contribClass=1;
+[['Hiç taranmamış',1],['Geri kalmış',0]].forEach(([n,k])=>{const b=el('button',null,n);b.setAttribute('aria-pressed',k===contribClass);b.onclick=()=>{contribClass=k;[...$('#contrib-chips').children].forEach(c=>c.setAttribute('aria-pressed',c===b));update()};$('#contrib-chips').appendChild(b)});
+const VARLAB=Object.assign({yas:'Yaş',cocuk:'Çocuk sayısı'},Object.fromEntries(Object.entries(M.vars).map(([k,v])=>[k,v.label])));
+function answerText(o,v){if(o[v]==null)return 'bilinmiyor';if(v==='yas')return o.yas+' yaş';if(v==='cocuk')return String(o.cocuk);const l=M.vars[v].levels.find(a=>a[0]===o[v]);return l?l[1]:''}
+const BASE=W.base;
+function update(){const o=readForm();const valid=o.yas!=null;$('#result-empty').hidden=valid;$('#result-content').hidden=!valid;if(!valid)return;const r=predict(o);const P=r.p.map(v=>v*100);const filled=ALL_FIELDS.filter(v=>o[v]!=null).length;
+  $('#completion-note').textContent=filled===ALL_FIELDS.length?'19/19 alan yanıtlandı. Bu yine de klinik bir değerlendirme değildir.':`${filled}/19 alan yanıtlandı; ${ALL_FIELDS.length-filled} boş alan nüfus ortalamasıyla temsil edildi. Sonucu geçici bir erişim tahmini olarak yorumlayın.`;
+  const host=$('#probs');host.textContent='';[['Güncel',C.cur],['Geri kalmış',C.over],['Hiç taranmamış',C.never]].forEach((k,i)=>{const d=el('div','prob');const kk=el('div','k');const s=el('i','sw');s.style.background=k[1];kk.appendChild(s);kk.appendChild(el('span',null,k[0]));d.appendChild(kk);d.appendChild(el('div','v',pct(P[i])));const diff=P[i]-BASE[i];d.appendChild(el('div','d',`(${diff>=0?'+':'−'}${fmt(Math.abs(diff))} puan)`));host.appendChild(d)});
+  const st=$('#pstack');st.textContent='';st.setAttribute('aria-label',`Güncel ${pct(P[0])}, geri kalmış ${pct(P[1])}, hiç taranmamış ${pct(P[2])}`);[C.cur,C.over,C.never].forEach((c,i)=>{const s=el('span');s.style.background=c;s.style.width=P[i]+'%';st.appendChild(s)});
+  const items=Object.entries(r.contrib).map(([g,v])=>[g,v[contribClass]]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,8);const mx=Math.max(.4,...items.map(a=>Math.abs(a[1])));
+  const ch=$('#contrib');ch.textContent='';items.forEach(([g,v])=>{const row=el('div','crow');const nm=el('div','nm');nm.appendChild(el('b',null,VARLAB[g]));nm.appendChild(document.createTextNode(': '+answerText(o,g)));row.appendChild(nm);const dv=el('div','dv');const i=el('i');const wd=Math.abs(v)/mx*50;i.style.width=wd+'%';i.style.left=(v>=0?50:50-wd)+'%';i.style.background=v>=0?(contribClass===1?C.never:C.over):'var(--c-dim)';i.style.borderRadius=v>=0?'0 4px 4px 0':'4px 0 0 4px';dv.appendChild(i);row.appendChild(dv);row.appendChild(el('div','num',(v>=0?'+':'−')+fmt(Math.abs(v),2)));ch.appendChild(row)});
+  lastP=P;renderThr();renderMatch(o)}
+
+/* ---------- ağaçlar / profiller ---------- */
+function treeFeat(o,f){const bin=(v,c)=>o[v]==null?null:(c(o[v])?1:0);switch(f){case'yas':return o.yas;case'cocuk':return o.cocuk;case'egitim':return o.egitim;case'gelir':return o.gelir8;case'checkup5':return o.checkup==null?null:(o.checkup===8?5:o.checkup);
+  case'sigortasiz':return o.sigortasiz;case'doktor_yok':return bin('doktor',x=>x===3);case'maliyet':return bin('maliyet_engeli',x=>x===1);case'evli':return bin('medeni',x=>x===1);case'hic_evlenmemis':return bin('medeni',x=>x===5);
+  case'kirsal':return o.kirsal;case'ispanyolca':return o.dil_ispanyolca;case'hispanik':return bin('irk',x=>x===8);case'siyah':return bin('irk',x=>x===2);case'asyali':return bin('irk',x=>x===4);case'beyaz':return bin('irk',x=>x===1);case'sigara_halen':return bin('sigara',x=>x===1||x===2);case'ev_sahibi':return bin('ev_sahibi',x=>x===1);case'calisiyor':return bin('istihdam',x=>x===1||x===2)}return null}
+function walk(node,o){while(node.f){const v=treeFeat(o,node.f);if(v==null)return null;node=v<=node.t?node.l:node.r}return node.leaf}
+const RANGE={yas:[21,65],gelir:[1,8],egitim:[1,6],checkup5:[1,5],cocuk:[0,5]};
+const INC=[0,10,15,20,25,35,50,75];
+const EDU=['','okula gitmemiş','ilkokul–ortaokul','lise terk','lise mezunu','üniversite terk / ön lisans','üniversite mezunu'];
+const BIN={sigortasiz:['sigortasız','sigortalı'],medicaid:['Medicaid\'li','Medicaid dışı'],doktor_yok:['düzenli doktoru yok','düzenli doktoru var'],maliyet:['maliyet engeli yaşamış','maliyet engeli yok'],evli:['evli','evli değil'],hic_evlenmemis:['hiç evlenmemiş','evlenmiş'],kirsal:['kırsalda','kentte'],ispanyolca:['İspanyolca görüşme','İngilizce görüşme'],hispanik:['Hispanik','Hispanik değil'],siyah:['siyah','siyah değil'],asyali:['Asyalı','Asyalı değil'],beyaz:['beyaz','beyaz değil'],sigara_halen:['halen sigara içiyor','sigara içmiyor'],ev_sahibi:['ev sahibi','ev sahibi değil'],calisiyor:['çalışıyor','çalışmıyor']};
+function ruleText(path){const iv={},bins=[];path.forEach(([f,op,t])=>{if(RANGE[f]){iv[f]=iv[f]||RANGE[f].slice();if(op==='<=')iv[f][1]=Math.min(iv[f][1],Math.floor(t));else iv[f][0]=Math.max(iv[f][0],Math.floor(t)+1)}else bins.push(BIN[f][op==='>'?0:1])});
+  const out=[];for(const f in iv){const[lo,hi]=iv[f],[a,b]=RANGE[f];if(f==='yas')out.push(lo===a?`${hi} yaş ve altı`:hi===b?`${lo} yaş ve üzeri`:`${lo}–${hi} yaş`);
+    else if(f==='gelir')out.push(lo===a?`gelir ${INC[hi]} bin $ altı`:hi===b?`gelir ${INC[lo-1]} bin $ ve üzeri`:`gelir ${INC[lo-1]}–${INC[hi]} bin $`);
+    else if(f==='egitim')out.push(lo===a?`eğitim: ${EDU[hi]} veya altı`:hi===b?`eğitim: ${EDU[lo]} veya üstü`:`eğitim: ${EDU[lo]}–${EDU[hi]}`);
+    else if(f==='checkup5'){const k=lo+'-'+hi;const L={'1-1':'son check-up 1 yıl içinde','1-2':'son check-up 2 yıl içinde','2-2':'son check-up 1–2 yıl önce','3-5':'son check-up 2 yıldan eski ya da hiç','2-5':'son check-up 1 yıldan eski ya da hiç'};out.push(L[k]||`check-up düzeyi ${lo}–${hi}`)}
+    else out.push(`çocuk sayısı ${lo}–${hi}`)}
+  return out.concat(bins).join(' · ')}
+function leaves(node,path,acc){if(!node.f){acc.push(Object.assign({path},node));return acc}leaves(node.l,path.concat([[node.f,'<=',node.t]]),acc);leaves(node.r,path.concat([[node.f,'>',node.t]]),acc);return acc}
+const LV={never:leaves(W.trees.never.root,[],[]),over:leaves(W.trees.overdue.root,[],[])};
+function renderProfiles(host,list,base,color){host.textContent='';const h=el('div','prof hd');h.appendChild(el('div',null,'Profil'));h.appendChild(el('div','m','Oran'));['Eğitim %','Test %','Oran oranı'].forEach(x=>h.appendChild(el('div','num',x)));host.appendChild(h);const mx=Math.max(...list.map(l=>l.rate));
+  list.slice().sort((a,b)=>b.rate-a.rate).forEach(l=>{const d=el('div','prof');const t=el('div');t.appendChild(el('div',null,ruleText(l.path)));const s=el('span','pill',`nüfusun ${pct(l.share)}'i · n=${fmtn(l.n)} · %95 GA ${fmt(l.lo)}–${fmt(l.hi)}`);t.appendChild(s);d.appendChild(t);const m=el('div','meter');const i=el('i');i.style.width=(l.rate/mx*100)+'%';i.style.background=color;m.appendChild(i);const u=el('u');u.style.left=(base/mx*100)+'%';m.appendChild(u);m.tabIndex=0;m.setAttribute('role','img');m.setAttribute('aria-label',`Bu profilde oran ${pct(l.rate)}, genel oran ${pct(base)}, oran oranı ${fmt(l.rate/base,2)}`);const f=ev=>showTip(ev.clientX!=null?ev:{clientX:m.getBoundingClientRect().left,clientY:m.getBoundingClientRect().bottom},tt=>{tt.appendChild(el('b',null,pct(l.rate)));tt.appendChild(el('div',null,`genel oran ${pct(base)} · oran oranı ${fmt(l.rate/base,2)}`))});m.addEventListener('pointermove',f);m.addEventListener('pointerleave',hideTip);m.addEventListener('focus',f);m.addEventListener('blur',hideTip);d.appendChild(m);
+    d.appendChild(el('div','num',fmt(l.rate)));d.appendChild(el('div','num',fmt(l.rate_test)));d.appendChild(el('div','num',fmt(l.rate/base,2)));host.appendChild(d)})}
+function renderMatch(o){const host=$('#match');host.textContent='';host.appendChild(el('h3',null,'Keşifsel profil eşleşmesi'));[['never','Hiç taranmamış profili',W.trees.never],['over','Geri kalmış profili (taranmışlar içinde)',W.trees.overdue]].forEach(([k,title,T])=>{const id=walk(T.root,o),d=el('div');d.appendChild(el('div','note',title));if(id==null){d.appendChild(el('div','rule','Eksik yanıt nedeniyle profil atanmadı.'));d.appendChild(el('div','note','Karar ağacının kullandığı bir alan boş olduğunda araç, öğrenilmiş eksik dalını izleyip var olmayan bir özellik atamaz.'));host.appendChild(d);return}const l=LV[k].find(x=>x.leaf===id);d.appendChild(el('div','rule',ruleText(l.path)));d.appendChild(el('div','note',`Bu keşifsel grupta eğitim oranı ${pct(l.rate)} — genel oranın (${pct(T.base)}) ${fmt(l.rate/T.base,2)} katı; eğitim nüfusunun ${pct(l.share)}'i.`));host.appendChild(d)})}
+
+/* ---------- sınıftan kadına ---------- */
+const REVN={never:['Hiç taranmamış',C.never],overdue:['Geri kalmış',C.over],current:['Güncel',C.cur]};let revClass='never';
+function renderRev(){const R=W.rev[revClass],col=REVN[revClass][1];[...$('#rev-chips').children].forEach(c=>c.setAttribute('aria-pressed',c.dataset.k===revClass));$('#rev-sw').style.background=col;
+  $('#rev-sum').textContent=`2020'de 21–65 yaş arası kadınların ${pct(R.share)} kadarı "${REVN[revClass][0]}" sınıfındadır (n=${fmtn(R.n)}). Bu sınıftaki kadınların ortanca yaşı ${fmt(R.yas,0)}.`;
+  const host=$('#rev-rows');host.textContent='';const h=el('div','cmp hd');h.appendChild(el('div','lab','Özellik'));h.appendChild(el('div','t','%0 – %100'));['Sınıf','Tümü','Oran'].forEach(x=>h.appendChild(el('div','num',x)));host.appendChild(h);
+  R.comp.slice().sort((a,b)=>b[3]-a[3]).forEach(([f,all,cl,ratio])=>{const d=el('div','cmp');d.appendChild(el('div','lab',f));const t=el('div','trk');t.tabIndex=0;t.setAttribute('role','img');t.setAttribute('aria-label',`${f}: sınıfta ${pct(cl)}, tüm kadınlarda ${pct(all)}`);
+    const u=el('u');u.style.left=Math.min(all,cl)+'%';u.style.width=Math.abs(cl-all)+'%';t.appendChild(u);const a=el('i','all');a.style.left=all+'%';t.appendChild(a);const c=el('i');c.style.left=cl+'%';c.style.background=col;t.appendChild(c);
+    const tf=ev=>showTip(ev.clientX!=null?ev:{clientX:t.getBoundingClientRect().left,clientY:t.getBoundingClientRect().bottom},tt=>{tt.appendChild(el('b',null,f));tt.appendChild(el('div',null,`${REVN[revClass][0]}: ${pct(cl)}`));tt.appendChild(el('div',null,`Tüm kadınlar: ${pct(all)}`));tt.appendChild(el('div',null,`Oran: ${fmt(ratio,2)}×`))});
+    t.addEventListener('pointermove',tf);t.addEventListener('pointerleave',hideTip);t.addEventListener('focus',tf);t.addEventListener('blur',hideTip);d.appendChild(t);
+    d.appendChild(el('div','num',fmt(cl)));d.appendChild(el('div','num',fmt(all)));d.appendChild(el('div','num',fmt(ratio,2)+'×'));host.appendChild(d)});
+  const ty=$('#rev-types');ty.textContent='';const mx=Math.max(...R.clusters.map(c=>c.share));R.clusters.forEach(c=>{const d=el('div','type');const hh=el('div','type-h');hh.appendChild(el('b',null,c.name));hh.appendChild(el('span',null,`sınıfın ${pct(c.share)} kadarı · n=${fmtn(c.n)} · ortanca yaş ${fmt(c.yas,0)}`));d.appendChild(hh);
+    const b=el('div','bar');const i=el('i');i.style.width=(c.share/mx*100)+'%';i.style.background=col;b.appendChild(i);d.appendChild(b);const tr=el('div','traits');c.top.forEach(([f,a,cls])=>{const s=el('span',null,`${f} ${pct(a,0)} `);s.appendChild(el('small',null,`(${pct(cls,0)})`));tr.appendChild(s)});d.appendChild(tr);ty.appendChild(d)})}
+Object.keys(REVN).forEach(k=>{const b=el('button',null,REVN[k][0]);b.dataset.k=k;b.onclick=()=>{revClass=k;renderRev()};$('#rev-chips').appendChild(b)});
+
+/* ---------- sınamalar ---------- */
+function renderTests(){const S=W.stress,host=$('#blk-rows');host.textContent='';const h=el('div','blk hd');h.appendChild(el('div','lab','Eklenen blok'));h.appendChild(el('div','num hide-s','n'));h.appendChild(el('div','hide-s','Δ AUC'));['Temel','+ Blok','Fark'].forEach(x=>h.appendChild(el('div','num',x)));host.appendChild(h);
+  const mx=Math.max(...W.blocks.map(q=>Math.abs(q.fark[3])));W.blocks.forEach(q=>{const d=el('div','blk');const l=el('div','lab',q.blok);l.appendChild(el('small',null,`${q.eyalet} eyalet/bölge · hiç taranmamış ${pct(q.hic_oran)}`));d.appendChild(l);d.appendChild(el('div','num hide-s',fmtn(q.n)));
+    const bar=el('div','dbar');const i=el('i',q.fark[3]<0?'neg':'');const wd=Math.abs(q.fark[3])/mx*80;i.style.width=wd+'%';i.style.left=(q.fark[3]>=0?20:20-Math.min(20,wd))+'%';if(q.fark[3]<0)i.style.width=Math.min(20,wd)+'%';bar.appendChild(i);d.appendChild(bar);
+    d.appendChild(el('div','num',fmt(q.temel[3],3)));d.appendChild(el('div','num',fmt(q.ek[3],3)));d.appendChild(el('div','num',(q.fark[3]>=0?'+':'−')+fmt(Math.abs(q.fark[3]),3)+' ± '+fmt(q.fark_ss[3],3)));host.appendChild(d)});
+  const sf=$('#sf-rows');sf.textContent='';const h2=el('div','sf hd');h2.appendChild(el('div',null,'#'));h2.appendChild(el('div',null,'Eklenen soru'));h2.appendChild(el('div','m','AUC ortalama'));['Ort.','Hiç','Geri'].forEach(x=>h2.appendChild(el('div','num',x)));sf.appendChild(h2);
+  const lo=0.65,full=S.kisa_form[S.kisa_form.length-1];S.kisa_form.forEach(r=>{const d=el('div','sf');d.appendChild(el('div','num',String(r.k)));d.appendChild(el('div',null,r.eklenen));const b=el('div','mbar');const i=el('i');i.style.width=Math.max(0,(r.auc_ort-lo)/(full.auc_ort-lo)*100)+'%';b.appendChild(i);d.appendChild(b);[r.auc_ort,r.auc_hic,r.auc_geri].forEach(v=>d.appendChild(el('div','num',fmt(v,3))));sf.appendChild(d)});
+  const k8=S.kisa_form[7];$('#sf-note').textContent=`İlk 8 soru ortalama AUC'yi ${fmt(k8.auc_ort,3)} düzeyine getirir; 19 sorunun tamamı ${fmt(full.auc_ort,3)} verir. Çubuk ölçeği ${fmt(lo,2)} ile ${fmt(full.auc_ort,3)} arasındadır.`;
+  const H=['Senaryo','AUC hiç taranmamış','AUC geri kalmış','Log-loss','Tahmin / gözlenen: hiç taranmamış','Tahmin / gözlenen: geri kalmış'];const row=r=>[r.senaryo||r.soru,fmt(r.auc_hic,3),fmt(r.auc_geri,3),fmt(r.logloss,3),`${pct(r.tahmin_hic)} / ${pct(r.gozlenen_hic)}`,`${pct(r.tahmin_geri)} / ${pct(r.gozlenen_geri)}`];
+  const b0=Object.assign({senaryo:'Bozulmamış veri'},S.base);tbl('#st-err',H,[row(b0)].concat(S.hatali.map(row)));tbl('#st-shift',H,[row(b0)].concat(S.kayma.map(row)));
+  $('#obs-n').textContent=fmt(S.gozlenen[2]);$('#obs-o').textContent=fmt(S.gozlenen[1]);
+  tbl('#st-miss',['Silinen yanıt oranı','Yaklaşım','AUC hiç taranmamış','AUC geri kalmış','Log-loss','Tahmin: hiç taranmamış','Tahmin: geri kalmış'],S.eksik_karsilastirma.flatMap(r=>[['kategori','"Bilinmiyor" kategorisi'],['ortalama','Nüfus ortalaması']].map(([k,n])=>[pct(r.oran,0),n,fmt(r[k].auc_hic,3),fmt(r[k].auc_geri,3),fmt(r[k].logloss,3),pct(r[k].tahmin_hic),pct(r[k].tahmin_geri)])));
+  tbl('#st-drop',['Sorulmayan soru','AUC hiç taranmamış','AUC geri kalmış','Log-loss'],S.soru_yok.slice(0,8).map(r=>[r.soru,fmt(r.auc_hic,3),fmt(r.auc_geri,3),fmt(r.logloss,3)]))}
+
+/* ---------- betimsel ---------- */
+let descKey=W.desc[0].key;
+W.desc.forEach(d=>{const b=el('button',null,d.label);b.setAttribute('aria-pressed',d.key===descKey);b.onclick=()=>{descKey=d.key;[...$('#desc-chips').children].forEach(c=>c.setAttribute('aria-pressed',c===b));renderDesc()};$('#desc-chips').appendChild(b)});
+function renderDesc(){const d=W.desc.find(x=>x.key===descKey);rowsTable($('#desc-rows'),d.rows.map(r=>({label:r[0],sub:'n='+fmtn(r[1]),vals:[r[2],r[3],r[4]]})),d.label)}
+function renderFlow(){const h=$('#flow');const mx=W.flow[0][1];W.flow.forEach(([t,n])=>{const d=el('div');const a=el('div');a.appendChild(el('div',null,t));const b=el('div','fb');b.style.width=(n/mx*100)+'%';a.appendChild(b);d.appendChild(a);const x=el('div','num',fmtn(n));x.style.cssText='text-align:right;font-family:var(--mono);font-size:13px';d.appendChild(x);h.appendChild(d)})}
+function lineChart(sel,rows,series,aria){const host=$(sel);const Wd=720,H=300,m={l:40,r:series.length<3?56:16,t:12,b:30};const ns='http://www.w3.org/2000/svg';const s=document.createElementNS(ns,'svg');s.setAttribute('viewBox',`0 0 ${Wd} ${H}`);s.style.width='100%';s.style.height='auto';s.setAttribute('role','img');s.setAttribute('aria-label',aria);
+  const mxv=Math.ceil(Math.max(...series.flatMap(q=>q.vals))/20)*20;const x=a=>m.l+(a-21)/(65-21)*(Wd-m.l-m.r),y=v=>m.t+(1-v/mxv)*(H-m.t-m.b);const mk=(t,at)=>{const e=document.createElementNS(ns,t);for(const k in at)e.setAttribute(k,at[k]);s.appendChild(e);return e};
+  for(let v=0;v<=mxv;v+=20){mk('line',{x1:m.l,x2:Wd-m.r,y1:y(v),y2:y(v),stroke:'var(--line)','stroke-width':1});const t=mk('text',{x:m.l-6,y:y(v)+4,'text-anchor':'end'});t.textContent=pct(v,0)}
+  [21,25,30,35,40,45,50,55,60,65].forEach(a=>{const t=mk('text',{x:x(a),y:H-8,'text-anchor':'middle'});t.textContent=a});
+  series.forEach(q=>{mk('path',{d:rows.map((a,j)=>(j?'L':'M')+x(a).toFixed(1)+' '+y(q.vals[j]).toFixed(1)).join(''),fill:'none',stroke:q.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'});
+    if(series.length<3){const j=rows.length-1;mk('circle',{cx:x(rows[j]),cy:y(q.vals[j]),r:4,fill:q.color,stroke:'var(--surface)','stroke-width':2});const t=mk('text',{x:x(rows[j])+8,y:y(q.vals[j])+4,fill:'var(--ink2)'});t.textContent=q.name;t.style.fill='var(--ink2)'}});
+  const cross=mk('line',{y1:m.t,y2:H-m.b,stroke:'var(--ink3)','stroke-width':1,visibility:'hidden'});const dots=series.map(q=>mk('circle',{r:4,fill:q.color,stroke:'var(--surface)','stroke-width':2,visibility:'hidden'}));
+  const hit=mk('rect',{x:m.l,y:m.t,width:Wd-m.l-m.r,height:H-m.t-m.b,fill:'transparent'});
+  hit.addEventListener('pointermove',ev=>{const r=s.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*Wd;const a=Math.round(Math.min(65,Math.max(21,21+(px-m.l)/(Wd-m.l-m.r)*44)));const j=rows.indexOf(a);if(j<0)return;cross.setAttribute('x1',x(a));cross.setAttribute('x2',x(a));cross.setAttribute('visibility','visible');dots.forEach((d,i)=>{d.setAttribute('cx',x(a));d.setAttribute('cy',y(series[i].vals[j]));d.setAttribute('visibility','visible')});showTip(ev,t=>tipList(t,a+' yaş',series.map(q=>[q.name,q.color,q.vals[j]])))});
+  hit.addEventListener('pointerleave',()=>{hideTip();cross.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'))});
+  const wrap=el('div','scroll');wrap.appendChild(s);host.appendChild(wrap);const at=el('table','sr-only');const cap=el('caption',null,aria);at.appendChild(cap);const hr=el('tr');hr.appendChild(el('th',null,'Yaş'));series.forEach(q=>hr.appendChild(el('th',null,q.name)));at.appendChild(hr);rows.forEach((a,j)=>{const tr=el('tr');tr.appendChild(el('td',null,String(a)));series.forEach(q=>tr.appendChild(el('td',null,pct(q.vals[j]))));at.appendChild(tr)});host.appendChild(at)}
+function ageChart(){const ages=W.age.map(r=>r[0]);lineChart('#agechart',ages,[{name:'Güncel',color:C.cur,vals:W.age.map(r=>r[1])},{name:'Geri kalmış',color:C.over,vals:W.age.map(r=>r[2])},{name:'Hiç taranmamış',color:C.never,vals:W.age.map(r=>r[3])}],'Yaşa göre üç sınıfın ağırlıklı yüzdesi');
+  const m24=new Map(W.age24.map(r=>[r[0],r[3]]));lineChart('#cmpchart',ages,[{name:'2020',color:C.never,vals:W.age.map(r=>r[3])},{name:'2024',color:'var(--ink3)',vals:ages.map(a=>m24.get(a)??0)}],'Yaşa göre hiç taranmamış oranı, 2020 ve 2024')}
+/* ---------- eyaletler ---------- */
+let stateSort=4;
+[['Hiç taranmamışa göre',4],['Geri kalmışa göre',3],['Güncele göre',2],['Ada göre',0]].forEach(([n,k])=>{const b=el('button',null,n);b.setAttribute('aria-pressed',k===stateSort);b.onclick=()=>{stateSort=k;[...$('#state-sort').children].forEach(c=>c.setAttribute('aria-pressed',c===b));renderStates()};$('#state-sort').appendChild(b)});
+function renderStates(){const r=W.states.slice().sort((a,b)=>stateSort===0?a[0].localeCompare(b[0]):b[stateSort]-a[stateSort]);rowsTable($('#state-rows'),r.map(s=>({label:s[0],sub:'n='+fmtn(s[1]),vals:[s[2],s[3],s[4]]})),'Eyalet / bölge')}
+
+/* ---------- model ---------- */
+function tbl(sel,heads,rows){const t=$(sel);t.textContent='';const h=el('tr');heads.forEach(x=>h.appendChild(el('th',null,x)));t.appendChild(h);rows.forEach(r=>{const tr=el('tr');r.forEach((v,i)=>tr.appendChild(el('td',i?'n':null,v)));t.appendChild(tr)})}
+const ci=a=>`${fmt(a[0],3)} (${fmt(a[1],3)}–${fmt(a[2],3)})`;
+function renderPerf(){$('#ntest').textContent=fmtn(W.ntest);$('#n24').textContent=fmtn(W.n24);
+  tbl('#cvtab',['Model','AUC ortalama','AUC hiç taranmamış','AUC geri kalmış','AUC güncel','Log-loss'],W.cv.slice().sort((p,q)=>(p.model.includes('37')?1:0)-(q.model.includes('37')?1:0)).map(c=>[c.model,`${fmt(c.AUC_macro_mean,3)} ± ${fmt(c.AUC_macro_std,3)}`,fmt(c.AUC_hic_mean,3),fmt(c.AUC_geri_mean,3),fmt(c.AUC_guncel_mean,3),fmt(c.logloss_mean,3)]));
+  tbl('#valtab',['Ölçüt','İç doğrulama (2020)','Zamansal değerlendirme (2024)'],[['AUC, hiç taranmamış',ci(W.internal.hic),ci(W.ext.hic)],['AUC, geri kalmış',ci(W.internal.geri),ci(W.ext.geri)],['AUC, güncel',ci(W.internal.guncel),ci(W.ext.guncel)],['AUC, geri kalmış (yalnızca taranmış kadınlar içinde)',ci(W.internal.geri_taranmislar),ci(W.ext.geri_taranmislar)],['Log-loss',fmt(W.internal.logloss,3),fmt(W.ext.logloss,3)]]);
+  tbl('#lifttab',['Hedef sınıf','En yüksek tahminli dilim','Sınıfın yakalanan payı','Dilimde sınıfın oranı','Genel oran'],W.lift.map(l=>[({hic:'Hiç taranmamış',geri:'Geri kalmış'})[l.sinif],pct(l.dilim,0),pct(l.yakalama),pct(l.ppv),pct(l.taban)]));
+  tbl('#subtab',['Alt grup','n (test)','Hiç taranmamış %','AUC hiç taranmamış','AUC geri kalmış'],W.sub.map(g=>[g.grup,fmtn(g.n),fmt(g.hic_oran),fmt(g.AUC_hic,3),fmt(g.AUC_geri,3)]));
+  const metric=a=>a?`${fmt(a[0])} (${fmt(a[1])}–${fmt(a[2])})`:'—';const fair=W.fairness||[];
+  tbl('#fairtab',['Alt grup','Erişim teklifi %','Duyarlılık %','PPV %','Yanlış-pozitif %','Gözlenen %','Tahmin %'],fair.length?fair.map(g=>[g.label,metric(g.alert),metric(g.sensitivity),metric(g.ppv),metric(g.fpr),metric(g.observed),metric(g.predicted)]):[['Tasarım-bootstrap çıktısı bulunamadı','—','—','—','—','—','—']])}
+function renderCal(){const host=$('#cal');const ns='http://www.w3.org/2000/svg';[['Güncel',C.cur,CAL[0]],['Geri kalmış',C.over,CAL[1]],['Hiç taranmamış',C.never,CAL[2]],['Geri kalmış, taranmışlar içinde (2024)',C.over,W.ext.cal_geri_taranmislar]].forEach(([name,c,pts])=>{const mx=Math.ceil(Math.max(...pts.flat())/20)*20;const S=240,m={l:36,r:10,t:10,b:28};const fig=el('figure');const cap=el('figcaption');const sw=el('i','sw');sw.style.background=c;cap.appendChild(sw);cap.appendChild(el('span',null,name));fig.appendChild(cap);
+  const s=document.createElementNS(ns,'svg');s.setAttribute('viewBox',`0 0 ${S} ${S}`);s.style.width='100%';s.style.maxWidth='320px';s.setAttribute('role','img');s.setAttribute('aria-label',name+' sınıfı kalibrasyon grafiği');const mk=(t,at)=>{const e=document.createElementNS(ns,t);for(const q in at)e.setAttribute(q,at[q]);s.appendChild(e);return e};
+  const x=v=>m.l+v/mx*(S-m.l-m.r),y=v=>S-m.b-v/mx*(S-m.t-m.b);for(let v=0;v<=mx;v+=mx/4){mk('line',{x1:m.l,x2:S-m.r,y1:y(v),y2:y(v),stroke:'var(--line)','stroke-width':1});let t=mk('text',{x:m.l-5,y:y(v)+4,'text-anchor':'end'});t.textContent=v;t=mk('text',{x:x(v),y:S-10,'text-anchor':'middle'});t.textContent=v}
+  mk('line',{x1:x(0),y1:y(0),x2:x(mx),y2:y(mx),stroke:'var(--ink3)','stroke-width':1});
+  pts.forEach(([p,o])=>{const d=mk('circle',{cx:x(p),cy:y(o),r:4.5,fill:c,stroke:'var(--surface)','stroke-width':2});const h=mk('circle',{cx:x(p),cy:y(o),r:12,fill:'transparent',tabindex:0,role:'img','aria-label':`${name}: tahmin ${pct(p)}, gözlenen ${pct(o)}`});const f=ev=>showTip(ev.clientX!=null?ev:{clientX:s.getBoundingClientRect().left,clientY:s.getBoundingClientRect().bottom},t=>{t.appendChild(el('b',null,`Gözlenen ${pct(o)}`));t.appendChild(el('div',null,`Tahmin ${pct(p)}`))});h.addEventListener('pointermove',f);h.addEventListener('pointerleave',hideTip);h.addEventListener('focus',f);h.addEventListener('blur',hideTip)});
+  fig.appendChild(s);fig.appendChild(el('div','note','Yatay: tahmin edilen %, dikey: gözlenen %'));host.appendChild(fig)})}
+const SHAPLAB={gelir8:'Hane geliri',sigortasiz:'Sigortasızlık',koah:'KOAH',diyabet:'Diyabet',artrit:'Artrit',astim:'Astım',kalp_hast:'Kalp hastalığı',maliyet_engeli:'Maliyet engeli',kirsal:'Kırsal yerleşim',asiri_icme:'Aşırı alkol',fiziksel_kotu_gun:'Fiziksel kötü gün sayısı',ruhsal_kotu_gun:'Ruhsal kötü gün sayısı',yas:'Yaş',irk:'Irk / etnisite',checkup:'Son check-up zamanı',hiv_testi:'HIV testi yaptırmış olma',eyalet:'Eyalet',gelir:'Hane geliri',egitim:'Eğitim',sigorta_turu:'Sigorta türü',grip_asisi:'Grip aşısı',dis_hekimi:'Son diş hekimi ziyareti',doktor:'Düzenli doktor',ev_sahibi:'Ev sahipliği',medeni:'Medeni durum',sigara:'Sigara',istihdam:'İstihdam',bmi:'Beden kitle indeksi',egzersiz:'Egzersiz',genel_saglik:'Genel sağlık algısı',depresyon:'Depresyon öyküsü',cocuk:'Çocuk sayısı'};
+function renderShap(){const host=$('#shap');const top=W.shap.slice(0,18);const mx=Math.max(...top.map(r=>r[1]+r[2]+r[3]));const h=el('div','row hd');h.appendChild(el('div','lab','Değişken'));h.appendChild(el('div','bar',''));['Güncel','Geri','Hiç'].forEach(x=>h.appendChild(el('div','num',x)));host.appendChild(h);
+  top.forEach(r=>{const d=el('div','row');d.appendChild(el('div','lab',SHAPLAB[r[0]]||r[0]));const b=el('div','stack bar');b.style.width=((r[1]+r[2]+r[3])/mx*100)+'%';[C.cur,C.over,C.never].forEach((c,i)=>{const s=el('span');s.style.background=c;s.style.flex=r[i+1]+' 0 0';b.appendChild(s)});const cell=el('div');cell.appendChild(b);d.appendChild(cell);[r[1],r[2],r[3]].forEach(v=>d.appendChild(el('div','num',fmt(v,3))));host.appendChild(d)})}
+
+/* ---------- başlat ---------- */
+$('#base-note').textContent=`güncel ${pct(BASE[0])} · geri kalmış ${pct(BASE[1])} · hiç taranmamış ${pct(BASE[2])}`;$('#base-never').textContent=fmt(W.trees.never.base);$('#base-over').textContent=fmt(W.trees.overdue.base);
+setForm(null);update();setThrClass('never');renderProfiles($('#prof-never'),LV.never,W.trees.never.base,C.never);renderProfiles($('#prof-over'),LV.over,W.trees.overdue.base,C.over);
+renderRev();renderTests();renderDesc();renderFlow();ageChart();renderStates();renderPerf();renderCal();renderShap();
+if(W.artifact_meta&&W.artifact_meta.source==='embedded_artifact')$('#artifact-warning').hidden=false;
+let t0='calc';try{t0=localStorage.getItem('tab')||'calc'}catch(e){}selectTab(TABS.some(t=>t[0]===t0)?t0:'calc');
+</script>
