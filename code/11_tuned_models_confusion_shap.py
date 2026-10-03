@@ -1,6 +1,4 @@
 # Tuned boosting models and ensembles on the held-out 2020 set and the 2024 set, confusion matrices under three assignment rules, SHAP and coefficient-based importance, odds ratios. Run after 10.
-# Hoca istekleri: (1) genişletilmiş algoritma karşılaştırması (hiperparametre araması, CatBoost, topluluk) — geliştirme kümesinde 5 katlı CV,
-# (2) ayrılmış test (2020) ve dış (2024) doğrulama, (3) confusion matrix'ler, (4) SHAP + göreli önem. Çıktı: out/hoca.json, out/hoca_*.npy
 import pandas as pd, numpy as np, sys, json, warnings, time; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats, NUM
 import lightgbm as lgb, xgboost as xgb, shap
@@ -36,9 +34,9 @@ def metrics(t,p,ww):
     r={'logloss':float(log_loss(t,p,sample_weight=ww,labels=[0,1,2]))}
     for k,l in enumerate(['current','overdue','never']): r['auc_'+l]=float(roc_auc_score(t==k,p[:,k],sample_weight=ww))
     r['auc_macro']=float(np.mean([r['auc_current'],r['auc_overdue'],r['auc_never']])); return r
-LOG=open('out/hoca.log','a');
+LOG=open('out/model_search.log','a');
 def log(*x): print(*x,flush=True); LOG.write(' '.join(map(str,x))+'\n'); LOG.flush()
-# ---------- modeller ----------
+# Tuned models
 def fit_lr(itr): return LogisticRegression(C=1.0,max_iter=3000).fit(Z[itr],y[itr],sample_weight=w[itr])
 def fit_lgb(itr,par,nround):
     p=dict(objective='multiclass',num_class=3,verbose=-1,n_jobs=2,seed=42,subsample_freq=1)|par
@@ -48,8 +46,8 @@ def fit_cb(itr,par): return CatBoostClassifier(loss_function='MultiClass',verbos
 LGB0=dict(learning_rate=0.05,num_leaves=31,min_child_samples=80,subsample=0.8,colsample_bytree=0.7,reg_lambda=5,cat_smooth=30); XGB0=dict(n_estimators=350,learning_rate=0.05,max_depth=5,subsample=0.8,colsample_bytree=0.7,reg_lambda=5)
 SR=json.load(open('out/search_results.json')); CVbest={k:{'auc_macro':v['auc_macro'][0],'logloss':v['logloss'][0]} for k,v in SR['cv'].items()}
 BP=json.load(open('out/search_best.json')); best={k:(None,BP[k]) for k in ['lgb','xgb','cb']}
-json.dump(dict(cv_best=CVbest,best=BP),open('out/hoca_cv.json','w'),indent=1)
-# ---------- held-out test (models fitted to the 80% development subset) + 2024 (models refitted to the FULL 2020 sample) ----------
+json.dump(dict(cv_best=CVbest,best=BP),open('out/model_cv.json','w'),indent=1)
+# Held-out 2020 evaluation and 2024 temporal evaluation
 # Hyperparameters are those selected by CV in the development subset (out/search_best.json); the held-out predictions come from
 # models fitted to the development subset only, whereas the 2024 (and deployment) predictions come from models refitted to all of
 # 2020 with the same hyperparameters, as described in the paper. The refitted LR is identical to the one exported by script 03.
@@ -62,11 +60,10 @@ P['Ensemble (mean of LR, LightGBM, XGBoost, CatBoost)']=(np.mean([P[k][0] for k 
 P['Ensemble (mean of LightGBM, XGBoost, CatBoost)']=(np.mean([P[k][0] for k in ['LightGBM (tuned)','XGBoost (tuned)','CatBoost (tuned)']],0),np.mean([P[k][1] for k in ['LightGBM (tuned)','XGBoost (tuned)','CatBoost (tuned)']],0))
 rsb=np.random.RandomState(5); KEYS=list(P); HO={k:{'internal':metrics(y[te],P[k][0],w[te]),'external_2024':metrics(ya,P[k][1],wa)} for k in KEYS}
 for k in KEYS: log(k,json.dumps(HO[k]['internal']),json.dumps(HO[k]['external_2024']))
-json.dump(HO,open('out/hoca_holdout.json','w'),indent=1)
-# Paired model differences with design-based (within-stratum) bootstrap intervals are computed in script 13 from out/hoca_pred.npz.
-json.dump(HO,open('out/hoca_holdout.json','w'),indent=1)
-np.savez('out/hoca_pred.npz',**{f'{i}_{s}':P[k][j] for i,k in enumerate(P) for j,s in enumerate(['te','24'])})
-# ---------- confusion matrix'ler ----------
+json.dump(HO,open('out/model_evaluation.json','w'),indent=1)
+# Script 13 uses these predictions for paired, design-based bootstrap comparisons.
+np.savez('out/model_predictions.npz',**{f'{i}_{s}':P[k][j] for i,k in enumerate(P) for j,s in enumerate(['te','24'])})
+# Confusion matrices
 def assign_thr(p,tn=0.10,to=0.15): return np.where(p[:,2]>=tn,2,np.where(p[:,1]>=to,1,0))
 def cm(t,pred,ww):
     M=np.zeros((3,3))
@@ -81,14 +78,14 @@ for k in ['Multinomial logistic regression','LightGBM (tuned)','Ensemble (mean o
     # Macro-F1 thresholds are NOT selected here: selecting them on the held-out set would leak evaluation data into the rule.
     # They are selected on out-of-fold development predictions in script 13 and only applied to the held-out and 2024 sets there.
 log('CM',json.dumps(CM['Multinomial logistic regression']['internal_thresholds']))
-# ---------- SHAP (tuned LightGBM, 19 değişken) ----------
+# SHAP analysis for the tuned 19-variable LightGBM model
 idx=np.random.RandomState(0).choice(te,6000,replace=False); ex=shap.TreeExplainer(g); sv=ex.shap_values(XL.iloc[idx])
 sv=np.array(sv);
 if sv.shape[0]==3: sv=np.transpose(sv,(1,2,0))
 imp=np.abs(sv).mean(0)  # (feat,3)
-np.save('out/hoca_shap.npy',sv); XL.iloc[idx].to_pickle('out/hoca_shap_X.pkl')
+np.save('out/model_shap.npy',sv); XL.iloc[idx].to_pickle('out/model_shap_X.pkl')
 shap_imp=sorted([[TOOL[i]]+[float(x) for x in imp[i]]+[float(imp[i].sum())] for i in range(len(TOOL))],key=lambda r:-r[4])
-# LR göreli önem: her değişken için kategori log-odds aralığı (never ve overdue, referans güncel), ağırlıklı SD ile
+# Logistic-regression importance from category log-odds ranges and weighted SDs
 coef=lr.coef_; groups={}
 for j,c in enumerate(cols): groups.setdefault('yas' if c.startswith('yas') else c.split('=')[0],[]).append(j)
 lr_imp=[]
@@ -103,5 +100,5 @@ for gk,js in groups.items():
     OR[gk]=[[cols[j].split('=')[1],float(np.exp(coefF[1,j]-coefF[0,j])),float(np.exp(coefF[2,j]-coefF[0,j]))] for j in js]
 # LightGBM gain importance
 gain=g.feature_importance('gain'); gain=gain/gain.sum()*100
-json.dump(dict(training_note='held-out predictions: models fitted to the 80% development subset; 2024 and deployment predictions: same hyperparameters refitted to the full 2020 sample',holdout=HO,cm=CM,shap_importance=shap_imp,lr_importance=lr_imp,odds_ratios=OR,lgb_gain={TOOL[i]:float(gain[i]) for i in range(len(TOOL))},best_params={k:v[1] for k,v in best.items()},cv_best=CVbest,n_te=int(len(te)),n_tr=int(len(tr))),open('out/hoca.json','w'),indent=1)
-g.save_model('out/hoca_lgb.txt'); log('BITTI')
+json.dump(dict(training_note='held-out predictions: models fitted to the 80% development subset; 2024 and deployment predictions: same hyperparameters refitted to the full 2020 sample',holdout=HO,cm=CM,shap_importance=shap_imp,lr_importance=lr_imp,odds_ratios=OR,lgb_gain={TOOL[i]:float(gain[i]) for i in range(len(TOOL))},best_params={k:v[1] for k,v in best.items()},cv_best=CVbest,n_te=int(len(te)),n_tr=int(len(tr))),open('out/model_comparison.json','w'),indent=1)
+g.save_model('out/tuned_lightgbm.txt'); log('DONE')

@@ -1,16 +1,14 @@
 # Design-based (within-stratum) bootstrap with 1,000 resamples for all reported metrics and differences (multiplicities via np.add.at); thresholds selected on out-of-fold development predictions; state-grouped 10-fold CV; unweighted split conformal with finite-sample correction, Wilson CIs for coverage and empty-set accounting; fold SDs for tuned models. Run after 11. Usage: python code/13_...py [B]
-# Revizyon analizleri (hakem yanıtı): tasarım temelli (tabaka içi) bootstrap B=int(sys.argv[1]) if len(sys.argv)>1 else 1000; OOF eşik seçimi; eyalet-gruplu CV; ayarlı modellerin kat SD'si;
-# ağırlıksız, sonlu örneklem düzeltmeli conformal; kalibrasyon ölçütleri (intercept/slope/Brier/ECE); alt grup GA'ları; net fayda GA'ları.
 import pandas as pd, numpy as np, sys, json, warnings, time; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats, NUM
 from sklearn.model_selection import train_test_split, StratifiedKFold, GroupKFold
 from sklearn.linear_model import LogisticRegression
 import lightgbm as lgb, xgboost as xgb
 from catboost import CatBoostClassifier
-LOG=open('out/revizyon.log','a')
+LOG=open('out/design_bootstrap.log','a')
 def log(*x): print(*x,flush=True); LOG.write(' '.join(map(str,x))+'\n'); LOG.flush()
 OUT={}
-def save(): json.dump(OUT,open('out/revizyon.json','w'),indent=1)
+def save(): json.dump(OUT,open('out/design_bootstrap.json','w'),indent=1)
 b=pd.read_pickle('out/serviks2020.pkl').reset_index(drop=True); y=b.y.astype(int).values; w=(b._LLCPWT/b._LLCPWT.mean()).values; st=b._STSTR.values; state=b._STATE.values
 a=pd.read_pickle('out/analitik.pkl').reset_index(drop=True); ya=a.y.map({'current':0,'overdue':1,'never':2}).values; wa=(a._LLCPWT/a._LLCPWT.mean()).values; sta=a._STSTR.values
 TOOL=['yas','cocuk','irk','egitim','gelir8','medeni','istihdam','ev_sahibi','kirsal','dil_ispanyolca','sigortasiz','doktor','maliyet_engeli','checkup','genel_saglik','sigara','grip_asisi','hiv_testi','dis_hekimi']
@@ -18,10 +16,10 @@ XF=feats(b,2020); XA=feats(a,2024); X=XF[TOOL]; X24=XA[TOOL]
 src=open('code/03_final_model_validation_export.py').read(); exec(src[src.index("V={'irk'"):src.index("Z=design(XF)")])
 Zd=design(XF); cols=list(Zd.columns); Z=Zd.values.astype('float32'); Z24=design(XA)[cols].values.astype('float32')
 tr,te=train_test_split(np.arange(len(y)),test_size=0.2,stratify=y,random_state=42)
-Pz=np.load('out/hoca_pred.npz'); P_te={k:Pz[f'{i}_te'] for i,k in enumerate(['lr','lgb','xgb','cb','ens4','ens3'])}; P_24={k:Pz[f'{i}_24'] for i,k in enumerate(['lr','lgb','xgb','cb','ens4','ens3'])}
+Pz=np.load('out/model_predictions.npz'); P_te={k:Pz[f'{i}_te'] for i,k in enumerate(['lr','lgb','xgb','cb','ens4','ens3'])}; P_24={k:Pz[f'{i}_24'] for i,k in enumerate(['lr','lgb','xgb','cb','ens4','ens3'])}
 Gc=np.load('out/genis_cache.npz'); P_te['two']=Gc['ph']; P_24['two']=Gc['pha']
 assert np.allclose(P_te['lr'],Gc['pf'],atol=1e-6)
-# ---------- hızlı ağırlıklı AUC (skorlar sabit, ağırlık*çokluk değişir) ----------
+# Fast weighted AUC for fixed scores and resampled survey weights
 class FastAUC:
     def __init__(s,score,lab):
         o=np.argsort(score,kind='stable'); s.o=o; ss=score[o]; s.lab=lab[o].astype(float)
@@ -54,8 +52,7 @@ def ece(t,pk,k,v,edges):
 def strat_idx(strata):
     u,inv=np.unique(strata,return_inverse=True); return [np.flatnonzero(inv==i) for i in range(len(u))]
 def boot_mult(groups,rs,n):
-    # tabaka içi yeniden örnekleme: her tabakadan kendi büyüklüğü kadar yerine koyarak çekilir; çokluklar np.add.at ile
-    # biriktirilir (fancy-index += tekrarlanan indekslerde çokluğu kaybeder)
+    # Resample with replacement within strata. np.add.at preserves repeated draws.
     m=np.zeros(n)
     for g in groups:
         k=len(g); np.add.at(m,g[rs.randint(0,k,k)],1)
@@ -71,14 +68,14 @@ def groups(X):
      'English interview':X.dil_ispanyolca==0,'Spanish interview':X.dil_ispanyolca==1,'Income <$25k':inc<=4,'Income $25k-$75k':(inc>=5)&(inc<=7),'Income >=$75k':inc==8,'Income unknown':inc.isna(),
      'No regular doctor':X.doktor==3,'Cost barrier':X.maliyet_engeli==1,'Less than high school':X.egitim<=3,'College graduate':X.egitim==6}
 CL=['current','overdue','never']
-# ================= 1) OOF LR tahminleri (geliştirme kümesi) → eşikler =================
+# 1. Out-of-fold logistic-regression predictions and thresholds
 import os
 t0=time.time(); oof=np.zeros((len(tr),3)); folds=list(StratifiedKFold(5,shuffle=True,random_state=7).split(Z[tr],y[tr]))
-if os.path.exists('out/rev_oof.npy'): oof=np.load('out/rev_oof.npy')
+if os.path.exists('out/oof_predictions.npy'): oof=np.load('out/oof_predictions.npy')
 else:
     for itr,ite in folds:
         m=LogisticRegression(C=1.0,max_iter=3000).fit(Z[tr[itr]],y[tr[itr]],sample_weight=w[tr[itr]]); oof[ite]=m.predict_proba(Z[tr[ite]])
-    np.save('out/rev_oof.npy',oof); log('OOF done',time.time()-t0)
+    np.save('out/oof_predictions.npy',oof); log('OOF done',time.time()-t0)
 ytr,wtr=y[tr],w[tr]
 def cm_stats(t,pred,v):
     M=np.zeros((3,3))
@@ -90,7 +87,7 @@ def cm_stats(t,pred,v):
 grid=[(tn,to) for tn in np.arange(0.04,0.42,0.02) for to in np.arange(0.06,0.52,0.02)]
 bestf=max(((tn,to,cm_stats(ytr,assign_thr(oof,tn,to),wtr)['macro_f1']) for tn,to in grid),key=lambda r:r[2])
 OUT['thresholds']={'macro_f1_selected_on_oof':{'never':round(float(bestf[0]),2),'overdue':round(float(bestf[1]),2),'oof_macro_f1':bestf[2]},'default':{'never':0.10,'overdue':0.15}}
-# grup eşikleri (%70 duyarlılık) OOF'ta
+# Group-specific thresholds targeting 70% sensitivity
 Xtr=XF.iloc[tr].reset_index(drop=True); gt={}
 def thr_for_sens(t,p,v,target=0.70):
     o=np.argsort(-p); pos=(t[o]==1)*v[o]; cs=np.cumsum(pos)/pos.sum(); k=np.searchsorted(cs,target); return float(p[o][min(k,len(o)-1)])
@@ -99,7 +96,7 @@ for g,m in groups(Xtr).items():
     if m.sum()<500 or (ytr[m]==2).sum()<30: continue
     gt[g]=round(thr_for_sens((ytr[m]==2).astype(int),oof[m,2],wtr[m])*100,1)
 OUT['thresholds']['group_70pct_sens_selected_on_oof']=gt
-# CM'ler: seçilen eşikler dokunulmamış te ve 2024'te
+# Apply the selected thresholds to the held-out 2020 and 2024 samples
 Xt=XF.iloc[te].reset_index(drop=True)
 OUT['cm']={}
 for nm,(t,P,v) in {'internal':(y[te],P_te,w[te]),'external_2024':(ya,P_24,wa)}.items():
@@ -107,7 +104,7 @@ for nm,(t,P,v) in {'internal':(y[te],P_te,w[te]),'external_2024':(ya,P_24,wa)}.i
     for mk in ['lr','lgb','ens4']:
         OUT['cm'][nm][mk]={'argmax':cm_stats(t,P[mk].argmax(1),v),'default_10_15':cm_stats(t,assign_thr(P[mk],0.10,0.15),v),'macro_f1_oof':cm_stats(t,assign_thr(P[mk],bestf[0],bestf[1]),v)}
 save(); log('thresholds done')
-# ================= 2) Tasarım temelli bootstrap =================
+# 2. Design-based bootstrap
 B=int(sys.argv[1]) if len(sys.argv)>1 else 1000
 def run_boot(nm,t,P,v,strata,Xg,rs):
     n=len(t); grp=strat_idx(strata); G={g:m.fillna(False).values for g,m in groups(Xg).items()}
@@ -131,9 +128,9 @@ def run_boot(nm,t,P,v,strata,Xg,rs):
             r[f'alert_{c}']=(TP+FP)/vv.sum()*100; r[f'sens_{c}']=TP/(TP+FN)*100; r[f'spec_{c}']=TN/(TN+FP)*100; r[f'ppv_{c}']=TP/(TP+FP)*100; r[f'npv_{c}']=TN/(TN+FN)*100; r[f'fpr_{c}']=FP/(FP+TN)*100
             for pt in [0.05,0.10,0.15,0.20,0.30]:
                 nb,nba=netben(t,P['lr'],vv,k,pt); r[f'nb_{c}_{pt}']=nb; r[f'nball_{c}_{pt}']=nba
-        # lift top 20%
+        # Lift in the top 20% of predicted probabilities
         o=np.argsort(-P['lr'][:,2]); cw=np.cumsum(vv[o])/vv.sum(); tt=(t[o]==2)*vv[o]; r['lift20_never']=tt[cw<=0.2].sum()/tt.sum()*100
-        # alt gruplar
+        # Subgroup metrics
         for g,m2 in G.items():
             vg=vv*m2
             if (vg>0).sum()<200 or ((t==2)&(vg>0)).sum()<10: continue
@@ -151,7 +148,7 @@ def run_boot(nm,t,P,v,strata,Xg,rs):
     res={}
     for j,k in enumerate(keys):
         lo,hi=np.nanpercentile(R[:,j],[2.5,97.5]); res[k]={'est':point[k],'lo':float(lo),'hi':float(hi)}
-    # farklar (aynı yeniden örneklem): model − lr
+    # Paired differences within the same resample: model minus logistic regression
     for mk in ['lgb','xgb','cb','ens4','ens3','two']:
         for met in ['auc_never','auc_overdue','auc_current','auc_macro']:
             c=met.replace('auc_',''); a1=keys.index(f'auc_{mk}_{c}'); a0=keys.index(f'auc_lr_{c}'); d=R[:,a1]-R[:,a0]
@@ -164,7 +161,7 @@ def run_boot(nm,t,P,v,strata,Xg,rs):
 rs=np.random.RandomState(2026)
 OUT['boot_internal']=run_boot('internal',y[te],P_te,w[te],st[te],Xt,rs); save(); log('boot internal done')
 OUT['boot_external_2024']=run_boot('external',ya,P_24,wa,sta,XA,rs); save(); log('boot external done')
-# ================= 3) Conformal (ağırlıksız, sonlu örneklem düzeltmeli) =================
+# 3. Unweighted split conformal prediction with finite-sample correction
 tr2,cal=train_test_split(tr,test_size=0.15,stratify=y[tr],random_state=3)
 m2=LogisticRegression(C=1.0,max_iter=3000).fit(Z[tr2],y[tr2],sample_weight=w[tr2]); pc=m2.predict_proba(Z[cal]); pt_=m2.predict_proba(Z[te]); pe=m2.predict_proba(Z24)
 def qhat(scores,alpha):
@@ -190,11 +187,11 @@ for alpha in (0.10,0.20):
     conf[f'alpha_{alpha}']={'marginal_floor':round(1-q,4),'classwise_floor':{c:round(1-qk[k],4) for k,c in enumerate(CL)},'n_cal':int(len(cal)),'n_cal_by_class':{c:int((y[cal]==k).sum()) for k,c in enumerate(CL)}}
     for nm,(P,T,Wv) in {'internal':(pt_,y[te],w[te]),'external_2024':(pe,ya,wa)}.items():
         conf[f'alpha_{alpha}'][nm]={'marginal':evalset(P>=1-q,T,Wv,P),'classwise':evalset(np.stack([P[:,k]>=1-qk[k] for k in range(3)],1),T,Wv,P)}
-        # alt grup kapsama (sınıf-koşullu, hiç taranmamış)
+        # Class-conditional subgroup coverage for never-screened status
         Xg=Xt if nm=='internal' else XA; S=np.stack([P[:,k]>=1-qk[k] for k in range(3)],1); cov=S[np.arange(len(T)),T]
         conf[f'alpha_{alpha}'][nm]['classwise_never_coverage_by_group']={g:round(float(cov[(mm)&(T==2)].mean())*100,1) for g,m in groups(Xg).items() if ((mm:=m.fillna(False).values)&(T==2)).sum()>=30}
 OUT['conformal']=conf; save(); log('conformal done')
-# ================= 4) Eyalet-gruplu CV (10 kat) =================
+# 4. Ten-fold cross-validation grouped by state
 XL=X.copy()
 for f in XL.columns:
     if f not in NUM: XL[f]=XL[f].astype('category')
@@ -209,7 +206,7 @@ for k,(itr,ite) in enumerate(GroupKFold(10).split(Z,y,groups=state)):
 pool=lambda p:{c:FastAUC(p[:,j],(y==j).astype(int))(w) for j,c in enumerate(CL)}
 OUT['state_grouped_cv']={'folds':gcv,'pooled_lr':pool(oofg),'pooled_lgb':pool(oofl),'summary':{mk:{c:{'mean':float(np.mean([f[mk][c] for f in gcv])),'sd':float(np.std([f[mk][c] for f in gcv])),'min':float(np.min([f[mk][c] for f in gcv])),'max':float(np.max([f[mk][c] for f in gcv]))} for c in CL} for mk in ['lr','lgb']}}
 save(); log('state grouped cv done')
-# ================= 5) Ayarlı modellerin 5 katlı CV kat SD'si =================
+# 5. Fold-level standard deviations for tuned models
 XC=X.copy(); CAT=[c for c in TOOL if c not in NUM]
 for c in CAT: XC[c]=XC[c].fillna(-1).astype(int).astype(str)
 XGBP={'n_estimators': 800, 'learning_rate': 0.02, 'max_depth': 3, 'subsample': 0.8, 'colsample_bytree': 0.7, 'reg_lambda': 20.0, 'min_child_weight': 1.0}; CBP={'iterations': 500, 'learning_rate': 0.03, 'depth': 6, 'l2_leaf_reg': 1.0}

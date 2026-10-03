@@ -1,6 +1,4 @@
-# Two-stage (hierarchical) model, subgroup performance and group thresholds, decision curves. Run after 03.
-# Makale için ek analizler: (1) iki aşamalı model vs düz çok sınıflı, (2) hakkaniyet: alt grup ayrım/kalibrasyon/eşik davranışı,
-# (3) conformal tahmin kümeleri, (4) karar eğrisi (net fayda). Geliştirme: BRFSS 2020 (aynı %20 iç doğrulama bölmesi), dış: BRFSS 2024.
+# Two-stage model, subgroup performance, group-specific thresholds, conformal prediction sets and decision curves. Run after script 03.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats
 from sklearn.model_selection import train_test_split
@@ -21,7 +19,7 @@ def boot_diff(t3,p1,p2,ww,fn,B=300):
         i=rs.randint(0,n,n); d.append(fn(t3[i],p1[i],ww[i])-fn(t3[i],p2[i],ww[i]))
     return [round(float(np.percentile(d,2.5)),4),round(float(np.percentile(d,97.5)),4)]
 out={}
-# ---------- (1) iki aşamalı model ----------
+# 1. Two-stage model
 import os
 flat=LogisticRegression(C=1.0,max_iter=3000).fit(Z.iloc[tr],y[tr],sample_weight=w[tr]); pf=flat.predict_proba(Z.iloc[te])
 sA=LogisticRegression(C=1.0,max_iter=3000).fit(Z.iloc[tr],(y[tr]==2).astype(int),sample_weight=w[tr])
@@ -42,9 +40,9 @@ for nm,(t3,p1,p2,ww) in {'internal':(y[te],ph,pf,w[te]),'external_2024':(ya,pha,
     cmp[nm]['diff_ci_two_minus_flat']={'auc_never':boot_diff(t3,p1,p2,ww,lambda t,p,q:wauc(t==2,p[:,2],q)),'auc_overdue':boot_diff(t3,p1,p2,ww,lambda t,p,q:wauc(t==1,p[:,1],q)),
         'logloss':boot_diff(t3,p1,p2,ww,lambda t,p,q:float(log_loss(t,p,sample_weight=q,labels=[0,1,2])))}
 out['two_stage']=cmp; print(json.dumps(cmp,indent=1)); np.savez('out/genis_cache.npz',pf=pf,ph=ph,pfa=pfa,pha=pha)
-# stage B tek başına: taranmışlar içinde geri kalmış ayrımı (iç)
+# Stage B alone: overdue classification among previously screened participants
 teS=te[y[te]!=2]; out['two_stage']['stageB_auc_internal']=round(wauc(y[teS]==1,sB.predict_proba(Z.iloc[teS])[:,1],w[teS]),4)
-# ---------- (2) hakkaniyet ----------
+# 2. Subgroup performance
 def groups(X):
     inc=X.gelir8
     return {'White, non-Hispanic':X.irk==1,'Black, non-Hispanic':X.irk==2,'Hispanic':X.irk==8,'Asian':X.irk==4,'AI/AN':X.irk==3,'Multiracial/other':X.irk.isin([5,6,7]),
@@ -65,7 +63,7 @@ def fair(X,t,p,ww,label):
             f=p[m,k]>=TH[nm]; pos=(t[m]==k); W=ww[m]
             r[f'{nm}_flag']=round(float(np.average(f,weights=W)*100),1); r[f'{nm}_sens']=round(float(np.average(f[pos],weights=W[pos])*100),1) if pos.sum()>0 else None
             r[f'{nm}_spec']=round(float(np.average(~f[~pos],weights=W[~pos])*100),1); r[f'{nm}_ppv']=round(float(np.average(pos[f],weights=W[f])*100),1) if f.sum()>0 else None
-        # kalibrasyon eğimi (logit üzerinde, hiç taranmamış)
+        # Calibration slope on the logit scale for never-screened probability
         try:
             lg=np.log(p[m,2]/(1-p[m,2])); cs=LogisticRegression(C=1e6,max_iter=1000).fit(lg.reshape(-1,1),(t[m]==2).astype(int),sample_weight=ww[m]); r['cal_slope_never']=round(float(cs.coef_[0][0]),2)
         except Exception: r['cal_slope_never']=None
@@ -73,7 +71,7 @@ def fair(X,t,p,ww,label):
     return rows
 out['fairness']={'internal':fair(XF.iloc[te].reset_index(drop=True),y[te],pf,w[te],'internal'),'external_2024':fair(XA,ya,pfa,wa,'external')}
 print(pd.DataFrame(out['fairness']['internal']).to_string()); print(pd.DataFrame(out['fairness']['external_2024']).to_string())
-# grup eşikleri: her grupta duyarlılığı %70'e sabitleyen eşik ve o eşikte işaretleme oranı (iç doğrulama)
+# Group-specific thresholds targeting 70% sensitivity in the held-out set
 def thr_for_sens(t,p,ww,target=0.70):
     o=np.argsort(-p); pos=(t[o]==1)*ww[o]; cs=np.cumsum(pos)/pos.sum(); k=np.searchsorted(cs,target); return float(p[o][min(k,len(o)-1)])
 gt=[]
@@ -85,7 +83,7 @@ for g,m in groups(Xt).items():
     gt.append({'group':g,'threshold_never_for_70pct_sens':round(th*100,1),'flag_rate_at_group_threshold':round(float(np.average(f,weights=w[te][m])*100),1),
                'ppv_at_group_threshold':round(float(np.average((y[te][m]==2)[f],weights=w[te][m][f])*100),1)})
 out['group_thresholds']=gt; print(pd.DataFrame(gt).to_string())
-# ---------- (3) conformal tahmin kümeleri ----------
+# 3. Conformal prediction sets
 tr2,cal=train_test_split(tr,test_size=0.15,stratify=y[tr],random_state=3)
 m2=LogisticRegression(C=1.0,max_iter=3000).fit(Z.iloc[tr2],y[tr2],sample_weight=w[tr2])
 pc=m2.predict_proba(Z.iloc[cal]); pt=m2.predict_proba(Z.iloc[te]); pe=m2.predict_proba(ZA)
@@ -110,7 +108,7 @@ for alpha in (0.10,0.20):
         r['coverage_by_group']={g:round(float(np.average(cov[mm],weights=W[mm]))*100,1) for g,m in groups(X).items() if (mm:=m.fillna(False).values).sum()>=200}
         conf[f'alpha_{alpha}_{nm}']=r
 out['conformal']=conf; print(json.dumps(conf,indent=1))
-# ---------- (4) karar eğrisi: hiç taranmamış için net fayda ----------
+# 4. Decision-curve analysis for never-screened status
 dca=[]
 for nm,(P,T,W) in {'internal':(pf,y[te],w[te]),'external_2024':(pfa,ya,wa)}.items():
     prev=float(np.average(T==2,weights=W))

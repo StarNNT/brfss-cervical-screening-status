@@ -1,13 +1,13 @@
-"""Cross-output invariants for a freshly reproduced analysis.
+"""Check consistency across outputs from a complete analysis run.
 
-Fixed legacy point estimates were intentionally removed when the 2020 label rule changed.
-Freeze new expected values only after the corrected pipeline has been fully rerun and reviewed.
+Reference values should be updated only after the revised outcome definition has been
+used throughout the analysis and the resulting outputs have been reviewed.
 """
 import json, math, sys
 
 W=json.load(open('out/webdata.json'))
-H=json.load(open('out/hoca.json'))
-R=json.load(open('out/revizyon.json'))
+H=json.load(open('out/model_comparison.json'))
+R=json.load(open('out/design_bootstrap.json'))
 Q=json.load(open('out/wording.json'))
 A=json.load(open('out/label_audit.json'))
 errors=[]

@@ -1,4 +1,4 @@
-# "Sınıftan kadına": her tarama sınıfının bileşimi, fazla temsil edilen özellikler ve sınıf içi alt tipler (ağırlıklı k-ortalamalar)
+# Composition, over-represented characteristics and weighted k-means profiles within each screening class.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'out'); sys.path.insert(0,'code')
 from harmon import feats
 from sklearn.cluster import KMeans
@@ -19,7 +19,7 @@ out={}
 for k,name in [(2,'never'),(1,'overdue'),(0,'current')]:
     m=y==k; Fk=F[m].values; wk=w[m]; cp=(Fk*wk[:,None]).sum(0)/wk.sum()*100
     comp=[[f,round(float(a),1),round(float(c),1),round(float(c/a),2)] for f,a,c in zip(F.columns,allp,cp)]
-    # alt tipler
+    # Within-class profiles
     Z=(Fk-Fk.mean(0))/(Fk.std(0)+1e-9); best=None
     rs=np.random.RandomState(0); sub=rs.choice(len(Z),min(6000,len(Z)),replace=False)
     for K in (3,4,5):

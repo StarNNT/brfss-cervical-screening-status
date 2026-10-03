@@ -1,4 +1,4 @@
-# Nihai model seçimi: BRFSS 2020 geliştirme verisinde 5 katlı çapraz doğrulama (araç girdileri)
+# Model selection by five-fold cross-validation in the BRFSS 2020 development sample.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats, NUM
 import lightgbm as lgb, xgboost as xgb

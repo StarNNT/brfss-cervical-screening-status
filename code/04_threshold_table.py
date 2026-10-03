@@ -1,4 +1,4 @@
-# Eşik tablosu: iç doğrulama kümesinde, her risk eşiği için işaretlenen pay, duyarlılık, özgüllük ve pozitif öngörü değeri
+# Threshold table for the held-out validation set: flagged share, sensitivity, specificity and positive predictive value.
 import pandas as pd, numpy as np, json, sys, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'out'); sys.path.insert(0,'code')
 from harmon import feats
 from sklearn.model_selection import train_test_split

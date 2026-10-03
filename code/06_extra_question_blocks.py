@@ -1,4 +1,4 @@
-# Ek soru bloklarının katkısı: temel (19 girdi) vs temel + blok, her blok kendi alt örnekleminde, 5 katlı ÇD (LightGBM)
+# Incremental value of additional BRFSS item blocks, assessed by five-fold cross-validation with LightGBM.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'out'); sys.path.insert(0,'code')
 from harmon import feats
 import lightgbm as lgb

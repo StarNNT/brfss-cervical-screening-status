@@ -1,4 +1,4 @@
-# Stres testleri: nihai lojistik model, 2020 iç doğrulama kümesi. Gerçek veri kontrollü biçimde bozulur; yeni soru uydurulmaz.
+# Sensitivity analyses for the final logistic model in the 2020 held-out set.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'out'); sys.path.insert(0,'code')
 from harmon import feats
 from sklearn.model_selection import train_test_split
@@ -25,19 +25,19 @@ def ev(Xm,ww=None):
                 tahmin_hic=round(float(np.average(p[:,2],weights=ww)*100),1),gozlenen_hic=round(float(np.average(yt==2,weights=ww)*100),1),tahmin_geri=round(float(np.average(p[:,1],weights=ww)*100),1),gozlenen_geri=round(float(np.average(yt==1,weights=ww)*100),1))
 base=ev(Xt); print('temel',base); OUT=dict(base=base,n=int(len(yt)))
 LAB={v:M['vars'][v]['label'] for v in VARS}
-# A1. tek bir soru hiç sorulmazsa
+# A1. Omit one question at a time
 A=[]
 for v in VARS:
     Xm=Xt.copy(); Xm[v]=np.nan; r=ev(Xm); A.append(dict(soru=LAB[v],**r))
 A.sort(key=lambda r:r['auc_hic']+r['auc_geri']); OUT['soru_yok']=A
-# A2. rastgele eksik yanıt
+# A2. Random missing responses
 A2=[]
 for f in (0.1,0.3,0.5):
     Xm=Xt.copy()
     for v in VARS: Xm.loc[rs.rand(len(Xm))<f,v]=np.nan
     A2.append(dict(senaryo=f'Her sorunun %{int(f*100)} kadarı yanıtsız',**ev(Xm)))
 OUT['eksik']=A2
-# B. hatalı yanıt
+# B. Simulated reporting error
 def shift(s,lv,frac,step=1):
     s=s.copy(); m=(rs.rand(len(s))<frac)&s.notna(); idx=s[m].map({c:i for i,c in enumerate(lv)}); idx=(idx+rs.choice([-step,step],m.sum())).clip(0,len(lv)-1); s[m]=idx.map(dict(enumerate(lv))).values; return s
 Bk=[]
@@ -47,12 +47,12 @@ Xm=Xt.copy(); m=rs.rand(len(Xm))<0.1; Xm.loc[m&Xm.hiv_testi.notna(),'hiv_testi']
 Xm=Xt.copy(); Xm['yas']=(Xm.yas+rs.randint(-3,4,len(Xm))).clip(21,65); Bk.append(dict(senaryo='Yaş: ±3 yıl rastgele hata',**ev(Xm)))
 Xm=Xt.copy(); Xm['checkup']=shift(Xm.checkup,[1,2,3,4,8],0.2); Xm['gelir8']=shift(Xm.gelir8,list(range(1,9)),0.3); Xm['dis_hekimi']=shift(Xm.dis_hekimi,[1,2,3,4,8],0.2); m=rs.rand(len(Xm))<0.1; Xm.loc[m&Xm.hiv_testi.notna(),'hiv_testi']=3-Xm.loc[m&Xm.hiv_testi.notna(),'hiv_testi']; Xm['yas']=(Xm.yas+rs.randint(-3,4,len(Xm))).clip(21,65)
 Bk.append(dict(senaryo='Hepsi birlikte (check-up, diş hekimi, gelir, HIV testi, yaş)',**ev(Xm))); OUT['hatali']=Bk
-# C. nüfus kayması (yeniden ağırlıklandırma)
+# C. Population reweighting
 S={'Daha genç nüfus (30 yaş altı 3 kat ağırlık)':Xt.yas<30,'Daha çok sigortasız (3 kat)':Xt.sigortasiz==1,'Daha çok Hispanik (3 kat)':Xt.irk==8,'Daha düşük gelirli (25 bin $ altı 3 kat)':Xt.gelir8<=4,'Daha kırsal (3 kat)':Xt.kirsal==1,'Düzenli doktoru olmayanlar (3 kat)':Xt.doktor==3}
 OUT['kayma']=[dict(senaryo=k,pay=round(float(np.average(m.values,weights=wt*np.where(m.values,3,1))*100),1),**ev(Xt,wt*np.where(m.values,3,1))) for k,m in S.items()]
 for k in ('eksik','hatali','kayma'): print(pd.DataFrame(OUT[k]).to_string())
 print(pd.DataFrame(A).head(8).to_string())
-# D. kısa form: ileri doğru seçim (eğitim kümesinin içinden ayrılan doğrulama parçasında log-loss)
+# D. Short form: forward selection by log loss in an inner validation split
 grp={}
 for c in COLS: grp.setdefault('yas' if c.startswith('yas') else c.split('=')[0],[]).append(c)
 LAB2=dict(LAB,yas='Yaş',cocuk='Hanedeki çocuk sayısı')
@@ -69,7 +69,7 @@ while len(chosen)<9:
     a=[roc_auc_score(yt==k,p[:,k],sample_weight=wt) for k in range(3)]
     path.append(dict(k=len(chosen),eklenen=LAB2[best[1]],auc_hic=round(a[2],3),auc_geri=round(a[1],3),auc_guncel=round(a[0],3),auc_ort=round(float(np.mean(a)),3),logloss=round(log_loss(yt,p,sample_weight=wt),3))); print(path[-1],flush=True)
     OUT['kisa_form']=path; json.dump(OUT,open('out/stres.json','w'),ensure_ascii=False)
-# 9. adımdan sonra kazanımlar çok küçük: kalan sorular, o noktadaki tek adımlık katkılarına göre sıralanıp eklenir
+# After step 9, rank the remaining questions by their one-step contribution.
 sc=[]
 for g in rest:
     cols=[c for q in chosen+[g] for c in grp[q]]; mm=LogisticRegression(C=1.0,max_iter=200).fit(Z.iloc[s_tr][cols],y[s_tr],sample_weight=w[s_tr]); sc.append((log_loss(y[s_va],mm.predict_proba(Z.iloc[s_va][cols]),sample_weight=w[s_va],labels=[0,1,2]),g))

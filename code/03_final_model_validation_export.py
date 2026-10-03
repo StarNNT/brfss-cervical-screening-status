@@ -1,4 +1,4 @@
-# Nihai model (BRFSS 2020 geliştirme) + 2024 dış doğrulama + profiller + web verisi
+# Final model, held-out validation, 2024 temporal evaluation, profiles and web export.
 import pandas as pd, numpy as np, sys, json, warnings, os; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats, NUM
 import lightgbm as lgb, shap
@@ -49,20 +49,20 @@ def calib(t,p,ww,q=10):
 cal=[calib(y[te]==k,ph[:,k],w[te]) for k in range(3)]
 ext['cal_geri_taranmislar']=calib(ya[ev]==1,pov,wa[ev]); ext['ort_tahmin']=[round(float(x)*100,1) for x in np.average(pa,axis=0,weights=wa)]; ext['gozlenen']=[round(float(np.average(ya==k,weights=wa))*100,1) for k in range(3)]
 print('iç',internal); print('dış',{k:v for k,v in ext.items() if k!='cal_geri_taranmislar'})
-# hedefleme (lift)
+# Ranking performance (lift)
 lift=[]
 for k,l in [(2,'hic'),(1,'geri')]:
     o=np.argsort(-ph[:,k]); cw=np.cumsum(w[te][o])/w[te].sum(); t=(y[te][o]==k)*w[te][o]; base=t.sum()/w[te].sum()
     for f in (0.1,0.2,0.3):
         m=cw<=f; lift.append(dict(sinif=l,dilim=int(f*100),yakalama=round(float(t[m].sum()/t.sum()*100),1),ppv=round(float(t[m].sum()/w[te][o][m].sum()*100),1),taban=round(float(base*100),1)))
 print(pd.DataFrame(lift).to_string())
-# alt gruplar
+# Subgroup performance
 Xt=XF.iloc[te]; sub=[]
 G={'Beyaz':Xt.irk==1,'Siyah':Xt.irk==2,'Hispanik':Xt.irk==8,'Asyalı':Xt.irk==4,'Sigortalı':Xt.sigortasiz==0,'Sigortasız':Xt.sigortasiz==1,'21–29 yaş':Xt.yas<30,'30–49 yaş':(Xt.yas>=30)&(Xt.yas<50),'50–65 yaş':Xt.yas>=50,'Kentsel':Xt.kirsal==0,'Kırsal':Xt.kirsal==1,'İngilizce görüşme':Xt.dil_ispanyolca==0,'İspanyolca görüşme':Xt.dil_ispanyolca==1}
 for g,m in G.items():
     m=m.values; sub.append(dict(grup=g,n=int(m.sum()),hic_oran=round(float(np.average(y[te][m]==2,weights=w[te][m])*100),1),AUC_hic=round(roc_auc_score(y[te][m]==2,ph[m,2],sample_weight=w[te][m]),3),AUC_geri=round(roc_auc_score(y[te][m]==1,ph[m,1],sample_weight=w[te][m]),3)))
 print(pd.DataFrame(sub).to_string())
-# LightGBM + SHAP (tüm değişkenler)
+# LightGBM and SHAP analysis using the extended predictor set
 XL=XF.copy()
 for f in XL.columns:
     if f not in NUM: XL[f]=XL[f].astype('category')
@@ -74,14 +74,14 @@ idx=np.random.RandomState(0).choice(te,6000,replace=False); sv=np.array(shap.Tre
 if sv.shape[0]==3: sv=np.transpose(sv,(1,2,0))
 imp=pd.DataFrame(np.abs(sv).mean(0),index=XL.columns); imp['t']=imp.sum(axis=1); imp=imp.sort_values('t',ascending=False)
 shap_out=[[i]+[round(float(x),4) for x in r[:3]] for i,r in zip(imp.index,imp.values)]
-# tasarım temelli GA
+# Design-based confidence intervals
 nh=pd.read_csv(os.path.join(U,'tabaka_2020.csv')).set_index('_STSTR').n
 def svy(dom,t):
     d=dom.astype(float); W=(wr*d).sum(); R=(wr*d*t).sum()/W; z=wr*d*(t-R)/W
     gdf=pd.DataFrame({'h':b._STSTR.values,'p':b._PSU.values,'z':z}).groupby(['h','p']).z.sum().reset_index().groupby('h').z.agg(s2=lambda s:(s**2).sum(),s1='sum')
     n=nh.reindex(gdf.index).values.astype(float); ok=n>1; var=(n[ok]/(n[ok]-1)*(gdf.s2.values[ok]-gdf.s1.values[ok]**2/n[ok])).sum(); se=np.sqrt(var)  # tek birimli tabakalar varyansa katkı vermez
     return R*100,max(0,(R-1.96*se)*100),min(100,(R+1.96*se)*100)
-# profiller
+# Screening profiles
 def bb(c,s): return c.astype(float).where(s.notna())
 F=pd.DataFrame({'yas':XF.yas,'egitim':XF.egitim,'gelir':XF.gelir8,'sigortasiz':XF.sigortasiz,'doktor_yok':bb(XF.doktor==3,XF.doktor),'maliyet':bb(XF.maliyet_engeli==1,XF.maliyet_engeli),'checkup5':XF.checkup.replace({8:5}),
  'evli':bb(XF.medeni==1,XF.medeni),'hic_evlenmemis':bb(XF.medeni==5,XF.medeni),'cocuk':XF.cocuk,'kirsal':XF.kirsal,'ispanyolca':XF.dil_ispanyolca,'hispanik':bb(XF.irk==8,XF.irk),'siyah':bb(XF.irk==2,XF.irk),'asyali':bb(XF.irk==4,XF.irk),'beyaz':bb(XF.irk==1,XF.irk),
@@ -98,7 +98,7 @@ def tree(mask,target,leaf=2500):
         return dict(f=F.columns[T.feature[n]],t=float(T.threshold[n]),na_left=bool(T.missing_go_to_left[n]),l=node(T.children_left[n]),r=node(T.children_right[n]))
     return dict(base=round(float(base*100),1),root=node(0))
 trees=dict(never=tree(np.ones(len(y),bool),(y==2).astype(int),1500),overdue=tree(y!=2,(y==1).astype(int)))
-# betimsel
+# Descriptive summaries
 def grp(name,s,order=None):
     rows=[]
     for lvl in (order or sorted(s.dropna().unique())):
@@ -126,7 +126,7 @@ age24=[[int(A)]+[round(float(np.average(ya[gx.index]==k,weights=wa[gx.index])*10
 cls=[[n_,int((y==k).sum()),round(float(np.average(y==k,weights=w)*100),1)] for k,n_ in enumerate(['Güncel','Geri kalmış','Hiç taranmamış'])]
 d0=pd.read_csv(os.path.join(U,'brfss2020_kadin.csv.gz'),usecols=['_AGE80','HADHYST2']); 
 flow=[['BRFSS 2020, tüm görüşmeler',int(nh.sum())],['Kadınlar',int(len(d0))],['21–65 yaş',int(((d0._AGE80>=21)&(d0._AGE80<=65)).sum())],['Histerektomi geçirmemiş',int(((d0._AGE80>=21)&(d0._AGE80<=65)&(d0.HADHYST2==2)).sum())],['Tarama bilgisi tam (analitik örneklem)',int(len(y))]]
-# model dışa aktarım
+# Browser-model export
 coef=lr.coef_; groups={}
 for c in Z.columns: groups.setdefault('yas' if c.startswith('yas') else c.split('=')[0],[]).append(c)
 means={gk:[float(np.average(Z[cs].values@(coef[k,[Z.columns.get_loc(c) for c in cs]]-coef[0,[Z.columns.get_loc(c) for c in cs]]),weights=w)) for k in (1,2)] for gk,cs in groups.items()}

@@ -1,4 +1,4 @@
-# Eksik yanıtın iki ele alınış biçimi: (a) "bilinmiyor" kategorisi (anketteki gibi), (b) o sorunun nüfus ortalamasıyla doldurma
+# Compare two treatments of missing responses: an explicit unknown category and population-mean imputation.
 import pandas as pd, numpy as np, sys, json, warnings; warnings.filterwarnings('ignore'); sys.path.insert(0,'out'); sys.path.insert(0,'code')
 from harmon import feats
 from sklearn.model_selection import train_test_split
@@ -28,14 +28,14 @@ for f in (0.1,0.3,0.5):
     for v in VARS:
         cs=[c for c in COLS if c.startswith(v+'=')]; Zb.loc[mask[v],cs]=[MU[c] for c in cs]
     R.append(dict(oran=int(f*100),kategori=ev(Za),ortalama=ev(Zb))); print(R[-1])
-# bir soru hiç sorulmazsa (nüfus ortalamasıyla doldurularak)
+# Omit one question at a time and replace it with the population mean
 LABV={v:M['vars'][v]['label'] for v in VARS}; drop=[]
 for v in VARS:
     Zb=design(Xt).copy(); cs=[c for c in COLS if c.startswith(v+'=')]; Zb[cs]=[MU[c] for c in cs]; drop.append(dict(soru=LABV[v],**ev(Zb)))
 drop.sort(key=lambda r:r['auc_hic']+r['auc_geri'])
 S=json.load(open('out/stres.json')); S['soru_yok']=drop; S['eksik_karsilastirma']=R; S['gozlenen']=[round(float(np.average(yt==k,weights=wt)*100),1) for k in range(3)]; json.dump(S,open('out/stres.json','w'),ensure_ascii=False)
-# tam veriyle kurulan nihai modelin sütun ortalamaları (araç için)
-# araçtaki hesapla birebir karşılaştırma için test vakaları: bilinmeyen alanlar ortalama ile doldurulur
+# Column means from the final model, used for blank fields in the browser tool
+# Test cases for checking the browser calculation against the Python implementation
 coef=np.array(M['coef']); ic=np.array(M['intercept']); T=[]
 for t in J['tests']:
     o=t['o']; x=np.zeros(len(COLS))

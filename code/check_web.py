@@ -1,4 +1,4 @@
-"""Static and numerical checks for the generated Turkish and English web artifacts."""
+"""Static and numerical checks for the Turkish and English web pages."""
 from pathlib import Path
 import json, math, re, sys
 
@@ -55,8 +55,8 @@ if len(payloads)==2:
     if tr_cal!=en_cal: fail('TR and EN calibration payloads differ')
     if len(tr_m['coef'])!=3 or any(len(row)!=len(tr_m['cols']) for row in tr_m['coef']): fail('model coefficient dimensions are invalid')
     if len(tr_w.get('fairness',[]))<10: fail('subgroup decision-rate metrics are missing')
-    if not tr_w.get('artifact_meta',{}).get('version'): fail('artifact version metadata is missing')
-    if release and tr_w.get('artifact_meta',{}).get('source')!='reproduced_outputs': fail('release check refuses coefficients inherited from an older embedded artifact')
+    if not tr_w.get('build_meta',{}).get('version'): fail('version metadata is missing')
+    if release and tr_w.get('build_meta',{}).get('source')!='analysis_outputs': fail('release pages must use coefficients from the current analysis outputs')
     sample={'yas':34,'cocuk':2,'irk':8,'egitim':4,'gelir8':5,'medeni':6,'istihdam':1,'ev_sahibi':2,'kirsal':0,'dil_ispanyolca':1,
             'sigortasiz':1,'doktor':3,'maliyet_engeli':1,'checkup':3,'genel_saglik':3,'sigara':4,'grip_asisi':2,'hiv_testi':2,'dis_hekimi':3}
     sparse={v:None for v in tr_m['vars']}; sparse.update({'yas':40,'cocuk':None})
@@ -83,7 +83,7 @@ if audit_path.exists():
 
 template=(ROOT/'web_src'/'template.html').read_text(encoding='utf-8')
 if 'setForm(SAMPLE);update()' in template: fail('the page still auto-loads the sample case')
-for required in ('setForm(null);update()','if(v==null)return null','result-empty','artifact-warning'):
+for required in ('setForm(null);update()','if(v==null)return null','result-empty','model-status-warning'):
     if required not in template: fail('required UI safeguard is missing: '+required)
 
 if errors:
