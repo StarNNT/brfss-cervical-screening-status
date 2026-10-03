@@ -1,28 +1,28 @@
-# Cervical screening outreach prioritization research tool
+# Cervical screening outreach prioritization
 
-A machine-learning research prototype that estimates the distribution of survey-derived **up to date**, **overdue** and **never screened** classes from sociodemographic, access-to-care and health-behaviour characteristics in the US CDC Behavioral Risk Factor Surveillance System (BRFSS). It is intended for evaluation of voluntary population outreach, not for cancer-risk estimation or clinical decisions about an individual.
+This repository contains the analysis code and browser-based implementation for estimating survey-derived **up to date**, **overdue** and **never screened** classes from sociodemographic, access-to-care and health-behaviour characteristics in the US CDC Behavioral Risk Factor Surveillance System (BRFSS). The estimates are intended for research on voluntary population outreach, not for cancer-risk assessment or individual clinical decisions.
 
 **Web tool:** [English](index.html) · [Türkçe](tr.html).
 
 The tool is a single static page. The model runs in the browser; nothing a user enters leaves their computer. The page loads no external scripts or fonts. It must not be used to deny, delay or ration care.
 
-> **Reproduction status (version 1.1.0, 2026-09-29):** the label code now requires an explicit “No” to both Pap and HPV items for the never-screened class; unknown/refused HPV responses are no longer converted to “No”. A source-data audit gives n = 98,972 (weighted: 80.1% up to date, 12.2% overdue, 7.7% never screened). The checked-in HTML still contains the previous fully reproduced coefficients and results and therefore shows a visible retraining warning. Run the complete pipeline before publication or decision-impact evaluation.
+> **Current analysis status (version 1.1.0, 2026-09-29):** the revised label definition requires an explicit “No” to both Pap and HPV items for the never-screened class; unknown and refused HPV responses are not treated as “No”. The source-data audit gives n = 98,972 (weighted: 80.1% up to date, 12.2% overdue, 7.7% never screened). The coefficients in the HTML files predate this revision. Rerun the complete analysis before publication or decision-impact evaluation.
 
 ## Study in brief
 
 | | |
 |---|---|
-| Development data in the checked-in legacy artifact | BRFSS 2020 — participants classified by BRFSS as women, aged 21–65, reporting no hysterectomy (n = 98,847 under the previous label rule) |
+| Development data in the stored model version | BRFSS 2020 — participants classified by BRFSS as women, aged 21–65, reporting no hysterectomy (n = 98,847 under the previous label rule) |
 | Temporal evaluation | BRFSS 2024, same eligibility (n = 104,650), under a changed screening instrument |
 | Outcome (2020, weighted) | Up to date 80.3% · overdue 11.6% · never screened 8.1% |
 | Final model | Multinomial logistic regression, 19 inputs, piecewise-linear age, survey-weighted |
-| Internal validation (held-out 20%; legacy artifact) | AUC never screened 0.847 (design-based 95% CI 0.824–0.868) · overdue 0.780 (0.756–0.803) · up to date 0.767 (0.749–0.784) |
-| 2024 evaluation (legacy artifact) | AUC never screened 0.790 (0.781–0.798) · overdue 0.724 (0.714–0.734) · up to date 0.742 (0.735–0.749) |
+| Internal validation (held-out 20%; stored model version) | AUC never screened 0.847 (design-based 95% CI 0.824–0.868) · overdue 0.780 (0.756–0.803) · up to date 0.767 (0.749–0.784) |
+| 2024 evaluation (stored model version) | AUC never screened 0.790 (0.781–0.798) · overdue 0.724 (0.714–0.734) · up to date 0.742 (0.735–0.749) |
 | Algorithm comparison | Tuned LightGBM/XGBoost/CatBoost and ensembles: within 0.003 macro AUC of logistic regression on held-out 2020 (CI includes zero for never-screened AUC); +0.011 never-screened AUC in 2024 |
 | Uncertainty | Design-based bootstrap (1,000 within-stratum resamples) for every metric; state-grouped 10-fold CV |
 | Profiles | Weighted decision trees (depth 4) with design-based 95% confidence intervals |
 | Extra questions | Of twelve blocks of additional real BRFSS items, only mammography history adds materially (mean AUC 0.76 → 0.82 in women aged 40–65) |
-| Robustness | Simulated reporting-error, reweighting and missing-answer stress tests; the first 8 questions reach mean AUC 0.790 vs. 0.798 for all 19 in the legacy artifact |
+| Sensitivity analyses | Simulated reporting error, reweighting and missing-answer scenarios; the first 8 questions reach mean AUC 0.790 vs. 0.798 for all 19 in the stored model version |
 
 Seven algorithm families (logistic regression, decision tree, random forest, XGBoost, LightGBM, CatBoost, neural network) were compared with 5-fold cross-validation, the three boosting implementations also after a random hyperparameter search, and two ensembles were formed. Logistic regression was within 0.005 macro AUC of the tuned boosting models and was chosen for deployment because it is transparent and runs exactly in the browser; the tuned models and ensembles are reported alongside.
 
@@ -64,21 +64,17 @@ The BRFSS used three instruments for the "ever screened" item between 2020 and 2
 
 ### Training scheme (which model is evaluated where)
 
-Hyperparameters were selected by 5-fold cross-validation inside the 80% development subset of 2020 (script 10). Every model is then fitted twice with those hyperparameters: once to the development subset, and this fit is evaluated on the 20% held-out set; and once to the full 2020 sample, and this refit is evaluated on 2024 and, for the logistic regression, exported to the web tool (`out/webmodel.json`). The 2024 predictions in `out/hoca_pred.npz` and the deployed model therefore come from the same fits. Confidence intervals in the paper, the tables and the web tool come from the design-based bootstrap of script 13 (1,000 within-stratum resamples; multiplicities are accumulated with `np.add.at`, since fancy-indexed `+=` would drop repeated draws).
+Hyperparameters were selected by 5-fold cross-validation inside the 80% development subset of 2020 (script 10). Every model is then fitted twice with those hyperparameters: once to the development subset, and this fit is evaluated on the 20% held-out set; and once to the full 2020 sample, and this refit is evaluated on 2024 and, for the logistic regression, exported to the web tool (`out/webmodel.json`). The 2024 predictions in `out/model_predictions.npz` and the deployed model therefore come from the same fits. Confidence intervals in the paper, the tables and the web tool come from the design-based bootstrap of script 13 (1,000 within-stratum resamples; multiplicities are accumulated with `np.add.at`, since fancy-indexed `+=` would drop repeated draws).
 
 This repository is the private submission-stage working copy associated with the manuscript. It will be made public upon acceptance after the corrected pipeline has been rerun, the manuscript values have been reconciled, and the release check passes. `run_all.sh` runs every step in order (about 4 hours on two cores). Dependency versions are pinned in `requirements.txt` (Python 3.11).
 
-4. `cd web_src && python en.py && python build.py` rebuilds `../index.html` and `../tr.html`; `python ../code/check_web.py --release` then validates the static artifacts and refuses a release built from inherited legacy coefficients.
+4. `cd web_src && python en.py && python build.py` rebuilds `../index.html` and `../tr.html`; `python ../code/check_web.py --release` then verifies that the static pages use coefficients from the current analysis outputs.
 
 `code/supplementary/` holds exploratory analyses that are not part of the final model: a three-cancer comparison (cervical, breast, colorectal) on 2024 and a pooled 2021–2024 analysis with temporal validation. They document the data-quality findings above and the planned extension to other screenings.
 
 ## Limitations
 
 BRFSS is cross-sectional and self-reported, and screening history tends to be over-reported. The development data date from 2020, so post-pandemic changes may not be reflected. Discrimination for never-screened status is weak among women aged 50–65, where very few women have never been screened. The 2024 outcome instrument changed, so that analysis is a temporal evaluation under measurement change, not a true external validation. Individual probabilities have no confidence intervals and subgroup errors are unequal. Findings describe association, not causation. The tool supports public-health research and voluntary outreach planning only. Results apply to the US research population and cannot be transferred directly to other countries, clinical settings or special-risk groups.
-
-## Use of AI assistance
-
-Code for the analysis pipeline and the web page was written with the assistance of a generative AI coding tool. Study design, variable definitions, verification of the outputs and interpretation are the responsibility of the authors.
 
 ## Authors
 
