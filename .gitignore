@@ -1,0 +1,13 @@
+*.XPT
+*.xpt
+*.zip
+*.csv.gz
+*.pkl
+*.npz
+*.npy
+out/
+catboost_info/
+__pycache__/
+*.py[cod]
+.deps/
+.pytest_cache/
