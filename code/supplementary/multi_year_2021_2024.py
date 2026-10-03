@@ -1,4 +1,4 @@
-# 2021–2024 birleşik veri: sınıf türetme, zamansal doğrulama (2021–2023 -> 2024) ve birleşik modeller
+# Pooled 2021–2024 analysis with class derivation and temporal evaluation on 2024.
 import pandas as pd, numpy as np, json, time, warnings; warnings.filterwarnings('ignore')
 import lightgbm as lgb, xgboost as xgb
 from sklearn.model_selection import train_test_split

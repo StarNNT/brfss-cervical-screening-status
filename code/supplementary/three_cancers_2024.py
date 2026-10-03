@@ -1,4 +1,4 @@
-# Üç kanser taraması (serviks, meme, kolorektal) için ortak özellik seti ve geniş model karşılaştırması
+# Comparison of cervical, breast and colorectal screening models using a common predictor set.
 import pandas as pd, numpy as np, json, time, warnings; warnings.filterwarnings('ignore')
 import lightgbm as lgb, xgboost as xgb
 from sklearn.model_selection import train_test_split
@@ -30,7 +30,7 @@ def features(c):
                 ('DIFFWALK','yurume_guclugu'),('DECIDE','bilissel_gucluk'),('DIFFALON','yalniz_is_guclugu'),('DEAF','isitme'),('BLIND','gorme')]: X[n]=cat(v)
     return X
 NUM=['yas','cocuk','fiziksel_kotu_gun','ruhsal_kotu_gun','bmi']
-# ---- kohortlar: y 0=güncel 1=geri kalmış 2=hiç
+# Cohorts: y = 0 up to date, 1 overdue, 2 never screened
 def serviks(d):
     b=d[(d._SEX==2)&(d._AGE80>=21)&(d._AGE80<=65)&(d.HADHYST2==2)].copy()
     y=pd.Series(np.nan,index=b.index); y[b.CERVSCRN==2]=2
@@ -64,9 +64,9 @@ for name,fn in COH.items():
             'XGBoost':xgb.XGBClassifier(n_estimators=400,learning_rate=0.05,max_depth=5,subsample=0.8,colsample_bytree=0.7,reg_lambda=5,n_jobs=2,tree_method='hist',random_state=0)}
     for mn,m in models.items():
         t=time.time(); m.fit(Ztr,y[tr],sample_weight=w[tr]); p=m.predict_proba(Zte); r=met(p,y[te],w[te]); r.update(kanser=name,model=mn,sure_sn=round(time.time()-t)); ALL.append(r); print(name,mn,round(r['AUC_macro'],3),r['sure_sn'],flush=True)
-    # MLP (sample_weight desteklemez; ağırlıksız eğitilir, ağırlıklı değerlendirilir)
+    # MLP does not support sample weights; fit unweighted and evaluate with weights.
     t=time.time(); mlp=MLPClassifier(hidden_layer_sizes=(64,32),alpha=1e-2,early_stopping=True,n_iter_no_change=5,max_iter=80,random_state=0).fit(Ztr,y[tr]); r=met(mlp.predict_proba(Zte),y[te],w[te]); r.update(kanser=name,model='Yapay sinir ağı (MLP)',sure_sn=round(time.time()-t)); ALL.append(r); print(name,'MLP',round(r['AUC_macro'],3),flush=True)
-    # LightGBM (yerel kategorik)
+    # LightGBM with native categorical features
     t=time.time(); XL=X.copy()
     for f in catf: XL[f]=XL[f].astype('category')
     tr2,va=train_test_split(tr,test_size=0.15,stratify=y[tr],random_state=1)
