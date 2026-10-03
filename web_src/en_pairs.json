@@ -188,8 +188,8 @@
 "aria-label=\"Probability distribution across the three classes\""
 ],
 [
-"Bu tahmini en çok hangi yanıtlar etkiliyor?",
-"Which answers drive this prediction most?"
+"Tahmine en büyük katkılar",
+"Largest contributions to this estimate"
 ],
 [
 "Çubuk sağa uzanıyorsa o yanıt, seçili sınıfta olma olasılığını (güncel olmaya kıyasla) ortalama bir kadına göre artırıyor; sola uzanıyorsa azaltıyor. Değerler log-odds farkıdır.",
@@ -212,8 +212,8 @@
 "<h2>Screening status by age</h2>"
 ],
 [
-"<h2>Hangi kadınlar ne yapıyor?</h2>",
-"<h2>Which women do what?</h2>"
+"<h2>Tarama sınıflarının özellikleri</h2>",
+"<h2>Characteristics of the screening classes</h2>"
 ],
 [
 "<h2>Örneklem akışı</h2>",
@@ -472,8 +472,8 @@
 "'specificity: women outside the class correctly left out'"
 ],
 [
-"<h2>Sınıftan kadına: bu sınıftaki kadınlar kim?</h2>",
-"<h2>From class to woman: who are the women in this class?</h2>"
+"<h2>Sınıf bileşimi</h2>",
+"<h2>Class composition</h2>"
 ],
 [
 "Hesaplayıcı özelliklerden tarama durumuna gider. Bu sekme tersini yapar: bir tarama sınıfı seçilir, o sınıftaki kadınların nasıl bir topluluk olduğu gösterilir. Tek bir kadının özellikleri sınıfından tahmin edilemez; burada gösterilen, sınıfın bileşimidir.",
@@ -496,8 +496,8 @@
 "</i>All women</span>"
 ],
 [
-"<h2>Sınıfın içindeki kadın tipleri</h2>",
-"<h2>Types of women within the class</h2>"
+"<h2>Sınıf içi profiller</h2>",
+"<h2>Within-class profiles</h2>"
 ],
 [
 "Seçili sınıftaki kadınlar 33 özelliğe göre ağırlıklı k-ortalamalar yöntemiyle kümelendi. Her tipin yanında sınıf içindeki payı, ortanca yaşı ve o tipi sınıfın geri kalanından en çok ayıran özellikler verilmiştir (parantez içi: sınıfın tamamındaki pay). Tipler keskin sınırlı gruplar değil, eğilimlerdir; siluet katsayıları düşüktür.",
@@ -544,8 +544,8 @@
 "<b>Predictors.</b> Only variables asked the same way in both years were used; insurance was harmonised to yes/no and income to eight brackets. No variable derived from the screening items is a predictor. \"Don't know\" and \"refused\" enter the model as a separate category. Fields set to \"Unknown\" in the calculator are instead filled with the population average."
 ],
 [
-"<h2>Başka sorular eklense model iyileşir miydi?</h2>",
-"<h2>Would more questions improve the model?</h2>"
+"<h2>Ek soruların katkısı</h2>",
+"<h2>Incremental value of additional questions</h2>"
 ],
 [
 "BRFSS 2020'de yer alan fakat hesaplayıcıda kullanılmayan gerçek sorular bloklar hâlinde modele eklendi. Her blok, sorulduğu kadınlardan oluşan kendi alt örnekleminde sınandı: aynı katlarda temel model (19 girdi) ile temel + blok karşılaştırıldı (LightGBM, 5 katlı çapraz doğrulama). Fark, üç sınıfın ortalama AUC'sindeki değişimdir; ± katlar arası standart sapmadır.",
@@ -556,32 +556,32 @@
 "The only meaningful gain comes from mammography history: among women aged 40–65 mean AUC rises from 0.76 to 0.82. Having had another screening test is the strongest signal of cervical screening. Chronic conditions, lifestyle, state, adverse childhood experiences and the other modules add nothing beyond fold-to-fold variation; the 19-item form carries nearly all the information this survey can offer."
 ],
 [
-"<h2>Kısa form: kaç soru yeter?</h2>",
-"<h2>Short form: how many questions are enough?</h2>"
+"<h2>Soru sayısına göre performans</h2>",
+"<h2>Performance by number of questions</h2>"
 ],
 [
 "İlk dokuz soru, her adımda modeli en çok iyileştiren eklenerek seçildi; kazanımlar bu noktadan sonra çok küçüldüğü için kalan sorular o adımdaki katkılarına göre sıralandı. Seçim eğitim verisinin içinde yapıldı; değerler iç doğrulama kümesindendir. Çubuk, üç sınıfın ortalama AUC'sidir.",
 "The first nine questions were chosen by adding, at each step, the one that improved the model most; gains become very small after that, so the remaining questions were ordered by their contribution at that step. Selection was done inside the training data; values are from the internal validation set. The bar is the mean AUC across the three classes."
 ],
 [
-"<h2>Yanıtlar hatalıysa</h2>",
-"<h2>If answers are wrong</h2>"
+"<h2>Yanıt hatalarına duyarlılık</h2>",
+"<h2>Sensitivity to reporting error</h2>"
 ],
 [
 "İç doğrulama kümesindeki gerçek yanıtlar kontrollü biçimde bozuldu; model yeniden eğitilmedi.",
 "Real answers in the internal validation set were perturbed in a controlled way; the model was not retrained."
 ],
 [
-"<h2>Nüfus değişirse</h2>",
-"<h2>If the population changes</h2>"
+"<h2>Yeniden ağırlıklandırma senaryoları</h2>",
+"<h2>Population reweighting scenarios</h2>"
 ],
 [
 "İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların birbirine yakın kalması, modelin farklı bileşimdeki topluluklarda da kalibre kaldığını gösterir.",
 "The internal validation set was re-weighted by tripling the weight of a given group. Predicted and observed rates staying close shows that the model remains calibrated in populations with a different make-up."
 ],
 [
-"<h2>Yanıtlar eksikse</h2>",
-"<h2>If answers are missing</h2>"
+"<h2>Eksik yanıt analizi</h2>",
+"<h2>Missing-response analysis</h2>"
 ],
 [
 "Ankette \"bilmiyorum\" ya da \"yanıt yok\" diyen kadınlar diğerlerinden farklıdır ve daha sık hiç taranmamıştır; model bu kategoriye yüksek risk yükler. Oysa araçta bir alanın boş bırakılması çoğu zaman bilginin elde olmaması demektir. Aşağıda yanıtların rastgele bir bölümü silindiğinde iki yaklaşım karşılaştırılır: silinen yanıtı anketteki \"bilinmiyor\" kategorisine atmak ya da o sorunun nüfus ortalamasıyla doldurmak. Gözlenen oranlar: hiç taranmamış %<span id=\"obs-n\"></span>, geri kalmış %<span id=\"obs-o\"></span>.",
@@ -592,8 +592,8 @@
 "Filling with the average preserves calibration. The calculator therefore fills fields set to \"Unknown\" with the population average, and their contribution to the prediction is close to zero."
 ],
 [
-"<h3>Bir soru hiç sorulmazsa</h3>",
-"<h3>If a question is not asked at all</h3>"
+"<h3>Tek tek soruların çıkarılması</h3>",
+"<h3>Omitting individual questions</h3>"
 ],
 [
 "el('div','lab','Eklenen blok')",
@@ -648,20 +648,20 @@
 "Cervical Screening Outreach Prioritization Tool"
 ],
 [
-"BRFSS verisine dayalı, klinik kullanım dışı serviks tarama erişim önceliklendirme ve araştırma aracı.",
-"A non-clinical cervical-screening outreach prioritization and research tool based on BRFSS data."
+"BRFSS verilerine dayalı, klinik kullanım amacı taşımayan serviks taraması erişim önceliklendirme aracı.",
+"A browser-based tool for research on cervical screening outreach using BRFSS data."
 ],
 [
-"Araştırma prototipi · Geliştirme: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş",
-"Research prototype · Development: BRFSS 2020 · Temporal evaluation under measurement change: BRFSS 2024 · US, ages 21–65"
+"Geliştirme verisi: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş",
+"Development data: BRFSS 2020 · Temporal evaluation under outcome-measurement change: BRFSS 2024 · US, ages 21–65"
 ],
 [
 "Serviks tarama erişim önceliklendirme aracı",
 "Cervical screening outreach prioritization tool"
 ],
 [
-"Toplum düzeyindeki erişim çalışmalarında, tarama açığı olasılığı yüksek grupları önceliklendirmeye yardımcı olan araştırma prototipi. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.",
-"A research prototype to help prioritize groups with a higher estimated screening gap in population outreach. It does not determine cancer risk, a person's true screening history, or which test is needed today."
+"Bu araç, toplum düzeyindeki gönüllü erişim çalışmalarında tarama açığı olasılığı yüksek grupların belirlenmesini destekler. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.",
+"This tool supports identification of groups with a higher estimated screening gap in voluntary population outreach. It does not determine cancer risk, a person's true screening history, or which test is needed today."
 ],
 [
 "Güncel aralıkta — anketten türetilmiş yaklaşık sınıf",
@@ -692,12 +692,12 @@
 "Prior CIN2/3 or cancer, immunosuppression, in-utero DES exposure, symptoms, abnormal results, and other special situations are outside this tool's scope and require clinical guidance and professional evaluation."
 ],
 [
-"Yeniden eğitim gerekli:",
-"Retraining required:"
+"Sonuçlar güncelleniyor:",
+"Results pending update:"
 ],
 [
-"Bu HTML, önceki gömülü katsayılardan arayüz amacıyla yeniden üretildi. Belirsiz HPV yanıtlarını “hayır” saymayan düzeltilmiş etiket koduyla tam analiz hattı çalıştırılmadan araştırma sonucu olarak yayımlanmamalıdır.",
-"This HTML was rebuilt from previously embedded coefficients for interface work. It must not be published as a research result until the full pipeline is run with the corrected label code that does not treat ambiguous HPV responses as No."
+"Buradaki katsayılar düzeltilmiş etiket tanımından önceki model sürümüne aittir. Tam analiz yeni etiketlerle yeniden çalıştırılana kadar bu değerler nihai araştırma sonucu olarak yorumlanmamalıdır.",
+"The coefficients shown here come from the model version fitted before the revised label definition. Do not treat these values as final research results until the analysis has been rerun with the revised labels."
 ],
 [
 "Yaş zorunludur. Diğer alanlar boş bırakılabilir; boş yanıtlar geliştirme nüfusunun ortalamasıyla temsil edilir ve tahmin belirsizliği artar. İlk sekiz alan kısa formu oluşturur.",
@@ -764,8 +764,8 @@
 "Mean absolute SHAP value in the research model; each bar separately shows contributions to the three classes. First 18 variables. SHAP associations do not establish causality."
 ],
 [
-"CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra modelin önceki üretilmiş sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır.",
-"CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the previously generated model version retained 98,847 people in 2020 and 104,650 in 2024."
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra önceki model sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır.",
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the earlier model version retained 98,847 people in 2020 and 104,650 in 2024."
 ],
 [
 "BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.",
@@ -820,8 +820,8 @@
 "Outreach tool"
 ],
 [
-"Araştırma · Profiller",
-"Research · Profiles"
+"Tarama profilleri",
+"Screening profiles"
 ],
 [
 "Keşifsel sınıf betimleri",
@@ -1016,8 +1016,8 @@
 "`${name}: predicted ${pct(p)}, observed ${pct(o)}`"
 ],
 [
-"En yüksek tahminli dilim kimi kapsıyor?",
-"Whom does the highest-predicted slice cover?"
+"En yüksek tahmin olasılıklarında kapsama",
+"Coverage at the highest predicted probabilities"
 ],
 [
 "Katılımcılar ilgili sınıfın tahmin edilen olasılığına göre sıralandığında, en yüksek tahminli dilimin hedef sınıfın ne kadarını kapsadığı (iç doğrulama kümesi).",
@@ -1038,5 +1038,33 @@
 [
 "['Hedef sınıf','En yüksek tahminli dilim','Sınıfın yakalanan payı','Dilimde sınıfın oranı','Genel oran']",
 "['Target class','Highest-predicted slice','Share of class captured','Class rate within slice','Overall rate']"
+],
+[
+"<b>Gizlilik:</b>",
+"<b>Privacy:</b>"
+],
+[
+"<b>Veri.</b>",
+"<b>Data.</b>"
+],
+[
+"<b>Hedef grup.</b>",
+"<b>Target population.</b>"
+],
+[
+"Kaynaklar:",
+"Sources:"
+],
+[
+"TRIPOD+AI raporlama rehberi",
+"TRIPOD+AI reporting guideline"
+],
+[
+"Eyaletler",
+"States"
+],
+[
+"Duyarlılık analizleri",
+"Sensitivity analyses"
 ]
 ]

@@ -1,5 +1,5 @@
 <title>Serviks Tarama Erişim Önceliklendirme Aracı</title>
-<meta name="description" content="BRFSS verisine dayalı, klinik kullanım dışı serviks tarama erişim önceliklendirme ve araştırma aracı.">
+<meta name="description" content="BRFSS verilerine dayalı, klinik kullanım amacı taşımayan serviks taraması erişim önceliklendirme aracı.">
 <style>
 :root{
   --ground:#f3f4f6; --surface:#fcfcfb; --ink:#161a22; --ink2:#4c5260; --ink3:#7a8090; --line:#dfe1e6; --wash:#eceef2;
@@ -171,9 +171,9 @@ input:invalid{border-color:var(--c-never)}
 
 <div class="wrap">
 <header class="top">
-  <div class="eyebrow">Araştırma prototipi · Geliştirme: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş</div>
+  <div class="eyebrow">Geliştirme verisi: BRFSS 2020 · Ölçüm değişikliği altında zamansal değerlendirme: BRFSS 2024 · ABD, 21–65 yaş</div>
   <h1>Serviks tarama erişim önceliklendirme aracı</h1>
-  <p class="lede">Toplum düzeyindeki erişim çalışmalarında, tarama açığı olasılığı yüksek grupları önceliklendirmeye yardımcı olan araştırma prototipi. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.</p>
+  <p class="lede">Bu araç, toplum düzeyindeki gönüllü erişim çalışmalarında tarama açığı olasılığı yüksek grupların belirlenmesini destekler. Kanser riskini, kişinin gerçek tarama geçmişini veya bugün hangi teste gereksinimi olduğunu belirlemez.</p>
   <div class="legend" aria-label="Sınıflar">
     <span><i class="sw" style="background:var(--c-cur)"></i>Güncel aralıkta — anketten türetilmiş yaklaşık sınıf</span>
     <span><i class="sw" style="background:var(--c-over)"></i>Geri kalmış — bilinen önceki tarama var, aralık dışında</span>
@@ -192,7 +192,7 @@ input:invalid{border-color:var(--c-never)}
       <li>Önceki CIN2/3 veya kanser, bağışıklık baskılanması, rahim içinde DES maruziyeti, belirti ya da anormal sonuç gibi özel durumlarda bu aracın kapsamı dışındadır; klinik rehber ve sağlık uzmanı değerlendirmesi gerekir.</li>
     </ul>
   </div>
-  <div class="warn" id="artifact-warning" hidden><b>Yeniden eğitim gerekli:</b> Bu HTML, önceki gömülü katsayılardan arayüz amacıyla yeniden üretildi. Belirsiz HPV yanıtlarını “hayır” saymayan düzeltilmiş etiket koduyla tam analiz hattı çalıştırılmadan araştırma sonucu olarak yayımlanmamalıdır.</div>
+  <div class="warn" id="model-status-warning" hidden><b>Sonuçlar güncelleniyor:</b> Buradaki katsayılar düzeltilmiş etiket tanımından önceki model sürümüne aittir. Tam analiz yeni etiketlerle yeniden çalıştırılana kadar bu değerler nihai araştırma sonucu olarak yorumlanmamalıdır.</div>
   <div class="grid2">
     <div class="card">
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
@@ -212,7 +212,7 @@ input:invalid{border-color:var(--c-never)}
       <div class="stack" id="pstack" role="img" aria-label="Üç sınıfın olasılık dağılımı"></div>
       <p class="note">Yüzdeler, modeldeki benzer özellik örüntülerinin tahmini dağılımıdır; kişinin gerçek tarama durumunun ölçümü değildir. Parantez içi, geliştirme nüfusundaki orana göre farktır (<span id="base-note"></span>). Bireysel tahminler için güven aralığı hesaplanmamıştır.</p>
       <div>
-        <h3 style="margin-bottom:8px">Bu tahmini en çok hangi yanıtlar etkiliyor?</h3>
+        <h3 style="margin-bottom:8px">Tahmine en büyük katkılar</h3>
         <div class="chips" id="contrib-chips" style="margin-bottom:10px"></div>
         <div class="contrib" id="contrib"></div>
         <p class="note" style="margin-top:8px">Çubuk sağa uzanıyorsa o yanıt, seçili sınıfta olma olasılığını (güncel olmaya kıyasla) ortalama bir kadına göre artırıyor; sola uzanıyorsa azaltıyor. Değerler log-odds farkıdır.</p>
@@ -247,7 +247,7 @@ input:invalid{border-color:var(--c-never)}
 
 <section class="panel" id="p-rev" role="tabpanel" hidden>
   <div class="card">
-    <h2>Sınıftan kadına: bu sınıftaki kadınlar kim?</h2>
+    <h2>Sınıf bileşimi</h2>
     <p class="note">Hesaplayıcı özelliklerden tarama durumuna gider. Bu sekme tersini yapar: bir tarama sınıfı seçilir, o sınıftaki kadınların nasıl bir topluluk olduğu gösterilir. Tek bir kadının özellikleri sınıfından tahmin edilemez; burada gösterilen, sınıfın bileşimidir.</p>
     <div class="chips" id="rev-chips"></div>
     <p id="rev-sum" style="max-width:70ch"></p>
@@ -259,7 +259,7 @@ input:invalid{border-color:var(--c-never)}
     <div class="rows" id="rev-rows"></div>
   </div>
   <div class="card">
-    <h2>Sınıfın içindeki kadın tipleri</h2>
+    <h2>Sınıf içi profiller</h2>
     <p class="note">Seçili sınıftaki kadınlar 33 özelliğe göre ağırlıklı k-ortalamalar yöntemiyle kümelendi. Her tipin yanında sınıf içindeki payı, ortanca yaşı ve o tipi sınıfın geri kalanından en çok ayıran özellikler verilmiştir (parantez içi: sınıfın tamamındaki pay). Tipler keskin sınırlı gruplar değil, eğilimlerdir; siluet katsayıları düşüktür.</p>
     <div id="rev-types" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
@@ -278,7 +278,7 @@ input:invalid{border-color:var(--c-never)}
     <div id="cmpchart"></div>
   </div>
   <div class="card">
-    <h2>Hangi kadınlar ne yapıyor?</h2>
+    <h2>Tarama sınıflarının özellikleri</h2>
     <div class="chips" id="desc-chips"></div>
     <div class="rows" id="desc-rows"></div>
     <p class="note">BRFSS 2020, ağırlıklı yüzdeler (_LLCPWT). n ağırlıksız kişi sayısıdır.</p>
@@ -319,7 +319,7 @@ input:invalid{border-color:var(--c-never)}
     <div class="cal" id="cal"></div>
   </div>
   <div class="card">
-    <h2>En yüksek tahminli dilim kimi kapsıyor?</h2>
+    <h2>En yüksek tahmin olasılıklarında kapsama</h2>
     <p class="note">Katılımcılar ilgili sınıfın tahmin edilen olasılığına göre sıralandığında, en yüksek tahminli dilimin hedef sınıfın ne kadarını kapsadığı (iç doğrulama kümesi).</p>
     <div class="scroll"><table id="lifttab"></table></div>
   </div>
@@ -343,33 +343,33 @@ input:invalid{border-color:var(--c-never)}
 
 <section class="panel" id="p-test" role="tabpanel" hidden>
   <div class="card">
-    <h2>Başka sorular eklense model iyileşir miydi?</h2>
+    <h2>Ek soruların katkısı</h2>
     <p class="note">BRFSS 2020'de yer alan fakat hesaplayıcıda kullanılmayan gerçek sorular bloklar hâlinde modele eklendi. Her blok, sorulduğu kadınlardan oluşan kendi alt örnekleminde sınandı: aynı katlarda temel model (19 girdi) ile temel + blok karşılaştırıldı (LightGBM, 5 katlı çapraz doğrulama). Fark, üç sınıfın ortalama AUC'sindeki değişimdir; ± katlar arası standart sapmadır.</p>
     <div class="rows" id="blk-rows"></div>
     <p class="note">Bu analizde en büyük artış mamografi öyküsü eklenince görülür: yalnız 40–65 yaş alt örnekleminde ortalama AUC 0,76'dan 0,82'ye çıkar. Bu değişken mevcut forma eklenmedi; daha dar yaş evreninde ölçülmüştür, başka bir taramaya erişimi temsil edebilir ve ayrı taşıma/adalet değerlendirmesi gerektirir. Diğer blokların ortalama katkısı katlar arası oynaklığa yakındır.</p>
   </div>
   <div class="card">
-    <h2>Kısa form: kaç soru yeter?</h2>
+    <h2>Soru sayısına göre performans</h2>
     <p class="note">İlk dokuz soru, her adımda modeli en çok iyileştiren eklenerek seçildi; kazanımlar bu noktadan sonra çok küçüldüğü için kalan sorular o adımdaki katkılarına göre sıralandı. Seçim eğitim verisinin içinde yapıldı; değerler iç doğrulama kümesindendir. Çubuk, üç sınıfın ortalama AUC'sidir.</p>
     <div class="rows" id="sf-rows"></div>
     <p class="note" id="sf-note"></p>
   </div>
   <div class="card">
-    <h2>Yanıtlar hatalıysa</h2>
+    <h2>Yanıt hatalarına duyarlılık</h2>
     <p class="note">İç doğrulama kümesindeki gerçek yanıtlar kontrollü biçimde bozuldu; model yeniden eğitilmedi.</p>
     <div class="scroll"><table id="st-err"></table></div>
   </div>
   <div class="card">
-    <h2>Nüfus değişirse</h2>
+    <h2>Yeniden ağırlıklandırma senaryoları</h2>
     <p class="note">İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların bu yapay senaryolarda yakın kalması yalnız bu yeniden ağırlıklandırmalara karşı duyarlılığı gösterir; yeni bir yerde taşınabilirlik veya kalibrasyon kanıtı değildir.</p>
     <div class="scroll"><table id="st-shift"></table></div>
   </div>
   <div class="card">
-    <h2>Yanıtlar eksikse</h2>
+    <h2>Eksik yanıt analizi</h2>
     <p class="note">Ankette "bilmiyorum" ya da "yanıt yok" diyen kadınlar diğerlerinden farklıdır ve daha sık hiç taranmamıştır; model bu kategoriye daha yüksek “hiç taranmamış” olasılığı verir. Oysa araçta bir alanın boş bırakılması çoğu zaman bilginin elde olmaması demektir. Aşağıda yanıtların rastgele bir bölümü silindiğinde iki yaklaşım karşılaştırılır: silinen yanıtı anketteki "bilinmiyor" kategorisine atmak ya da o sorunun nüfus ortalamasıyla doldurmak. Gözlenen oranlar: hiç taranmamış %<span id="obs-n"></span>, geri kalmış %<span id="obs-o"></span>.</p>
     <div class="scroll"><table id="st-miss"></table></div>
     <p class="note">Simülasyonda rastgele silinen yanıtları ortalamayla doldurmak, “bilinmiyor” kategorisine atamaktan daha az kalibrasyon bozulması yaratmıştır. Bu yüzden kullanıcı formundaki boş alanlar nüfus ortalamasıyla temsil edilir; gerçek dünyada eksiklik rastgele olmayabileceğinden bu sonuç garanti değildir.</p>
-    <h3>Bir soru hiç sorulmazsa</h3>
+    <h3>Tek tek soruların çıkarılması</h3>
     <div class="scroll"><table id="st-drop"></table></div>
   </div>
 </section>
@@ -377,7 +377,7 @@ input:invalid{border-color:var(--c-never)}
 <section class="panel" id="p-method" role="tabpanel" hidden>
   <div class="card"><h2>Yöntem ve sınırlılıklar</h2>
   <div class="prose">
-    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra modelin önceki üretilmiş sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla "hiç taranmamış" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.</p>
+    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra önceki model sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla "hiç taranmamış" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.</p>
     <p><b>Neden 2020?</b> 2021'de soru kalıbı değişti ve "Pap testi" yerine "serviks kanseri tarama testi" ifadesi kullanılmaya başlandı. Yeni soruyla hiç taranmadığını söyleyen kadın oranı 2024'te bile her yaş grubunda 2020'dekinden 8–9 puan yüksektir. Aynı doğum kuşağı izlendiğinde de fark görülür (2020'de %3,9, 2022'de %25,4, 2024'te %10,8) ve 2022 fazlası tüm eyaletlerde vardır; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. "Geri kalmış" oranları ise iki yılda da birbirine yakındır. Bu yüzden Pap testi maddelerini kullanan 2020 verisi geliştirme kümesi seçildi.</p>
     <p><b>Hedef grup.</b> BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.</p>
     <p><b>Sınıflar (USPSTF 2018 aralık vekili).</b> <b>Güncel:</b> son 3 yıl içinde Pap testi <em>veya</em> 30 yaş ve üzerinde son 5 yıl içinde HPV testi. <b>Hiç taranmamış:</b> hem Pap hem HPV için açıkça “hayır”. <b>Geri kalmış:</b> bilinen önceki Pap/HPV testi var, fakat güncel tanımını karşılamıyor. “Bilmiyorum” ve ret yanıtları “hayır” sayılmaz; güvenli sınıflandırılamayan kayıtlar analitik örneklem dışında tutulur. Bunlar anketten türetilmiş araştırma etiketleridir, kişinin klinik kaydından doğrulanmış durum değildir.</p>
@@ -420,7 +420,7 @@ function rowsTable(host,rows,firstHead){host.textContent='';const h=el('div','ro
   rows.forEach(r=>{const d=el('div','row');const l=el('div','lab',r.label);if(r.sub)l.appendChild(el('small',null,r.sub));d.appendChild(l);d.appendChild(stackBar(r.vals,r.label));r.vals.forEach(v=>d.appendChild(el('div','num',fmt(v))));host.appendChild(d)})}
 
 /* ---------- sekmeler ---------- */
-const TABS=[['calc','Erişim aracı'],['prof','Araştırma · Profiller'],['rev','Keşifsel sınıf betimleri'],['desc','Betimsel sonuçlar'],['state','Eyaletler'],['model','Model ve adalet'],['test','Sağlamlık sınamaları'],['method','Yöntem']];
+const TABS=[['calc','Erişim aracı'],['prof','Tarama profilleri'],['rev','Keşifsel sınıf betimleri'],['desc','Betimsel sonuçlar'],['state','Eyaletler'],['model','Model ve adalet'],['test','Duyarlılık analizleri'],['method','Yöntem']];
 function selectTab(k,focus=false){TABS.forEach(([id])=>{const on=id===k,p=$('#p-'+id),b=$('#t-'+id);p.hidden=!on;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});try{localStorage.setItem('tab',k)}catch(e){}}
 TABS.forEach(([id,name],i)=>{const b=el('button',null,name);b.type='button';b.id='t-'+id;b.setAttribute('role','tab');b.setAttribute('aria-controls','p-'+id);b.setAttribute('aria-selected','false');const p=$('#p-'+id);p.setAttribute('aria-labelledby',b.id);b.onclick=()=>selectTab(id);b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%TABS.length;else if(e.key==='ArrowLeft')j=(i-1+TABS.length)%TABS.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=TABS.length-1;else return;e.preventDefault();selectTab(TABS[j][0],true)};$('#tabs').appendChild(b)});
 
@@ -536,7 +536,7 @@ function lineChart(sel,rows,series,aria){const host=$(sel);const Wd=720,H=300,m=
   const wrap=el('div','scroll');wrap.appendChild(s);host.appendChild(wrap);const at=el('table','sr-only');const cap=el('caption',null,aria);at.appendChild(cap);const hr=el('tr');hr.appendChild(el('th',null,'Yaş'));series.forEach(q=>hr.appendChild(el('th',null,q.name)));at.appendChild(hr);rows.forEach((a,j)=>{const tr=el('tr');tr.appendChild(el('td',null,String(a)));series.forEach(q=>tr.appendChild(el('td',null,pct(q.vals[j]))));at.appendChild(tr)});host.appendChild(at)}
 function ageChart(){const ages=W.age.map(r=>r[0]);lineChart('#agechart',ages,[{name:'Güncel',color:C.cur,vals:W.age.map(r=>r[1])},{name:'Geri kalmış',color:C.over,vals:W.age.map(r=>r[2])},{name:'Hiç taranmamış',color:C.never,vals:W.age.map(r=>r[3])}],'Yaşa göre üç sınıfın ağırlıklı yüzdesi');
   const m24=new Map(W.age24.map(r=>[r[0],r[3]]));lineChart('#cmpchart',ages,[{name:'2020',color:C.never,vals:W.age.map(r=>r[3])},{name:'2024',color:'var(--ink3)',vals:ages.map(a=>m24.get(a)??0)}],'Yaşa göre hiç taranmamış oranı, 2020 ve 2024')}
-/* ---------- eyaletler ---------- */
+/* ---------- state results ---------- */
 let stateSort=4;
 [['Hiç taranmamışa göre',4],['Geri kalmışa göre',3],['Güncele göre',2],['Ada göre',0]].forEach(([n,k])=>{const b=el('button',null,n);b.setAttribute('aria-pressed',k===stateSort);b.onclick=()=>{stateSort=k;[...$('#state-sort').children].forEach(c=>c.setAttribute('aria-pressed',c===b));renderStates()};$('#state-sort').appendChild(b)});
 function renderStates(){const r=W.states.slice().sort((a,b)=>stateSort===0?a[0].localeCompare(b[0]):b[stateSort]-a[stateSort]);rowsTable($('#state-rows'),r.map(s=>({label:s[0],sub:'n='+fmtn(s[1]),vals:[s[2],s[3],s[4]]})),'Eyalet / bölge')}
@@ -565,6 +565,6 @@ function renderShap(){const host=$('#shap');const top=W.shap.slice(0,18);const m
 $('#base-note').textContent=`güncel ${pct(BASE[0])} · geri kalmış ${pct(BASE[1])} · hiç taranmamış ${pct(BASE[2])}`;$('#base-never').textContent=fmt(W.trees.never.base);$('#base-over').textContent=fmt(W.trees.overdue.base);
 setForm(null);update();setThrClass('never');renderProfiles($('#prof-never'),LV.never,W.trees.never.base,C.never);renderProfiles($('#prof-over'),LV.over,W.trees.overdue.base,C.over);
 renderRev();renderTests();renderDesc();renderFlow();ageChart();renderStates();renderPerf();renderCal();renderShap();
-if(W.artifact_meta&&W.artifact_meta.source==='embedded_artifact')$('#artifact-warning').hidden=false;
+if(W.build_meta&&W.build_meta.source==='stored_coefficients')$('#model-status-warning').hidden=false;
 let t0='calc';try{t0=localStorage.getItem('tab')||'calc'}catch(e){}selectTab(TABS.some(t=>t[0]===t0)?t0:'calc');
 </script>

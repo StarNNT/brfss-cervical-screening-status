@@ -1,5 +1,5 @@
 <title>Cervical Screening Outreach Prioritization Tool</title>
-<meta name="description" content="A non-clinical cervical-screening outreach prioritization and research tool based on BRFSS data.">
+<meta name="description" content="A browser-based tool for research on cervical screening outreach using BRFSS data.">
 <style>
 :root{
   --ground:#f3f4f6; --surface:#fcfcfb; --ink:#161a22; --ink2:#4c5260; --ink3:#7a8090; --line:#dfe1e6; --wash:#eceef2;
@@ -171,9 +171,9 @@ input:invalid{border-color:var(--c-never)}
 
 <div class="wrap">
 <header class="top">
-  <div class="eyebrow">Research prototype · Development: BRFSS 2020 · Temporal evaluation under measurement change: BRFSS 2024 · US, ages 21–65</div>
+  <div class="eyebrow">Development data: BRFSS 2020 · Temporal evaluation under outcome-measurement change: BRFSS 2024 · US, ages 21–65</div>
   <h1>Cervical screening outreach prioritization tool</h1>
-  <p class="lede">A research prototype to help prioritize groups with a higher estimated screening gap in population outreach. It does not determine cancer risk, a person's true screening history, or which test is needed today.</p>
+  <p class="lede">This tool supports identification of groups with a higher estimated screening gap in voluntary population outreach. It does not determine cancer risk, a person's true screening history, or which test is needed today.</p>
   <div class="legend" aria-label="Classes">
     <span><i class="sw" style="background:var(--c-cur)"></i>Within the current interval — approximate survey-derived class</span>
     <span><i class="sw" style="background:var(--c-over)"></i>Overdue — known prior screening, outside the interval</span>
@@ -192,7 +192,7 @@ input:invalid{border-color:var(--c-never)}
       <li>Prior CIN2/3 or cancer, immunosuppression, in-utero DES exposure, symptoms, abnormal results, and other special situations are outside this tool's scope and require clinical guidance and professional evaluation.</li>
     </ul>
   </div>
-  <div class="warn" id="artifact-warning" hidden><b>Retraining required:</b> This HTML was rebuilt from previously embedded coefficients for interface work. It must not be published as a research result until the full pipeline is run with the corrected label code that does not treat ambiguous HPV responses as No.</div>
+  <div class="warn" id="model-status-warning" hidden><b>Results pending update:</b> The coefficients shown here come from the model version fitted before the revised label definition. Do not treat these values as final research results until the analysis has been rerun with the revised labels.</div>
   <div class="grid2">
     <div class="card">
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
@@ -212,7 +212,7 @@ input:invalid{border-color:var(--c-never)}
       <div class="stack" id="pstack" role="img" aria-label="Probability distribution across the three classes"></div>
       <p class="note">Percentages are the model's estimated distribution for similar feature patterns, not a measurement of the person's true screening status. Parentheses show the difference from the development-population rate (<span id="base-note"></span>). No confidence interval has been calculated for individual estimates.</p>
       <div>
-        <h3 style="margin-bottom:8px">Which answers drive this prediction most?</h3>
+        <h3 style="margin-bottom:8px">Largest contributions to this estimate</h3>
         <div class="chips" id="contrib-chips" style="margin-bottom:10px"></div>
         <div class="contrib" id="contrib"></div>
         <p class="note" style="margin-top:8px">A bar pointing right means the answer raises the odds of being in the selected class (relative to being up to date) compared with an average woman; a bar pointing left lowers them. Values are differences in log-odds.</p>
@@ -229,7 +229,7 @@ input:invalid{border-color:var(--c-never)}
       </div>
     </div>
   </div>
-  <div class="warn"><b>Gizlilik:</b> Form responses are processed in this browser and are not sent to or stored on a server. Only the selected tab and threshold preference are kept in local browser storage. The page works offline and loads no external fonts or scripts.</div>
+  <div class="warn"><b>Privacy:</b> Form responses are processed in this browser and are not sent to or stored on a server. Only the selected tab and threshold preference are kept in local browser storage. The page works offline and loads no external fonts or scripts.</div>
 </section>
 
 <section class="panel" id="p-prof" role="tabpanel" hidden>
@@ -247,7 +247,7 @@ input:invalid{border-color:var(--c-never)}
 
 <section class="panel" id="p-rev" role="tabpanel" hidden>
   <div class="card">
-    <h2>From class to woman: who are the women in this class?</h2>
+    <h2>Class composition</h2>
     <p class="note">The calculator goes from characteristics to screening status. This tab goes the other way: pick a screening class and see what kind of population it is. An individual woman's characteristics cannot be predicted from her class; what is shown here is the composition of the class.</p>
     <div class="chips" id="rev-chips"></div>
     <p id="rev-sum" style="max-width:70ch"></p>
@@ -259,7 +259,7 @@ input:invalid{border-color:var(--c-never)}
     <div class="rows" id="rev-rows"></div>
   </div>
   <div class="card">
-    <h2>Types of women within the class</h2>
+    <h2>Within-class profiles</h2>
     <p class="note">Women in the selected class were clustered on 33 characteristics with weighted k-means. Each type shows its share of the class, median age and the characteristics that set it apart most from the rest of the class (in brackets: share in the whole class). Types are tendencies rather than sharply bounded groups; silhouette coefficients are low.</p>
     <div id="rev-types" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
@@ -278,7 +278,7 @@ input:invalid{border-color:var(--c-never)}
     <div id="cmpchart"></div>
   </div>
   <div class="card">
-    <h2>Which women do what?</h2>
+    <h2>Characteristics of the screening classes</h2>
     <div class="chips" id="desc-chips"></div>
     <div class="rows" id="desc-rows"></div>
     <p class="note">BRFSS 2020, weighted percentages (_LLCPWT); n is the unweighted count.</p>
@@ -319,7 +319,7 @@ input:invalid{border-color:var(--c-never)}
     <div class="cal" id="cal"></div>
   </div>
   <div class="card">
-    <h2>Whom does the highest-predicted slice cover?</h2>
+    <h2>Coverage at the highest predicted probabilities</h2>
     <p class="note">When participants are ranked by the predicted probability of the relevant class, this shows how much of the target class is covered by the highest-predicted slice (internal validation set).</p>
     <div class="scroll"><table id="lifttab"></table></div>
   </div>
@@ -343,33 +343,33 @@ input:invalid{border-color:var(--c-never)}
 
 <section class="panel" id="p-test" role="tabpanel" hidden>
   <div class="card">
-    <h2>Would more questions improve the model?</h2>
+    <h2>Incremental value of additional questions</h2>
     <p class="note">Real BRFSS 2020 items that the calculator does not use were added to the model in blocks. Each block was tested in its own subsample of women who were asked it: the base model (19 inputs) was compared with base + block on the same folds (LightGBM, 5-fold cross-validation). The difference is the change in mean AUC across the three classes; ± is the standard deviation across folds.</p>
     <div class="rows" id="blk-rows"></div>
     <p class="note">The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires separate transportability and fairness evaluation. Mean contributions from the other blocks are close to fold-to-fold variation.</p>
   </div>
   <div class="card">
-    <h2>Short form: how many questions are enough?</h2>
+    <h2>Performance by number of questions</h2>
     <p class="note">The first nine questions were chosen by adding, at each step, the one that improved the model most; gains become very small after that, so the remaining questions were ordered by their contribution at that step. Selection was done inside the training data; values are from the internal validation set. The bar is the mean AUC across the three classes.</p>
     <div class="rows" id="sf-rows"></div>
     <p class="note" id="sf-note"></p>
   </div>
   <div class="card">
-    <h2>If answers are wrong</h2>
+    <h2>Sensitivity to reporting error</h2>
     <p class="note">Real answers in the internal validation set were perturbed in a controlled way; the model was not retrained.</p>
     <div class="scroll"><table id="st-err"></table></div>
   </div>
   <div class="card">
-    <h2>If the population changes</h2>
+    <h2>Population reweighting scenarios</h2>
     <p class="note">The internal validation set was reweighted by tripling the weight of a selected group. Predicted and observed rates remaining close in these artificial scenarios shows only sensitivity to these reweightings; it is not evidence of transportability or calibration in a new setting.</p>
     <div class="scroll"><table id="st-shift"></table></div>
   </div>
   <div class="card">
-    <h2>If answers are missing</h2>
+    <h2>Missing-response analysis</h2>
     <p class="note">Survey respondents who answer "don't know" or refuse differ from others and are more often never screened; the model assigns that survey category a higher never-screened probability. A blank field in this tool, by contrast, usually means that the information is unavailable. The comparison below randomly deletes answers and either assigns the survey unknown category or fills with the item's population mean. Observed rates: never screened <span id="obs-n"></span>%, overdue <span id="obs-o"></span>%.</p>
     <div class="scroll"><table id="st-miss"></table></div>
     <p class="note">In the simulation, mean-filling randomly deleted answers produced less calibration drift than assigning them to the survey unknown category. Blank fields in the user form are therefore represented by the population mean; this result is not guaranteed in practice because real-world missingness may not be random.</p>
-    <h3>If a question is not asked at all</h3>
+    <h3>Omitting individual questions</h3>
     <div class="scroll"><table id="st-drop"></table></div>
   </div>
 </section>
@@ -377,9 +377,9 @@ input:invalid{border-color:var(--c-never)}
 <section class="panel" id="p-method" role="tabpanel" hidden>
   <div class="card"><h2>Methods and limitations</h2>
   <div class="prose">
-    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the previously generated model version retained 98,847 people in 2020 and 104,650 in 2024. The 2021–2023 files were not used for modeling: in odd-numbered years screening items were asked in only a few states, while in 2022 the new item without an explanatory preamble raised the never-screened share to 37%; CDC also did not publish its derived cervical-screening variable that year.</p>
+    <p><b>Data.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the earlier model version retained 98,847 people in 2020 and 104,650 in 2024. The 2021–2023 files were not used for modeling: in odd-numbered years screening items were asked in only a few states, while in 2022 the new item without an explanatory preamble raised the never-screened share to 37%; CDC also did not publish its derived cervical-screening variable that year.</p>
     <p><b>Why 2020?</b> In 2021 the question format changed and "Pap test" was replaced by "cervical cancer screening test". Even in 2024 the share of women reporting never having been screened is 8–9 points higher than in 2020 in every age group. The difference is also seen when the same birth cohort is followed (3.9% in 2020, 25.4% in 2022, 10.8% in 2024), and the 2022 excess is present in every state; it is thought to be associated largely with the wording of the item. Overdue rates, by contrast, are similar in both years. The 2020 data, which used the Pap-test items, was therefore chosen for development.</p>
-    <p><b>Hedef grup.</b> US participants classified as women by BRFSS, aged 21–65, reporting no hysterectomy (HADHYST2 = 2), and with an outcome label that could be derived reliably. This definition does not replace a current clinical eligibility assessment.</p>
+    <p><b>Target population.</b> US participants classified as women by BRFSS, aged 21–65, reporting no hysterectomy (HADHYST2 = 2), and with an outcome label that could be derived reliably. This definition does not replace a current clinical eligibility assessment.</p>
     <p><b>Classes (USPSTF 2018 interval proxy).</b> <b>Up to date:</b> a Pap test within 3 years <em>or</em>, at age 30 or older, an HPV test within 5 years. <b>Never screened:</b> an explicit No to both Pap and HPV. <b>Overdue:</b> a known prior Pap/HPV test that does not meet the current definition. Don't know and refusal responses are not treated as No; records that cannot be classified reliably are excluded from the analytic sample. These are survey-derived research labels, not a status verified from the person's clinical record.</p>
     <p><b>Inputs and missing responses.</b> Variables asked in the same form in both years were used; insurance was harmonized as yes/no and income as eight levels. No variable derived from screening items is an input. During training, an actual survey don't-know/refusal response is a separate category. A field left blank in the user form is represented by the population mean; these two missingness mechanisms are not treated as equivalent. No estimate is produced without age.</p>
     <p><b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM and a neural network were compared with 5-fold cross-validation. Survey weights were used in training and evaluation (the neural network was trained unweighted).</p>
@@ -391,7 +391,7 @@ input:invalid{border-color:var(--c-never)}
 <footer class="card">
   <b>Version 1.1.0 · September 29, 2026</b>
   <span>Model data: BRFSS 2020 · Evaluation under measurement change: BRFSS 2024 · Static, locally running page.</span>
-  <span>Kaynaklar: <a href="https://www.cdc.gov/brfss/annual_data/annual_data.htm">CDC BRFSS annual data</a> · <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/cervical-cancer-screening">USPSTF cervical screening recommendation</a> · <a href="https://www.bmj.com/content/385/bmj-2023-078378">TRIPOD+AI raporlama rehberi</a>.</span>
+  <span>Sources: <a href="https://www.cdc.gov/brfss/annual_data/annual_data.htm">CDC BRFSS annual data</a> · <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/cervical-cancer-screening">USPSTF cervical screening recommendation</a> · <a href="https://www.bmj.com/content/385/bmj-2023-078378">TRIPOD+AI reporting guideline</a>.</span>
   <span>Contact: Veysel Gider, Batman University. The author list and institutional contact address must be completed before publication.</span>
 </footer>
 </div>
@@ -420,7 +420,7 @@ function rowsTable(host,rows,firstHead){host.textContent='';const h=el('div','ro
   rows.forEach(r=>{const d=el('div','row');const l=el('div','lab',r.label);if(r.sub)l.appendChild(el('small',null,r.sub));d.appendChild(l);d.appendChild(stackBar(r.vals,r.label));r.vals.forEach(v=>d.appendChild(el('div','num',fmt(v))));host.appendChild(d)})}
 
 /* ---------- sekmeler ---------- */
-const TABS=[['calc','Outreach tool'],['prof','Research · Profiles'],['rev','Exploratory class descriptions'],['desc','Descriptive results'],['state','Eyaletler'],['model','Model and fairness'],['test','Robustness tests'],['method','Methods']];
+const TABS=[['calc','Outreach tool'],['prof','Screening profiles'],['rev','Exploratory class descriptions'],['desc','Descriptive results'],['state','States'],['model','Model and fairness'],['test','Sensitivity analyses'],['method','Methods']];
 function selectTab(k,focus=false){TABS.forEach(([id])=>{const on=id===k,p=$('#p-'+id),b=$('#t-'+id);p.hidden=!on;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});try{localStorage.setItem('tab',k)}catch(e){}}
 TABS.forEach(([id,name],i)=>{const b=el('button',null,name);b.type='button';b.id='t-'+id;b.setAttribute('role','tab');b.setAttribute('aria-controls','p-'+id);b.setAttribute('aria-selected','false');const p=$('#p-'+id);p.setAttribute('aria-labelledby',b.id);b.onclick=()=>selectTab(id);b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%TABS.length;else if(e.key==='ArrowLeft')j=(i-1+TABS.length)%TABS.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=TABS.length-1;else return;e.preventDefault();selectTab(TABS[j][0],true)};$('#tabs').appendChild(b)});
 
@@ -536,7 +536,7 @@ function lineChart(sel,rows,series,aria){const host=$(sel);const Wd=720,H=300,m=
   const wrap=el('div','scroll');wrap.appendChild(s);host.appendChild(wrap);const at=el('table','sr-only');const cap=el('caption',null,aria);at.appendChild(cap);const hr=el('tr');hr.appendChild(el('th',null,'Age'));series.forEach(q=>hr.appendChild(el('th',null,q.name)));at.appendChild(hr);rows.forEach((a,j)=>{const tr=el('tr');tr.appendChild(el('td',null,String(a)));series.forEach(q=>tr.appendChild(el('td',null,pct(q.vals[j]))));at.appendChild(tr)});host.appendChild(at)}
 function ageChart(){const ages=W.age.map(r=>r[0]);lineChart('#agechart',ages,[{name:'Up to date',color:C.cur,vals:W.age.map(r=>r[1])},{name:'Overdue',color:C.over,vals:W.age.map(r=>r[2])},{name:'Never screened',color:C.never,vals:W.age.map(r=>r[3])}],'Weighted percentage of the three classes by age');
   const m24=new Map(W.age24.map(r=>[r[0],r[3]]));lineChart('#cmpchart',ages,[{name:'2020',color:C.never,vals:W.age.map(r=>r[3])},{name:'2024',color:'var(--ink3)',vals:ages.map(a=>m24.get(a)??0)}],'Never-screened rate by age, 2020 and 2024')}
-/* ---------- eyaletler ---------- */
+/* ---------- state results ---------- */
 let stateSort=4;
 [['By never screened',4],['By overdue',3],['By up to date',2],['By name',0]].forEach(([n,k])=>{const b=el('button',null,n);b.setAttribute('aria-pressed',k===stateSort);b.onclick=()=>{stateSort=k;[...$('#state-sort').children].forEach(c=>c.setAttribute('aria-pressed',c===b));renderStates()};$('#state-sort').appendChild(b)});
 function renderStates(){const r=W.states.slice().sort((a,b)=>stateSort===0?a[0].localeCompare(b[0]):b[stateSort]-a[stateSort]);rowsTable($('#state-rows'),r.map(s=>({label:s[0],sub:'n='+fmtn(s[1]),vals:[s[2],s[3],s[4]]})),'State / territory')}
@@ -565,6 +565,6 @@ function renderShap(){const host=$('#shap');const top=W.shap.slice(0,18);const m
 $('#base-note').textContent=`up to date ${pct(BASE[0])} · overdue ${pct(BASE[1])} · never screened ${pct(BASE[2])}`;$('#base-never').textContent=fmt(W.trees.never.base);$('#base-over').textContent=fmt(W.trees.overdue.base);
 setForm(null);update();setThrClass('never');renderProfiles($('#prof-never'),LV.never,W.trees.never.base,C.never);renderProfiles($('#prof-over'),LV.over,W.trees.overdue.base,C.over);
 renderRev();renderTests();renderDesc();renderFlow();ageChart();renderStates();renderPerf();renderCal();renderShap();
-if(W.artifact_meta&&W.artifact_meta.source==='embedded_artifact')$('#artifact-warning').hidden=false;
+if(W.build_meta&&W.build_meta.source==='stored_coefficients')$('#model-status-warning').hidden=false;
 let t0='calc';try{t0=localStorage.getItem('tab')||'calc'}catch(e){}selectTab(TABS.some(t=>t[0]===t0)?t0:'calc');
 </script>

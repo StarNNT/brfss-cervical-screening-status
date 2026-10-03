@@ -1,4 +1,4 @@
-# Türkçe şablondan İngilizce şablon üretir (en_pairs.json: [türkçe, ingilizce] çiftleri)
+# Generate the English template from the Turkish source and the translation pairs.
 import json,re,sys
 s=open('template.html',encoding='utf-8').read(); P=json.load(open('en_pairs.json',encoding='utf-8'))
 for a,b in sorted(P,key=lambda p:-len(p[0])):
