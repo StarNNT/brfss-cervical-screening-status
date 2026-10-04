@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Full reproduction. Expects LLCP2020.XPT, LLCP2022.XPT and LLCP2024.XPT in the repository root (LLCP2021/2023 only for the supplementary multi-year analysis).
-# Python 3.11; pip install -r requirements.txt. Total run time is roughly 4 hours on two cores (steps 07, 10 and 13 dominate).
+# Python 3.12; pip install -r requirements.txt. Total run time is roughly 4–7 hours on two cores (steps 07, 10 and 13 dominate).
 set -e; export PYTHONUTF8=1; mkdir -p out
 python code/00_extract.py 2020; python code/00_extract.py 2024
 python code/00b_extract_screening_items.py 2022; python code/00b_extract_screening_items.py 2024

@@ -6,25 +6,25 @@ This repository contains the analysis code and browser-based implementation for 
 
 The tool is a single static page. The model runs in the browser; nothing a user enters leaves their computer. The page loads no external scripts or fonts. It must not be used to deny, delay or ration care.
 
-> **Current analysis status (version 1.1.0, 2026-09-29):** the revised label definition requires an explicit “No” to both Pap and HPV items for the never-screened class; unknown and refused HPV responses are not treated as “No”. The source-data audit gives n = 98,972 (weighted: 80.1% up to date, 12.2% overdue, 7.7% never screened). The coefficients in the HTML files predate this revision. Rerun the complete analysis before publication or decision-impact evaluation.
+> **Current analysis status (version 1.2.0, 2026-10-04):** the complete pipeline has been rerun with the revised label definition, which requires an explicit “No” to both Pap and HPV items for the never-screened class. Unknown and refused HPV responses are not treated as “No”. The source-data audit gives n = 98,972 (weighted: 80.1% up to date, 12.2% overdue, 7.7% never screened). The HTML coefficients and reported confidence intervals come from this run, and the output-consistency and static-page release checks pass.
 
 ## Study in brief
 
 | | |
 |---|---|
-| Development data in the stored model version | BRFSS 2020 — participants classified by BRFSS as women, aged 21–65, reporting no hysterectomy (n = 98,847 under the previous label rule) |
+| Development data | BRFSS 2020 — participants classified by BRFSS as women, aged 21–65, reporting no hysterectomy (n = 98,972) |
 | Temporal evaluation | BRFSS 2024, same eligibility (n = 104,650), under a changed screening instrument |
-| Outcome (2020, weighted) | Up to date 80.3% · overdue 11.6% · never screened 8.1% |
+| Outcome (2020, weighted) | Up to date 80.1% · overdue 12.2% · never screened 7.7% |
 | Final model | Multinomial logistic regression, 19 inputs, piecewise-linear age, survey-weighted |
-| Internal validation (held-out 20%; stored model version) | AUC never screened 0.847 (design-based 95% CI 0.824–0.868) · overdue 0.780 (0.756–0.803) · up to date 0.767 (0.749–0.784) |
-| 2024 evaluation (stored model version) | AUC never screened 0.790 (0.781–0.798) · overdue 0.724 (0.714–0.734) · up to date 0.742 (0.735–0.749) |
-| Algorithm comparison | Tuned LightGBM/XGBoost/CatBoost and ensembles: within 0.003 macro AUC of logistic regression on held-out 2020 (CI includes zero for never-screened AUC); +0.011 never-screened AUC in 2024 |
+| Internal evaluation (held-out 20%) | AUC never screened 0.878 (design-based 95% CI 0.861–0.895) · overdue 0.773 (0.752–0.791) · up to date 0.786 (0.771–0.802) |
+| 2024 temporal evaluation | AUC never screened 0.790 (0.781–0.799) · overdue 0.713 (0.703–0.722) · up to date 0.744 (0.737–0.751) |
+| Algorithm comparison | On held-out 2020, the four-model ensemble improved macro AUC by 0.003 and never-screened AUC by 0.005, with no clear log-loss gain; in 2024, the three-boosting-model ensemble improved never-screened AUC by 0.014 and reduced log-loss by 0.018 |
 | Uncertainty | Design-based bootstrap (1,000 within-stratum resamples) for every metric; state-grouped 10-fold CV |
 | Profiles | Weighted decision trees (depth 4) with design-based 95% confidence intervals |
 | Extra questions | Of twelve blocks of additional real BRFSS items, only mammography history adds materially (mean AUC 0.76 → 0.82 in women aged 40–65) |
-| Sensitivity analyses | Simulated reporting error, reweighting and missing-answer scenarios; the first 8 questions reach mean AUC 0.790 vs. 0.798 for all 19 in the stored model version |
+| Sensitivity analyses | Simulated reporting error, reweighting and missing-answer scenarios; the first 8 questions reach mean AUC 0.793 vs. 0.812 for all 19 |
 
-Seven algorithm families (logistic regression, decision tree, random forest, XGBoost, LightGBM, CatBoost, neural network) were compared with 5-fold cross-validation, the three boosting implementations also after a random hyperparameter search, and two ensembles were formed. Logistic regression was within 0.005 macro AUC of the tuned boosting models and was chosen for deployment because it is transparent and runs exactly in the browser; the tuned models and ensembles are reported alongside.
+Seven algorithm families (logistic regression, decision tree, random forest, XGBoost, LightGBM, CatBoost, neural network) were compared with 5-fold cross-validation, the three boosting implementations also after a random hyperparameter search, and two ensembles were formed. Logistic regression was within 0.005 macro AUC of the tuned boosting models and was chosen for the browser prototype because it is transparent and runs exactly in the browser; the tuned models and ensembles are reported alongside.
 
 ### Intended use and exclusions
 
@@ -55,18 +55,18 @@ The BRFSS used three instruments for the "ever screened" item between 2020 and 2
 | `code/07_stress_tests.py` | Robustness of the final model: misreported answers, population shift, short-form question ordering (slow: about 30 minutes) |
 | `code/08_missing_answers.py` | Missing answers: survey "unknown" category vs. population-average fill; writes the column means the tool uses for unknown fields; run after 07 |
 | `code/09_two_stage_subgroups_dca.py` | Two-stage hierarchical model, subgroup performance and decision curves (point estimates); run after 03 |
-| `code/10_algorithm_search.py` | Random hyperparameter search (LightGBM 24, XGBoost 10, CatBoost 6 configurations) and 5-fold CV of all algorithms; writes `out/search_best.json` (slow, about 1.5 h) |
+| `code/10_algorithm_search.py` | Random hyperparameter search (LightGBM 24, XGBoost 10, CatBoost 6 draws) and 5-fold CV of all algorithms; writes `out/search_best.json` (slow, roughly 2–4 h on two cores) |
 | `code/11_tuned_models_confusion_shap.py` | Tuned models and ensembles: fitted to the 80% development subset for the held-out set and refitted to the full 2020 sample (same hyperparameters) for the 2024 set; confusion matrices under the pre-specified rules only (no threshold selection on evaluation data), SHAP and coefficient-based importance, odds ratios from the refitted logistic model; reads `out/search_best.json` |
 | `code/12_question_wording.py` | Instrument analysis: never-screened and don't-know shares, age pattern, birth cohorts and state spread for 2020, 2022 and 2024 |
 | `code/13_design_bootstrap_grouped_cv_conformal.py` | Design-based bootstrap (1,000 within-stratum resamples) for all reported metrics and paired differences; thresholds selected on out-of-fold development predictions; state-grouped 10-fold CV; unweighted finite-sample split conformal sets; fold SDs of the tuned models |
 | `code/14_web_confidence_intervals.py` | Replaces the iid-bootstrap intervals that script 03 writes for the web page with the design-based intervals of script 13, so the page and the paper report the same intervals |
-| `code/check_outputs.py` | Compares regenerated key results with fixed expected values from the paper (tolerances allow for platform-level numerical differences) |
+| `code/check_outputs.py` | Validates the revised label audit and cross-output consistency, including class counts, design-based intervals and threshold tables |
 
 ### Training scheme (which model is evaluated where)
 
-Hyperparameters were selected by 5-fold cross-validation inside the 80% development subset of 2020 (script 10). Every model is then fitted twice with those hyperparameters: once to the development subset, and this fit is evaluated on the 20% held-out set; and once to the full 2020 sample, and this refit is evaluated on 2024 and, for the logistic regression, exported to the web tool (`out/webmodel.json`). The 2024 predictions in `out/model_predictions.npz` and the deployed model therefore come from the same fits. Confidence intervals in the paper, the tables and the web tool come from the design-based bootstrap of script 13 (1,000 within-stratum resamples; multiplicities are accumulated with `np.add.at`, since fancy-indexed `+=` would drop repeated draws).
+Hyperparameters were selected by 5-fold cross-validation inside the 80% development subset of 2020 (script 10). Every model is then fitted twice with those hyperparameters: once to the development subset, and this fit is evaluated on the 20% held-out set; and once to the full 2020 sample, and this refit is evaluated on 2024 and, for the logistic regression, exported to the browser prototype (`out/webmodel.json`). The 2024 predictions in `out/model_predictions.npz` and the browser coefficients therefore come from the same fit. Confidence intervals in the paper, the tables and the browser prototype come from the design-based bootstrap of script 13 (1,000 within-stratum resamples; multiplicities are accumulated with `np.add.at`, since fancy-indexed `+=` would drop repeated draws).
 
-This repository is the private submission-stage working copy associated with the manuscript. It will be made public upon acceptance after the corrected pipeline has been rerun, the manuscript values have been reconciled, and the release check passes. `run_all.sh` runs every step in order (about 4 hours on two cores). Dependency versions are pinned in `requirements.txt` (Python 3.11).
+This repository is the private submission-stage working copy associated with the manuscript. The corrected pipeline has been rerun and both release checks pass; the repository is planned for public release upon acceptance, together with a versioned archive and persistent identifier. `run_all.sh` runs every step in order (roughly 4–7 hours on two cores, depending mainly on CatBoost). Dependency versions are pinned in `requirements.txt` (final reproducibility run: Python 3.12).
 
 4. `cd web_src && python en.py && python build.py` rebuilds `../index.html` and `../tr.html`; `python ../code/check_web.py --release` then verifies that the static pages use coefficients from the current analysis outputs.
 
