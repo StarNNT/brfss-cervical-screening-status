@@ -824,8 +824,16 @@
 "Descriptive results"
 ],
 [
-"Model ve adalet",
-"Model and fairness"
+"Model ve alt grup performansı",
+"Model and subgroup performance"
+],
+[
+"Kaynak kodu",
+"Source code"
+],
+[
+"MIT Lisansı",
+"MIT License"
 ],
 [
 "Sağlamlık sınamaları",
@@ -988,8 +996,8 @@
 "Subgroup"
 ],
 [
-"Bu analizde en büyük artış mamografi öyküsü eklenince görülür: yalnız 40–65 yaş alt örnekleminde ortalama AUC 0,76'dan 0,82'ye çıkar. Bu değişken mevcut forma eklenmedi; daha dar yaş evreninde ölçülmüştür, başka bir taramaya erişimi temsil edebilir ve ayrı taşıma/adalet değerlendirmesi gerektirir. Diğer blokların ortalama katkısı katlar arası oynaklığa yakındır.",
-"The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires separate transportability and fairness evaluation. Mean contributions from the other blocks are close to fold-to-fold variation."
+"Bu analizde en büyük artış mamografi öyküsü eklenince görülür: yalnız 40–65 yaş alt örnekleminde ortalama AUC 0,76'dan 0,82'ye çıkar. Bu değişken mevcut forma eklenmedi; daha dar yaş evreninde ölçülmüştür, başka bir taramaya erişimi temsil edebilir ve ayrı bir taşınabilirlik ve alt grup performansı değerlendirmesi gerektirir. Diğer blokların ortalama katkısı katlar arası oynaklığa yakındır.",
+"The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires a separate transportability and subgroup-performance evaluation. Mean contributions from the other blocks are close to fold-to-fold variation."
 ],
 [
 "İç doğrulama kümesi, belirli bir grubun ağırlığı üç katına çıkarılarak yeniden ağırlıklandırıldı. Tahmin edilen ve gözlenen oranların bu yapay senaryolarda yakın kalması yalnız bu yeniden ağırlıklandırmalara karşı duyarlılığı gösterir; yeni bir yerde taşınabilirlik veya kalibrasyon kanıtı değildir.",
