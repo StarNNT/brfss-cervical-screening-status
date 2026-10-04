@@ -346,7 +346,7 @@ input:invalid{border-color:var(--c-never)}
     <h2>Incremental value of additional questions</h2>
     <p class="note">Real BRFSS 2020 items that the calculator does not use were added to the model in blocks. Each block was tested in its own subsample of women who were asked it: the base model (19 inputs) was compared with base + block on the same folds (LightGBM, 5-fold cross-validation). The difference is the change in mean AUC across the three classes; ± is the standard deviation across folds.</p>
     <div class="rows" id="blk-rows"></div>
-    <p class="note">The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires separate transportability and fairness evaluation. Mean contributions from the other blocks are close to fold-to-fold variation.</p>
+    <p class="note">The largest increase in this analysis appears when mammography history is added: mean AUC rises from 0.76 to 0.82 only in the ages 40–65 subsample. This variable was not added to the current form; it was measured in a narrower age range, may proxy access to another screening program, and requires a separate transportability and subgroup-performance evaluation. Mean contributions from the other blocks are close to fold-to-fold variation.</p>
   </div>
   <div class="card">
     <h2>Performance by number of questions</h2>
@@ -421,7 +421,7 @@ function rowsTable(host,rows,firstHead){host.textContent='';const h=el('div','ro
   rows.forEach(r=>{const d=el('div','row');const l=el('div','lab',r.label);if(r.sub)l.appendChild(el('small',null,r.sub));d.appendChild(l);d.appendChild(stackBar(r.vals,r.label));r.vals.forEach(v=>d.appendChild(el('div','num',fmt(v))));host.appendChild(d)})}
 
 /* ---------- sekmeler ---------- */
-const TABS=[['calc','Outreach tool'],['prof','Screening profiles'],['rev','Exploratory class descriptions'],['desc','Descriptive results'],['state','States'],['model','Model and fairness'],['test','Sensitivity analyses'],['method','Methods']];
+const TABS=[['calc','Outreach tool'],['prof','Screening profiles'],['rev','Exploratory class descriptions'],['desc','Descriptive results'],['state','States'],['model','Model and subgroup performance'],['test','Sensitivity analyses'],['method','Methods']];
 function selectTab(k,focus=false){TABS.forEach(([id])=>{const on=id===k,p=$('#p-'+id),b=$('#t-'+id);p.hidden=!on;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});try{localStorage.setItem('tab',k)}catch(e){}}
 TABS.forEach(([id,name],i)=>{const b=el('button',null,name);b.type='button';b.id='t-'+id;b.setAttribute('role','tab');b.setAttribute('aria-controls','p-'+id);b.setAttribute('aria-selected','false');const p=$('#p-'+id);p.setAttribute('aria-labelledby',b.id);b.onclick=()=>selectTab(id);b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%TABS.length;else if(e.key==='ArrowLeft')j=(i-1+TABS.length)%TABS.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=TABS.length-1;else return;e.preventDefault();selectTab(TABS[j][0],true)};$('#tabs').appendChild(b)});
 
