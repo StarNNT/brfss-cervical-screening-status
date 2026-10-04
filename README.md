@@ -1,8 +1,11 @@
 # Cervical screening outreach prioritization
 
+[![Version](https://img.shields.io/badge/version-1.2.0-6b2d5c)](https://github.com/StarNNT/brfss-cervical-screening-status/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-2f6f73.svg)](LICENSE)
+
 This repository contains the analysis code and browser-based implementation for estimating survey-derived **up to date**, **overdue** and **never screened** classes from sociodemographic, access-to-care and health-behaviour characteristics in the US CDC Behavioral Risk Factor Surveillance System (BRFSS). The estimates are intended for research on voluntary population outreach, not for cancer-risk assessment or individual clinical decisions.
 
-**Web tool:** [English](index.html) · [Türkçe](tr.html).
+**Web tool:** [English](https://starnnt.github.io/brfss-cervical-screening-status/) · [Türkçe](https://starnnt.github.io/brfss-cervical-screening-status/tr.html).
 
 The tool is a single static page. The model runs in the browser; nothing a user enters leaves their computer. The page loads no external scripts or fonts. It must not be used to deny, delay or ration care.
 
@@ -66,7 +69,7 @@ The BRFSS used three instruments for the "ever screened" item between 2020 and 2
 
 Hyperparameters were selected by 5-fold cross-validation inside the 80% development subset of 2020 (script 10). Every model is then fitted twice with those hyperparameters: once to the development subset, and this fit is evaluated on the 20% held-out set; and once to the full 2020 sample, and this refit is evaluated on 2024 and, for the logistic regression, exported to the browser prototype (`out/webmodel.json`). The 2024 predictions in `out/model_predictions.npz` and the browser coefficients therefore come from the same fit. Confidence intervals in the paper, the tables and the browser prototype come from the design-based bootstrap of script 13 (1,000 within-stratum resamples; multiplicities are accumulated with `np.add.at`, since fancy-indexed `+=` would drop repeated draws).
 
-This repository is the private submission-stage working copy associated with the manuscript. The corrected pipeline has been rerun and both release checks pass; the repository is planned for public release upon acceptance, together with a versioned archive and persistent identifier. `run_all.sh` runs every step in order (roughly 4–7 hours on two cores, depending mainly on CatBoost). Dependency versions are pinned in `requirements.txt` (final reproducibility run: Python 3.12).
+This repository is the public reproducibility package associated with the manuscript. The corrected pipeline has been rerun and both release checks pass. A versioned archival release and persistent identifier are planned when the manuscript record is final. `run_all.sh` runs every step in order (roughly 4–7 hours on two cores, depending mainly on CatBoost). Dependency versions are pinned in `requirements.txt` (final reproducibility run: Python 3.12).
 
 4. `cd web_src && python en.py && python build.py` rebuilds `../index.html` and `../tr.html`; `python ../code/check_web.py --release` then verifies that the static pages use coefficients from the current analysis outputs.
 
@@ -81,6 +84,14 @@ BRFSS is cross-sectional and self-reported, and screening history tends to be ov
 - Veysel Gider, Distance Education Application and Research Center, Batman University, Türkiye
 - Haluk Damlacıoğlu, Hollings Cancer Center, Medical University of South Carolina, United States
 - Cafer Budak, Department of Electrical and Electronics Engineering, Dicle University, Türkiye
+
+## Citation
+
+Until a journal citation and archival DOI are available, cite this repository using the metadata in [`CITATION.cff`](CITATION.cff) and identify the exact software version used. A persistent identifier will be added to the citation metadata after the versioned archive is created.
+
+## License
+
+The analysis code and browser implementation are released under the [MIT License](LICENSE). The BRFSS source data are produced by the CDC and are not redistributed in this repository.
 
 ## Data source
 

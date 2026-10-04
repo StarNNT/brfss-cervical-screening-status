@@ -11,3 +11,13 @@ __pycache__/
 *.py[cod]
 .deps/
 .pytest_cache/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

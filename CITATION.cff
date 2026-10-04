@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated manuscript and this software release."
+title: "Cervical screening outreach prioritization"
+type: software
+version: 1.2.0
+date-released: 2026-10-04
+license: MIT
+repository-code: "https://github.com/StarNNT/brfss-cervical-screening-status"
+url: "https://starnnt.github.io/brfss-cervical-screening-status/"
+authors:
+  - family-names: Gider
+    given-names: Veysel
+  - family-names: Damlacıoğlu
+    given-names: Haluk
+  - family-names: Budak
+    given-names: Cafer
+keywords:
+  - cervical cancer screening
+  - BRFSS
+  - machine learning
+  - survey-weighted analysis
+  - outreach prioritization
