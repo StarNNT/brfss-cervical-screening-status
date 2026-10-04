@@ -82,8 +82,6 @@ BRFSS is cross-sectional and self-reported, and screening history tends to be ov
 ## Authors
 
 - Veysel Gider, Distance Education Application and Research Center, Batman University, Türkiye
-- Haluk Damlacıoğlu, Hollings Cancer Center, Medical University of South Carolina, United States
-- Cafer Budak, Department of Electrical and Electronics Engineering, Dicle University, Türkiye
 
 ## Citation
 
