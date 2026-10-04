@@ -1,7 +1,7 @@
 [
 [
-"Geliştirme: BRFSS 2020 (98.847 kadın) · Zamansal değerlendirme, ölçüm değişikliği altında: BRFSS 2024 (104.650 kadın) · 21–65 yaş",
-"Development: BRFSS 2020 (98,847 women) · Temporal evaluation under outcome-measurement change: BRFSS 2024 (104,650 women) · ages 21–65"
+"Geliştirme: BRFSS 2020 (98.972 kadın) · Zamansal değerlendirme, ölçüm değişikliği altında: BRFSS 2024 (104.650 kadın) · 21–65 yaş",
+"Development: BRFSS 2020 (98,972 women) · Temporal evaluation under outcome-measurement change: BRFSS 2024 (104,650 women) · ages 21–65"
 ],
 [
 "Yüzdeler, aynı özelliklere sahip 100 kadından kaçının her sınıfta olmasının beklendiğini gösterir. Parantez içi, tüm nüfustaki orana göre farktır (<span id=\"base-note\"></span>).",
@@ -88,8 +88,8 @@
 "<b>Classes (USPSTF intervals).</b> <b>Never screened:</b> never had a Pap test and no HPV test reported. <b>Up to date:</b> Pap test within 3 years; for ages 30+, also an HPV test within 5 years. <b>Overdue:</b> ever screened but outside these intervals. The 2020 definition was cross-checked against the CDC variable _RFPAP35 and the 2024 definition against _PAPHPV1."
 ],
 [
-"<b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).",
-"<b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM and a neural network were compared with 5-fold cross-validation. Survey weights were used in training and evaluation (the neural network was trained unweighted)."
+"<b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM, CatBoost ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı; üç gradyan artırma modeli ayrıca rastgele aramayla ayarlandı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).",
+"<b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM, CatBoost and a neural network were compared with 5-fold cross-validation; the three gradient-boosting models were also tuned by random search. Survey weights were used in training and evaluation (the neural network was trained unweighted)."
 ],
 [
 "<b>Profiller.</b> Derinliği 4 olan ağırlıklı karar ağaçları; biri \"hiç taranmamış\", diğeri taranmışlar içinde \"geri kalmış\" için. Oranların güven aralıkları tabaka (_STSTR) ve küme (_PSU) yapısıyla, Taylor doğrusallaştırmasıyla hesaplandı.",
@@ -692,14 +692,6 @@
 "Prior CIN2/3 or cancer, immunosuppression, in-utero DES exposure, symptoms, abnormal results, and other special situations are outside this tool's scope and require clinical guidance and professional evaluation."
 ],
 [
-"Sonuçlar güncelleniyor:",
-"Results pending update:"
-],
-[
-"Buradaki katsayılar düzeltilmiş etiket tanımından önceki model sürümüne aittir. Tam analiz yeni etiketlerle yeniden çalıştırılana kadar bu değerler nihai araştırma sonucu olarak yorumlanmamalıdır.",
-"The coefficients shown here come from the model version fitted before the revised label definition. Do not treat these values as final research results until the analysis has been rerun with the revised labels."
-],
-[
 "Yaş zorunludur. Diğer alanlar boş bırakılabilir; boş yanıtlar geliştirme nüfusunun ortalamasıyla temsil edilir ve tahmin belirsizliği artar. İlk sekiz alan kısa formu oluşturur.",
 "Age is required. Other fields may be left blank; blanks are represented by the development-population mean and increase uncertainty. The first eight fields form the short form."
 ],
@@ -745,27 +737,27 @@
 ],
 [
 "Bu bilgiler bir gruba bakımı kısıtlamak için kullanılamaz. Uygulama öncesinde yerel nüfusta kalibrasyon, duyarlılık, yanlış-pozitif oranı, iş yükü ve erişimin gerçek etkisi ileriye dönük değerlendirilmelidir.",
-"These data must not be used to restrict care for a group. Before deployment, calibration, sensitivity, false-positive rate, workload, and the real effect of outreach must be evaluated prospectively in the local population."
+"These data must not be used to restrict care for a group. Before any operational use, calibration, sensitivity, false-positive rate, workload, and the real effect of outreach must be evaluated prospectively in the local population."
 ],
 [
 "Irk/etnisite ve dil değişkenleri biyolojik ya da nedensel özellikler olarak değil, sağlık hizmetine erişimdeki yapısal eşitsizliklerin göstergeleri olarak yorumlanmalıdır.",
 "Race/ethnicity and language variables should be interpreted as markers of structural inequities in access to care, not as biological or causal characteristics."
 ],
 [
-"Dağıtılan hesaplayıcının açıklaması değildir.",
-"This is not an explanation of the deployed calculator."
+"Tarayıcı prototipinin açıklaması değildir.",
+"This is not an explanation of the browser prototype."
 ],
 [
-"Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Hesaplayıcı 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.",
-"This panel belongs to a separate 37-variable-plus-state LightGBM research model. The calculator is a 19-input multinomial logistic regression; its local explanation is limited to coefficient contributions on the Outreach tool tab."
+"Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Tarayıcı prototipi 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.",
+"This panel belongs to a separate 37-variable-plus-state LightGBM research model. The browser prototype uses a 19-input multinomial logistic regression; its local explanation is limited to coefficient contributions on the Outreach tool tab."
 ],
 [
 "Araştırma modelinde ortalama mutlak SHAP değeri; her çubuk değişkenin üç sınıfın tahminine katkısını ayrı ayrı gösterir. İlk 18 değişken. SHAP ilişkileri nedensellik göstermez.",
 "Mean absolute SHAP value in the research model; each bar separately shows contributions to the three classes. First 18 variables. SHAP associations do not establish causality."
 ],
 [
-"CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra önceki model sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır.",
-"CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the earlier model version retained 98,847 people in 2020 and 104,650 in 2024."
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra 2020 için 98.972, 2024 için 104.650 kişi kalmıştır.",
+"CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, 98,972 people remained in 2020 and 104,650 in 2024."
 ],
 [
 "BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.",
@@ -792,8 +784,8 @@
 "There are no confidence intervals for individual probabilities; subgroup sample sizes and prediction errors are not equal."
 ],
 [
-"Sürüm 1.1.0 · 29 Eylül 2026",
-"Version 1.1.0 · September 29, 2026"
+"Sürüm 1.2.0 · 4 Ekim 2026",
+"Version 1.2.0 · October 4, 2026"
 ],
 [
 "Model verisi: BRFSS 2020 · Ölçüm değişikliği altında değerlendirme: BRFSS 2024 · Statik, yerel çalışan sayfa.",
@@ -808,8 +800,8 @@
 "USPSTF cervical screening recommendation"
 ],
 [
-"İletişim: Veysel Gider, Batman Üniversitesi. Yazar listesi ve kurumsal iletişim adresi yayımdan önce tamamlanmalıdır.",
-"Contact: Veysel Gider, Batman University. The author list and institutional contact address must be completed before publication."
+"Yazarlar: Veysel Gider, Haluk Damlacıoğlu ve Cafer Budak. İletişim: veysel.gider@batman.edu.tr.",
+"Authors: Veysel Gider, Haluk Damlacioglu, and Cafer Budak. Contact: veysel.gider@batman.edu.tr."
 ],
 [
 "Bu araç hesaplamayı tarayıcıda yapmak için JavaScript gerektirir. JavaScript kapalıyken hiçbir tahmin üretilmez.",

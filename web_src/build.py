@@ -2,24 +2,19 @@
 import json,copy,re,os
 
 def load_inputs():
-    """Use current analysis outputs when available; otherwise retain the stored coefficients."""
-    if os.path.exists('../out/webmodel.json') and os.path.exists('../out/webdata.json'):
-        model=json.load(open('../out/webmodel.json',encoding='utf-8'))
-        data=json.load(open('../out/webdata.json',encoding='utf-8'))
-        source='analysis_outputs'
-    else:
-        html=open('../tr.html',encoding='utf-8').read()
-        hit=re.search(r'const M=(\{.*?\}), W=(\{.*?\}), CAL=(\[.*?\]);',html,re.S)
-        if not hit:
-            raise FileNotFoundError('out/webmodel.json is absent and the existing tr.html has no stored model coefficients')
-        model={'model':json.loads(hit.group(1)),'cal':json.loads(hit.group(3)),'tests':[]}
-        data=json.loads(hit.group(2)); source='stored_coefficients'
+    """Build only from the current, fully regenerated analysis outputs."""
+    required=['../out/webmodel.json','../out/webdata.json']
+    missing=[p for p in required if not os.path.exists(p)]
+    if missing: raise FileNotFoundError('missing current analysis output(s): '+', '.join(missing))
+    model=json.load(open('../out/webmodel.json',encoding='utf-8'))
+    data=json.load(open('../out/webdata.json',encoding='utf-8'))
+    source='analysis_outputs'
     for key,name in [('blocks','ek_bloklar.json'),('stress','stres.json')]:
         path=os.path.join('../out',name)
         if os.path.exists(path): data[key]=json.load(open(path,encoding='utf-8'))
         if key not in data: raise FileNotFoundError(path)
     data.pop('build_meta',None)
-    data['build_meta']={'version':'1.1.0','built':'2026-09-29','source':source,'development':'BRFSS 2020','evaluation':'BRFSS 2024'}
+    data['build_meta']={'version':'1.2.0','built':'2026-10-04','source':source,'development':'BRFSS 2020','evaluation':'BRFSS 2024'}
     return model,data
 
 def add_fairness(data):

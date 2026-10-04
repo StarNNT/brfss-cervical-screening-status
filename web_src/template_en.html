@@ -192,7 +192,6 @@ input:invalid{border-color:var(--c-never)}
       <li>Prior CIN2/3 or cancer, immunosuppression, in-utero DES exposure, symptoms, abnormal results, and other special situations are outside this tool's scope and require clinical guidance and professional evaluation.</li>
     </ul>
   </div>
-  <div class="warn" id="model-status-warning" hidden><b>Results pending update:</b> The coefficients shown here come from the model version fitted before the revised label definition. Do not treat these values as final research results until the analysis has been rerun with the revised labels.</div>
   <div class="grid2">
     <div class="card">
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
@@ -330,11 +329,11 @@ input:invalid{border-color:var(--c-never)}
     <h3>Decision metrics at the default never-screened threshold</h3>
     <p class="note">AUC alone does not establish equitable use. The design-based metrics below, with 95% confidence intervals, show how often outreach would be offered to each group and whom it would capture or miss. Different thresholds can change disparities; thresholds should not be selected from AUC alone.</p>
     <div class="scroll"><table id="fairtab"></table></div>
-    <p class="note">These data must not be used to restrict care for a group. Before deployment, calibration, sensitivity, false-positive rate, workload, and the real effect of outreach must be evaluated prospectively in the local population.</p>
+    <p class="note">These data must not be used to restrict care for a group. Before any operational use, calibration, sensitivity, false-positive rate, workload, and the real effect of outreach must be evaluated prospectively in the local population.</p>
   </div>
   <div class="card">
     <h2>Variable importance (SHAP)</h2>
-    <div class="warn"><b>This is not an explanation of the deployed calculator.</b> This panel belongs to a separate 37-variable-plus-state LightGBM research model. The calculator is a 19-input multinomial logistic regression; its local explanation is limited to coefficient contributions on the Outreach tool tab.</div>
+    <div class="warn"><b>This is not an explanation of the browser prototype.</b> This panel belongs to a separate 37-variable-plus-state LightGBM research model. The browser prototype uses a 19-input multinomial logistic regression; its local explanation is limited to coefficient contributions on the Outreach tool tab.</div>
     <p class="note">Mean absolute SHAP value in the research model; each bar separately shows contributions to the three classes. First 18 variables. SHAP associations do not establish causality.</p>
     <div class="legend"><span><i class="sw" style="background:var(--c-cur)"></i>Up to date</span><span><i class="sw" style="background:var(--c-over)"></i>Overdue</span><span><i class="sw" style="background:var(--c-never)"></i>Never screened</span></div>
     <div class="rows" id="shap"></div>
@@ -377,22 +376,22 @@ input:invalid{border-color:var(--c-never)}
 <section class="panel" id="p-method" role="tabpanel" hidden>
   <div class="card"><h2>Methods and limitations</h2>
   <div class="prose">
-    <p><b>Data.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, the earlier model version retained 98,847 people in 2020 and 104,650 in 2024. The 2021–2023 files were not used for modeling: in odd-numbered years screening items were asked in only a few states, while in 2022 the new item without an explanatory preamble raised the never-screened share to 37%; CDC also did not publish its derived cervical-screening variable that year.</p>
+    <p><b>Data.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). The 2020 source file contains 401,958 interviews and the 2024 source file 457,670; these are not analytic sample sizes. After eligibility and missing-outcome rules, 98,972 people remained in 2020 and 104,650 in 2024. The 2021–2023 files were not used for modeling: in odd-numbered years screening items were asked in only a few states, while in 2022 the new item without an explanatory preamble raised the never-screened share to 37%; CDC also did not publish its derived cervical-screening variable that year.</p>
     <p><b>Why 2020?</b> In 2021 the question format changed and "Pap test" was replaced by "cervical cancer screening test". Even in 2024 the share of women reporting never having been screened is 8–9 points higher than in 2020 in every age group. The difference is also seen when the same birth cohort is followed (3.9% in 2020, 25.4% in 2022, 10.8% in 2024), and the 2022 excess is present in every state; it is thought to be associated largely with the wording of the item. Overdue rates, by contrast, are similar in both years. The 2020 data, which used the Pap-test items, was therefore chosen for development.</p>
     <p><b>Target population.</b> US participants classified as women by BRFSS, aged 21–65, reporting no hysterectomy (HADHYST2 = 2), and with an outcome label that could be derived reliably. This definition does not replace a current clinical eligibility assessment.</p>
     <p><b>Classes (USPSTF 2018 interval proxy).</b> <b>Up to date:</b> a Pap test within 3 years <em>or</em>, at age 30 or older, an HPV test within 5 years. <b>Never screened:</b> an explicit No to both Pap and HPV. <b>Overdue:</b> a known prior Pap/HPV test that does not meet the current definition. Don't know and refusal responses are not treated as No; records that cannot be classified reliably are excluded from the analytic sample. These are survey-derived research labels, not a status verified from the person's clinical record.</p>
     <p><b>Inputs and missing responses.</b> Variables asked in the same form in both years were used; insurance was harmonized as yes/no and income as eight levels. No variable derived from screening items is an input. During training, an actual survey don't-know/refusal response is a separate category. A field left blank in the user form is represented by the population mean; these two missingness mechanisms are not treated as equivalent. No estimate is produced without age.</p>
-    <p><b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM and a neural network were compared with 5-fold cross-validation. Survey weights were used in training and evaluation (the neural network was trained unweighted).</p>
+    <p><b>Model selection.</b> Logistic regression, decision tree, random forest, XGBoost, LightGBM, CatBoost and a neural network were compared with 5-fold cross-validation; the three gradient-boosting models were also tuned by random search. Survey weights were used in training and evaluation (the neural network was trained unweighted).</p>
     <p><b>Profiles.</b> Weighted decision trees of depth 4; one for never screened, one for overdue among ever-screened women. Confidence intervals for the rates use strata (_STSTR) and clusters (_PSU) with Taylor linearisation.</p>
     <p><b>Limitations.</b> Data are cross-sectional and self-reported, and screening history tends to be over-reported. Development data are from 2020, so post-pandemic changes may not be reflected. The outcome item changed in the 2024 evaluation, which is not a true external validation. There are no confidence intervals for individual probabilities; subgroup sample sizes and prediction errors are not equal. Findings do not establish causality. Results apply only to the US research population and cannot be transferred directly to other countries, clinical settings, or special-risk groups.</p>
   </div></div>
 </section>
 
 <footer class="card">
-  <b>Version 1.1.0 · September 29, 2026</b>
+  <b>Version 1.2.0 · October 4, 2026</b>
   <span>Model data: BRFSS 2020 · Evaluation under measurement change: BRFSS 2024 · Static, locally running page.</span>
   <span>Sources: <a href="https://www.cdc.gov/brfss/annual_data/annual_data.htm">CDC BRFSS annual data</a> · <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/cervical-cancer-screening">USPSTF cervical screening recommendation</a> · <a href="https://www.bmj.com/content/385/bmj-2023-078378">TRIPOD+AI reporting guideline</a>.</span>
-  <span>Contact: Veysel Gider, Batman University. The author list and institutional contact address must be completed before publication.</span>
+  <span>Authors: Veysel Gider, Haluk Damlacioglu, and Cafer Budak. Contact: veysel.gider@batman.edu.tr.</span>
 </footer>
 </div>
 <div id="tip" hidden></div>
@@ -565,6 +564,5 @@ function renderShap(){const host=$('#shap');const top=W.shap.slice(0,18);const m
 $('#base-note').textContent=`up to date ${pct(BASE[0])} · overdue ${pct(BASE[1])} · never screened ${pct(BASE[2])}`;$('#base-never').textContent=fmt(W.trees.never.base);$('#base-over').textContent=fmt(W.trees.overdue.base);
 setForm(null);update();setThrClass('never');renderProfiles($('#prof-never'),LV.never,W.trees.never.base,C.never);renderProfiles($('#prof-over'),LV.over,W.trees.overdue.base,C.over);
 renderRev();renderTests();renderDesc();renderFlow();ageChart();renderStates();renderPerf();renderCal();renderShap();
-if(W.build_meta&&W.build_meta.source==='stored_coefficients')$('#model-status-warning').hidden=false;
 let t0='calc';try{t0=localStorage.getItem('tab')||'calc'}catch(e){}selectTab(TABS.some(t=>t[0]===t0)?t0:'calc');
 </script>

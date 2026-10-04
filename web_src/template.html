@@ -192,7 +192,6 @@ input:invalid{border-color:var(--c-never)}
       <li>Önceki CIN2/3 veya kanser, bağışıklık baskılanması, rahim içinde DES maruziyeti, belirti ya da anormal sonuç gibi özel durumlarda bu aracın kapsamı dışındadır; klinik rehber ve sağlık uzmanı değerlendirmesi gerekir.</li>
     </ul>
   </div>
-  <div class="warn" id="model-status-warning" hidden><b>Sonuçlar güncelleniyor:</b> Buradaki katsayılar düzeltilmiş etiket tanımından önceki model sürümüne aittir. Tam analiz yeni etiketlerle yeniden çalıştırılana kadar bu değerler nihai araştırma sonucu olarak yorumlanmamalıdır.</div>
   <div class="grid2">
     <div class="card">
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
@@ -334,7 +333,7 @@ input:invalid{border-color:var(--c-never)}
   </div>
   <div class="card">
     <h2>Değişken önemi (SHAP)</h2>
-    <div class="warn"><b>Dağıtılan hesaplayıcının açıklaması değildir.</b> Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Hesaplayıcı 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.</div>
+    <div class="warn"><b>Tarayıcı prototipinin açıklaması değildir.</b> Bu panel, araştırmadaki ayrı bir 37 değişken + eyalet LightGBM modeline aittir. Tarayıcı prototipi 19 girdili multinom lojistik regresyondur; onun yerel açıklaması yalnızca “Erişim aracı” sekmesindeki katsayı katkılarıdır.</div>
     <p class="note">Araştırma modelinde ortalama mutlak SHAP değeri; her çubuk değişkenin üç sınıfın tahminine katkısını ayrı ayrı gösterir. İlk 18 değişken. SHAP ilişkileri nedensellik göstermez.</p>
     <div class="legend"><span><i class="sw" style="background:var(--c-cur)"></i>Güncel</span><span><i class="sw" style="background:var(--c-over)"></i>Geri kalmış</span><span><i class="sw" style="background:var(--c-never)"></i>Hiç taranmamış</span></div>
     <div class="rows" id="shap"></div>
@@ -377,22 +376,22 @@ input:invalid{border-color:var(--c-never)}
 <section class="panel" id="p-method" role="tabpanel" hidden>
   <div class="card"><h2>Yöntem ve sınırlılıklar</h2>
   <div class="prose">
-    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra önceki model sürümünde 2020 için 98.847, 2024 için 104.650 kişi kalmıştır. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla "hiç taranmamış" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.</p>
+    <p><b>Veri.</b> CDC Behavioral Risk Factor Surveillance System (BRFSS). 2020 kaynak dosyası 401.958, 2024 kaynak dosyası 457.670 görüşme içerir; bunlar analitik örneklem büyüklüğü değildir. Uygunluk ve eksik sonuç maddeleri uygulandıktan sonra 2020 için 98.972, 2024 için 104.650 kişi kalmıştır. 2021–2023 dosyaları modelleme için kullanılmadı: tek yıllarda tarama soruları yalnızca birkaç eyalette sorulmuş, 2022'de ise tanımlayıcı önsözü olmayan yeni soruyla "hiç taranmamış" oranı %37'ye yükselmiştir; CDC de o yıl için serviks taraması hesaplanmış değişkeni yayımlamamıştır.</p>
     <p><b>Neden 2020?</b> 2021'de soru kalıbı değişti ve "Pap testi" yerine "serviks kanseri tarama testi" ifadesi kullanılmaya başlandı. Yeni soruyla hiç taranmadığını söyleyen kadın oranı 2024'te bile her yaş grubunda 2020'dekinden 8–9 puan yüksektir. Aynı doğum kuşağı izlendiğinde de fark görülür (2020'de %3,9, 2022'de %25,4, 2024'te %10,8) ve 2022 fazlası tüm eyaletlerde vardır; farkın büyük ölçüde soru ifadesiyle ilişkili olduğu düşünülmektedir. "Geri kalmış" oranları ise iki yılda da birbirine yakındır. Bu yüzden Pap testi maddelerini kullanan 2020 verisi geliştirme kümesi seçildi.</p>
     <p><b>Hedef grup.</b> BRFSS'nin kadın olarak sınıfladığı, 21–65 yaş arası, histerektomi geçirmediğini bildiren (HADHYST2 = 2) ve sonuç etiketi güvenle türetilebilen ABD katılımcıları. Bu tanım güncel klinik uygunluk değerlendirmesinin yerine geçmez.</p>
     <p><b>Sınıflar (USPSTF 2018 aralık vekili).</b> <b>Güncel:</b> son 3 yıl içinde Pap testi <em>veya</em> 30 yaş ve üzerinde son 5 yıl içinde HPV testi. <b>Hiç taranmamış:</b> hem Pap hem HPV için açıkça “hayır”. <b>Geri kalmış:</b> bilinen önceki Pap/HPV testi var, fakat güncel tanımını karşılamıyor. “Bilmiyorum” ve ret yanıtları “hayır” sayılmaz; güvenli sınıflandırılamayan kayıtlar analitik örneklem dışında tutulur. Bunlar anketten türetilmiş araştırma etiketleridir, kişinin klinik kaydından doğrulanmış durum değildir.</p>
     <p><b>Girdiler ve eksik yanıt.</b> İki yılda da aynı biçimde sorulan değişkenler kullanıldı; sigorta "var/yok", gelir sekiz basamak olarak uyumlaştırıldı. Tarama sorularından türeyen hiçbir değişken girdi değildir. Eğitim sırasında anketteki gerçek "bilmiyorum/ret" yanıtı ayrı bir kategoridir. Kullanıcı formunda boş bırakılan alan ise nüfus ortalamasıyla temsil edilir; bu iki eksiklik mekanizması aynı kabul edilmez. Yaş girilmeden tahmin üretilmez.</p>
-    <p><b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).</p>
+    <p><b>Model seçimi.</b> Lojistik regresyon, karar ağacı, random forest, XGBoost, LightGBM, CatBoost ve yapay sinir ağı 5 katlı çapraz doğrulamayla karşılaştırıldı; üç gradyan artırma modeli ayrıca rastgele aramayla ayarlandı. Örneklem ağırlıkları eğitimde ve değerlendirmede kullanıldı (sinir ağı ağırlıksız eğitildi).</p>
     <p><b>Profiller.</b> Derinliği 4 olan ağırlıklı karar ağaçları; biri "hiç taranmamış", diğeri taranmışlar içinde "geri kalmış" için. Oranların güven aralıkları tabaka (_STSTR) ve küme (_PSU) yapısıyla, Taylor doğrusallaştırmasıyla hesaplandı.</p>
     <p><b>Sınırlılıklar.</b> Veriler kesitsel ve öz bildirime dayalıdır; tarama geçmişi olduğundan iyi bildirilme eğilimindedir. Geliştirme verisi 2020 yılına aittir; pandemi sonrası değişimler modele yansımamış olabilir. 2024 değerlendirmesinde sonuç sorusu değişmiştir ve gerçek dış doğrulama değildir. Bireysel olasılıklar için güven aralığı yoktur; alt grup örneklemleri ve tahmin hataları eşit değildir. Bulgular nedensellik göstermez. Sonuçlar yalnız ABD araştırma evreni içindir; başka ülkelere, klinik ortamlara veya özel risk gruplarına doğrudan taşınamaz.</p>
   </div></div>
 </section>
 
 <footer class="card">
-  <b>Sürüm 1.1.0 · 29 Eylül 2026</b>
+  <b>Sürüm 1.2.0 · 4 Ekim 2026</b>
   <span>Model verisi: BRFSS 2020 · Ölçüm değişikliği altında değerlendirme: BRFSS 2024 · Statik, yerel çalışan sayfa.</span>
   <span>Kaynaklar: <a href="https://www.cdc.gov/brfss/annual_data/annual_data.htm">CDC BRFSS yıllık verileri</a> · <a href="https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/cervical-cancer-screening">USPSTF serviks tarama önerisi</a> · <a href="https://www.bmj.com/content/385/bmj-2023-078378">TRIPOD+AI raporlama rehberi</a>.</span>
-  <span>İletişim: Veysel Gider, Batman Üniversitesi. Yazar listesi ve kurumsal iletişim adresi yayımdan önce tamamlanmalıdır.</span>
+  <span>Yazarlar: Veysel Gider, Haluk Damlacıoğlu ve Cafer Budak. İletişim: veysel.gider@batman.edu.tr.</span>
 </footer>
 </div>
 <div id="tip" hidden></div>
@@ -565,6 +564,5 @@ function renderShap(){const host=$('#shap');const top=W.shap.slice(0,18);const m
 $('#base-note').textContent=`güncel ${pct(BASE[0])} · geri kalmış ${pct(BASE[1])} · hiç taranmamış ${pct(BASE[2])}`;$('#base-never').textContent=fmt(W.trees.never.base);$('#base-over').textContent=fmt(W.trees.overdue.base);
 setForm(null);update();setThrClass('never');renderProfiles($('#prof-never'),LV.never,W.trees.never.base,C.never);renderProfiles($('#prof-over'),LV.over,W.trees.overdue.base,C.over);
 renderRev();renderTests();renderDesc();renderFlow();ageChart();renderStates();renderPerf();renderCal();renderShap();
-if(W.build_meta&&W.build_meta.source==='stored_coefficients')$('#model-status-warning').hidden=false;
 let t0='calc';try{t0=localStorage.getItem('tab')||'calc'}catch(e){}selectTab(TABS.some(t=>t[0]===t0)?t0:'calc');
 </script>
