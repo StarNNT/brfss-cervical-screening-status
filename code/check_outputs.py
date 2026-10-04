@@ -1,8 +1,4 @@
-"""Check consistency across outputs from a complete analysis run.
-
-Reference values should be updated only after the revised outcome definition has been
-used throughout the analysis and the resulting outputs have been reviewed.
-"""
+"""Check label integrity and consistency across outputs from a complete run."""
 import json, math, sys
 
 W=json.load(open('out/webdata.json'))

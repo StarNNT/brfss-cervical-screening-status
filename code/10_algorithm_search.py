@@ -1,5 +1,5 @@
-# Random hyperparameter search (LightGBM 24, XGBoost 10, CatBoost 6 configurations) and 5-fold CV of all algorithms in the development set.
-# Slow (about 1.5 hours on 2 cores). Writes out/search_results.json and out/search_best.json, which script 11 reads.
+# Random hyperparameter search (LightGBM 24, XGBoost 10, CatBoost 6 draws) and 5-fold CV of all algorithms in the development set.
+# Slow (roughly 2–4 hours on 2 cores, depending on CatBoost speed). Writes out/search_results.json and out/search_best.json, which script 11 reads.
 import pandas as pd, numpy as np, sys, json, warnings, time; warnings.filterwarnings('ignore'); sys.path.insert(0,'code')
 from harmon import feats, NUM
 import lightgbm as lgb, xgboost as xgb, shap

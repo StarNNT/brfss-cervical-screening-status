@@ -49,7 +49,7 @@ BP=json.load(open('out/search_best.json')); best={k:(None,BP[k]) for k in ['lgb'
 json.dump(dict(cv_best=CVbest,best=BP),open('out/model_cv.json','w'),indent=1)
 # Held-out 2020 evaluation and 2024 temporal evaluation
 # Hyperparameters are those selected by CV in the development subset (out/search_best.json); the held-out predictions come from
-# models fitted to the development subset only, whereas the 2024 (and deployment) predictions come from models refitted to all of
+# models fitted to the development subset only, whereas the 2024 predictions and browser export come from models refitted to all of
 # 2020 with the same hyperparameters, as described in the paper. The refitted LR is identical to the one exported by script 03.
 ALL=np.arange(len(y)); bl=best['lgb'][1]; blp={k:v for k,v in bl.items() if k!='nround'}
 lr=fit_lr(tr); lrF=fit_lr(ALL); P={'Multinomial logistic regression':(lr.predict_proba(Z[te]),lrF.predict_proba(Z24))}
@@ -93,12 +93,12 @@ for gk,js in groups.items():
     contrib=Z[te][:,js]@(coef[:,js].T)  # (n,3)
     d=contrib-contrib[:,[0]]; lr_imp.append([gk,float(np.sqrt(np.average(d[:,1]**2,weights=w[te])-np.average(d[:,1],weights=w[te])**2)),float(np.sqrt(np.average(d[:,2]**2,weights=w[te])-np.average(d[:,2],weights=w[te])**2))])
 lr_imp.sort(key=lambda r:-(r[1]+r[2]))
-# odds ratios (never vs current, overdue vs current) from the deployed model (refitted to all of 2020)
+# odds ratios (never vs current, overdue vs current) from the full-sample model used by the browser prototype
 coefF=lrF.coef_; OR={}
 for gk,js in groups.items():
     if gk in('yas','cocuk'): continue
     OR[gk]=[[cols[j].split('=')[1],float(np.exp(coefF[1,j]-coefF[0,j])),float(np.exp(coefF[2,j]-coefF[0,j]))] for j in js]
 # LightGBM gain importance
 gain=g.feature_importance('gain'); gain=gain/gain.sum()*100
-json.dump(dict(training_note='held-out predictions: models fitted to the 80% development subset; 2024 and deployment predictions: same hyperparameters refitted to the full 2020 sample',holdout=HO,cm=CM,shap_importance=shap_imp,lr_importance=lr_imp,odds_ratios=OR,lgb_gain={TOOL[i]:float(gain[i]) for i in range(len(TOOL))},best_params={k:v[1] for k,v in best.items()},cv_best=CVbest,n_te=int(len(te)),n_tr=int(len(tr))),open('out/model_comparison.json','w'),indent=1)
+json.dump(dict(training_note='held-out predictions: models fitted to the 80% development subset; 2024 predictions and browser export: same hyperparameters refitted to the full 2020 sample',holdout=HO,cm=CM,shap_importance=shap_imp,lr_importance=lr_imp,odds_ratios=OR,lgb_gain={TOOL[i]:float(gain[i]) for i in range(len(TOOL))},best_params={k:v[1] for k,v in best.items()},cv_best=CVbest,n_te=int(len(te)),n_tr=int(len(tr))),open('out/model_comparison.json','w'),indent=1)
 g.save_model('out/tuned_lightgbm.txt'); log('DONE')

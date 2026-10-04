@@ -83,8 +83,10 @@ if audit_path.exists():
 
 template=(ROOT/'web_src'/'template.html').read_text(encoding='utf-8')
 if 'setForm(SAMPLE);update()' in template: fail('the page still auto-loads the sample case')
-for required in ('setForm(null);update()','if(v==null)return null','result-empty','model-status-warning'):
+for required in ('setForm(null);update()','if(v==null)return null','result-empty'):
     if required not in template: fail('required UI safeguard is missing: '+required)
+build_source=(ROOT/'web_src'/'build.py').read_text(encoding='utf-8')
+if 'stored_coefficients' in build_source: fail('web build still permits a stored-coefficient fallback')
 
 if errors:
     for e in errors: print('FAIL',e)
